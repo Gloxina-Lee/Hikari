@@ -20,7 +20,6 @@ include_once('classes/MyAnimeList.php');
 include_once('classes/BilibiliFavList.php');
 include_once('classes/BilibiliFavListCron.php');
 include_once('classes/bangumi.php');
-include_once('classes/Steam.php');
 use Sakura\API\QQ;
 use Sakura\API\Cache;
 use Sakura\API\Captcha;
@@ -74,12 +73,6 @@ add_action('rest_api_init', function () {
     register_rest_route('sakura/v1', '/bangumi', array(
         'methods' => 'POST',
         'callback' => 'bgm_bangumi',
-        'permission_callback' => '__return_true'
-    )
-    );
-    register_rest_route('sakura/v1', '/steam', array(
-        'methods' => 'POST',
-        'callback' => 'steam_library',
         'permission_callback' => '__return_true'
     )
     );
@@ -347,21 +340,6 @@ function bfv_bilibili(WP_REST_Request $request)
     $bgm = new \Sakura\API\Bilibili();
     $html = preg_replace("/\s+|\n+|\r/", ' ', $bgm->get_bfv_items($page));
     return new WP_REST_Response($html, 200);
-}
-
-function steam_library(WP_REST_Request $request)
-{
-    if (!sakura_verify_rest_request_nonce($request)) {
-        $response = array(
-            'status' => 418,
-            'success' => false,
-            'message' => 'Unauthorized client.'
-        );
-        return new WP_REST_Response($response, 418);
-    }
-    $page = intval($request->get_param('page')) ?: 1;
-    $SteamList = new \Sakura\API\Steam();
-    return $SteamList->get_steam_items($page);
 }
 
 function favlist_bilibili(WP_REST_Request $request)

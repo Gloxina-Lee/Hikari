@@ -11,7 +11,6 @@ import debounce from '@mui/utils/debounce'
 import { code_highlight_style } from '../common/code-highlight'
 import prepareEmoji from './emoji'
 import initLinkSubmission from './link_form'
-import init_steamCard from './steam_card'
 import ghcardTheme from './ghcard_theme'
 import initTimeArchive from './time_archive'
 import bili_fav_init from './bili_fav'
@@ -493,7 +492,6 @@ function whilePjaxComplete() {
         resizeTOC()
         apply_post_theme_color();
         initLinkSubmission();
-        init_steamCard();
         initTimeArchive();
     } catch (e) {
         console.warn(e)
@@ -513,7 +511,6 @@ function whileLoaded() {
     apply_post_theme_color();
     document.addEventListener('ajax_comment_complete', afterAjaxCommentComplete)
     initLinkSubmission();
-    init_steamCard();
     initTimeArchive();
     bili_fav_init();
     init_comment_captcha();

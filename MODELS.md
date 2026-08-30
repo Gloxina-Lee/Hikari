@@ -160,16 +160,6 @@
   - 从 page.js 移除 bili_fav.js 并重构建
   - 删除模板名翻译、后台选项、缓存管理操作
   - 清理 bilibili_favlist_update_cron 和相关 transients
-16. Steam 模块
-- 功能：Steam 游戏库页面、游戏卡片、玩家资料短代码、商店/CDN 切换和缓存。
-- 文件：
-  - 页面：user/page-steam.php
-  - PHP：inc/classes/Steam.php、inc/api.php 的 /steam、functions.php 的 [steamuser] 短代码和 iro_act=steam_library
-  - JS：page.js 中 steam_card.js
-  - CSS：页面模板内联样式、style.css:5584-5716、dark.css、responsive.css
-  - 设置：theme-options.php:2966-3010
-- 依赖：Steam Web API Key、REST、缓存管理页、短代码模块。
-- 完全删除：删除模板、类、REST 路由、短代码、管理直连分支、设置和缓存操作；移除 steam_card.js 并重构建；可清理 steam_cache transient。
 17. 友情链接、访客提交和状态监控
 - 功能：读取 WordPress Link Manager 链接；按分类/名称/更新时间/评分排序；提供访客提交表单；自动建立待审核分类；每周检查失效链接并邮件通知；后台状态页和批量检测。
 - 文件：
@@ -271,3 +261,13 @@
   - 设置：theme-options.php:886-980
 - 依赖：REST、cURL、外部音乐平台、全站页脚。
 - 完全删除：删除页脚播放器节点、REST 路由、两个类、_iro.float_player_on/meting_api_url、设置字段；从前端源码移除 APlayer 动态导入并重构建，再删除 6004.js。
+16. Steam 模块
+- 功能：Steam 游戏库页面、游戏卡片、玩家资料短代码、商店/CDN 切换和缓存。
+- 文件：
+  - 页面：user/page-steam.php
+  - PHP：inc/classes/Steam.php、inc/api.php 的 /steam、functions.php 的 [steamuser] 短代码和 iro_act=steam_library
+  - JS：page.js 中 steam_card.js
+  - CSS：页面模板内联样式、style.css:5584-5716、dark.css、responsive.css
+  - 设置：theme-options.php:2966-3010
+- 依赖：Steam Web API Key、REST、缓存管理页、短代码模块。
+- 完全删除：删除模板、类、REST 路由、短代码、管理直连分支、设置和缓存操作；移除 steam_card.js 并重构建；可清理 steam_cache transient。
