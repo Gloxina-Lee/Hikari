@@ -1,0 +1,268 @@
+1. 主题启动、基础能力与设置存储
+- 功能：定义版本、加载语言包、注册主导航、缩略图、HTML5、文章格式、小工具、标题支持；通过 iro_options 和 iro_opt() 向其他模块提供设置；选择资源 CDN。
+- 文件：
+  - PHP：functions.php:11-234、opt/option-framework.php、opt/options/theme-options.php、opt/classes/、opt/fields/、opt/functions/
+  - CSS/JS：opt/assets/css/、opt/assets/js/，只服务后台设置页
+  - 语言：languages/、opt/languages/
+- 依赖：几乎所有模块都直接依赖 iro_opt()；这是整个主题最核心的横向依赖。
+- 完全删除：无法在主题继续工作的前提下直接删除。必须先替换 iro_opt()/iro_opt_update()，并处理整个仓库中所有 iro_opt(...) 调用。若只移除后台设置 UI，可以保留读取函数和默认值，再删除 opt/ 的后台注册代码。
+2. 在线更新、版本遥测和主题维护
+- 功能：从 GitHub/官方源检查更新；首次启用提示是否允许版本统计；检查并尝试修正主题目录名；显示权限警告。
+- 文件：
+  - PHP：functions.php:73-95、functions.php:1850-2120、functions.php:2689-2714、functions.php:4470-4540、update-checker/
+  - 设置：theme-options.php 中更新源、更新通道、版本统计相关字段
+- 依赖：依赖 Codestar 设置、WordPress Cron、文件系统 API。业务模块不依赖更新器本身。
+- 完全删除：
+  - 删除更新器 require、PucFactory、UpdateCheck() 和更新源 switch
+  - 删除 update-checker/
+  - 删除后台授权通知、目录检查、iro_act=del_exist_theme 分支
+  - 删除版本统计设置与 daily_event 注册，并清理已存在的计划任务
+3. Customizer、动态样式和缓存管理
+- 功能：Kirki 可视化实时预览；把 Customizer 的 theme_mod 同步回 iro_options；输出大量设置驱动的动态 CSS；提供外部数据缓存管理页。
+- 文件：
+  - PHP：[customizer.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\inc\\customizer.php)、inc/kirki/、inc/decorate.php、inc/cache_settings.php、inc/option-scheme.php、inc/dash-scheme.php
+  - 入口：functions.php:630-687、functions.php:2130-2197
+  - CSS：css/dashboard-emoji-fix.css；大量前台 CSS 由 inc/decorate.php 内联生成
+- 依赖：Customizer 依赖 Kirki；动态样式依赖 iro_options；缓存页依赖 Bilibili、Bangumi、Steam 等模块的 transient。
+- 完全删除：
+  - 删除 customize_register、customize_save_after 钩子和相关 require
+  - 删除 inc/customizer.php 与 inc/kirki/
+  - 删除 inc/decorate.php 前需把必要动态 CSS 固化，否则主题颜色、字体、背景和布局会丢失
+  - 删除缓存管理页时，同时移除 functions.php:650 的加载和相关后台菜单
+  - Codestar 主设置仍在使用，不能随 Kirki 一并删除
+4. CSS/JS 资源管线、PJAX 与公共前端运行时
+- 功能：选择本地/CDN 资源；合并、压缩 CSS；加载全站交互；按需加载 PJAX、代码高亮、图库、播放器、粒子等动态 chunk。
+- 文件：
+  - PHP：functions.php:501-625、[swicher.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\inc\\swicher.php)、[css/index.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\css\\index.php)
+  - JS：js/app.js、js/page.js、js/polyfill.js、js/nav.js、js/smoothscroll.js、所有数字命名 chunk
+  - CSS：style.css、css/dark.css、responsive.css、animation.css、templates.css、内容样式等
+- 依赖：所有前台模块都依赖它。swicher.php 生成的全局 _iro 对象连接 PHP 设置、REST 地址和 JS。
+- 完全删除：只能在重写整个前端后删除。若移除单项功能，需要先在上游 sakurairo-scripts/src/... 删除源码并重新构建，再删除旧 chunk。
+- 重要限制：仓库没有前端 package.json、锁文件或构建配置；源码仅嵌入 source map。直接删除某个数字 chunk 可能导致 Webpack 运行时出现 404。
+5. 全站外壳：导航、封面、页脚、搜索和小工具面板
+- 功能：两种导航样式、移动菜单、用户菜单、首页/文章封面、视频封面、搜索弹层、换肤面板、页脚信息、粒子背景和浮动小工具。
+- 文件：
+  - PHP：[header.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\header.php)、[footer.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\footer.php)、layouts/sakura_header.php、layouts/imgbox.php、layouts/mo_toc_menu.php、layouts/sidebox.php、layouts/all_opt.php
+  - PHP 辅助：inc/theme-plus.php 中 bgvideo()、header_user_menu()、Iro_mo_nav
+  - JS：js/nav.js；app.js 中 coverBackground、darkmode、font_control、footer、mobile、search、video、effect
+  - 动态 chunk：1930.js（HLS）、1047.js（particles.js）、4493.js/5809.js（落花/雪）
+  - CSS：style.css、dark.css、responsive.css、sakura_header.css、wave.css、animation.css
+- 依赖：依赖主导航注册、主题选项、图库随机图、文章缩略图、用户系统；页脚还承载评论和 APlayer。
+- 完全删除：必须提供新的 header.php/footer.php 替代；修改所有根模板和 user/*.php 的 get_header()/get_footer()；删除对应 Customizer/Codestar 字段、_iro 配置键、JS 初始化和 CSS。
+- 补充：sidebar.php 实际明确禁用了传统 get_sidebar()；真正的侧栏是 layouts/sidebox.php 和页脚中的 sakura_widget。
+6. 首页组件编排与 Bento 展示区
+- 功能：根据 homepage_components 顺序渲染静态页面、展示区和文章列表；展示站点统计、公告、随机友链、徽章和自定义卡片。
+- 文件：
+  - PHP：[index.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\index.php)、[exhibition.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\exhibition.php)、tpl/content-thumb.php、tpl/content-thumbcard.php
+  - 统计：functions.php:4232-4400
+  - JS：app.js 中 animations/medal_effects.js
+  - CSS：style.css:5761 起的 exhibition/Bento/medal 样式、dark.css、responsive.css
+  - 设置：theme-options.php:2168-2490、customizer.php 的首页区域
+- 依赖：依赖文章列表、字数统计、浏览量、友情链接、管理员在线时间；浏览量可选依赖 WP-Statistics。
+- 完全删除：
+  - 从首页组件选项中移除 exhibition
+  - 删除 index.php 对 exhibition.php 的调用及 exhibition.php
+  - 删除徽章 JS 初始化和对应 CSS
+  - get_site_stats()、管理员在线记录钩子可删除
+  - get_archive_info() 仍被归档时间线使用，不能一起删，除非归档模块也删除
+7. 文章列表、搜索、分类/作者归档、分页与 404
+- 功能：WordPress 主循环、置顶文章、卡片列表、搜索类型过滤、分类图像、Ajax/传统分页、作者页和自定义 404。
+- 文件：
+  - PHP：archive.php、author.php、search.php、404.php、tpl/content-thumb.php、content-thumbcard.php、content-search.php、content-none.php
+  - 分类图像：inc/categories-images.php
+  - JS：app.js 中 post_list.ts、search.ts；page.js 中 pagination.ts
+  - CSS：style.css、responsive.css、css/templates.css
+- 依赖：文章元数据、浏览量、AI 摘要、说说、自定义分类图片。
+- 完全删除：
+  - 必须提供新的模板层级文件，否则 WordPress 会逐级退回 index.php
+  - 删除搜索、分页、分类图片选项和钩子
+  - 从前端源中移除 search、post_list、pagination 初始化并重构建
+  - 只删除 404.php 时，404 会退回 index.php，不会影响其他模块
+8. “说说”自定义文章类型
+- 功能：注册 shuoshuo CPT；提供情绪图标和颜色；在首页、搜索、作者页和归档统计中作为特殊卡片显示。
+- 文件：
+  - PHP：functions.php:281-483、tpl/content-thumb.php、tpl/content-thumbcard.php
+  - 编辑器：inc/blocks/iro_blocks.php、inc/blocks/build/index.js 中的相关编辑支持
+  - CSS：style.css:4432-4540
+  - 设置：搜索说说、首页显示说说等字段
+- 依赖：首页列表、搜索、归档时间线、站点统计、文章浏览量和字数统计。
+- 完全删除：
+  - 删除 CPT、emotion 元数据注册和 Meta Box
+  - 从查询调整、首页卡片、搜索过滤、归档查询和统计代码中移除 shuoshuo
+  - 删除对应设置和 CSS
+  - 已有 shuoshuo 数据仍会保留在 wp_posts，但不再有公开入口；需要迁移或另行清理数据
+9. 单篇文章、普通页面、文章元数据与阅读增强
+- 功能：文章/页面正文、头图、视频头图、作者/分类/浏览量/字数/阅读时间、TOC、主题色提取、版权协议、打赏、标签和前后篇。
+- 文件：
+  - PHP：single.php、page.php、tpl/content-single.php、content-page.php、single-entry-header.php、entry-census.php、section-article-function.php、layouts/post-nextprev.php
+  - 辅助：inc/post_metas.php、inc/word-stat.php、inc/article-highlight.php、inc/theme-plus.php
+  - JS：page.js；8915.js（tocbot）；theme-color-worker.js、6678.js
+  - CSS：style.css 的 entry/TOC/post-footer/nextprev；两套 css/content-style/*.css；dark.css、responsive.css
+- 依赖：缩略图、文章 Meta、评论、AI 摘要、图片模块、主题设置。
+- 完全删除：
+  - 需要提供新的 single.php、page.php
+  - 移除 count_post_words、文章主题色保存钩子、article-highlight.php 的条件加载
+  - 删除 _iro.post_theme_color、TOC 初始化、tocbot chunk 和相关设置/CSS
+  - 删除标题样式与 license Meta Box
+  - post_words_count、post_theme_color 等已有 postmeta 可保留，也可后续迁移清理
+10. 评论系统
+- 功能：嵌套评论、Ajax 提交/分页、邮件回复通知、私密评论、Markdown、表情、QQ 头像、IP 属地、浏览器/系统标识和评论图片。
+- 文件：
+  - PHP：[comments.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\comments.php)、functions.php:695-785、1199-1708、2393-2655、inc/theme-plus.php:132-261、676-695、inc/Parsedown.php、inc/classes/QQ.php、inc/classes/IpLocation.php
+  - 模板入口：footer.php:15
+  - JS：page.js 中 AddComment.ts、emoji.js、getqqinfo.js、gravatar.ts、Ajax 评论逻辑
+  - CSS：style.css 的 comments/comment-respond/emotion/markdown 区域、dark.css、responsive.css
+- 依赖：验证码、图片上传、REST API、邮件、用户系统。
+- 完全删除：
+  - 删除 footer.php 的 comments_template()
+  - 删除 comments.php 和 Ajax 评论钩子
+  - 删除评论通知、私密、Markdown、表情、QQ、IP 属地、UA 相关过滤器
+  - 从 page.js 源移除评论模块并重构建，删除 CSS 和评论设置
+  - WordPress 数据库中的历史评论不会自动删除
+  - 若只是不需要增强功能，建议换成原生 comments.php，而不是关闭整个评论体系
+11. 验证码、登录页与后台外观
+- 功能：内建图片验证码、VAPTCHA、Cloudflare Turnstile；同时应用于登录/注册/找回密码、评论和友链提交；自定义登录背景、Logo 和后台配色。
+- 文件：
+  - PHP：functions.php:1148-1197、1750-1842、2130-2197、3218-3620
+  - 类：inc/classes/Captcha.php、Vaptcha.php、Turnstile.php
+  - 评论验证：inc/theme-plus.php:157-209、comments.php
+  - REST：inc/api.php 的 /captcha/create
+  - JS：page.js 中 comment_captcha.js；登录页有 functions.php 内联 JS
+  - CSS：css/dashboard-emoji-fix.css、登录页内联 CSS、评论验证码样式
+- 依赖：评论模块和友链提交都复用内建验证码；Turnstile 依赖外部 Cloudflare 脚本。
+- 完全删除：
+  - 删除登录/注册/找回密码的条件钩子
+  - 删除评论表单验证码、pre_comment_on_post 校验
+  - 删除友链表单验证码字段与服务端验证
+  - 删除 REST 验证码路由、三个类、_iro.captcha_endpoint 和前端初始化
+  - 删除后台设置字段
+  - 若只删除登录验证码，不能删除共享类和 REST 路由，除非评论和友链也不再使用
+12. 图片、图库、懒加载、灯箱和分类图像
+- 功能：随机图库、评论图片上传、Chevereto/Imgur/SM.MS 等上传后端、图片 CDN 替换、WebP 支持、懒加载、Fancybox/BaguetteBox/LightGallery、分类封面图。
+- 文件：
+  - PHP：inc/api.php 的 /image/upload、/gallery；inc/classes/Images.php、gallery.php、Cache.php；inc/categories-images.php
+  - 内容转换：functions.php:1059-1072、1396-1406、2285-2390、2478-2496、3198-3214
+  - JS：app.js 的 lazyload.ts、coverBackground.ts；page.js 的评论上传；4252.js 和 lg-*.js（LightGallery）、494.js（BaguetteBox）、7569.js/7639.js（Fancybox）
+  - CSS：style.css、dark.css、responsive.css，以及分类/上传页面内联样式
+- 依赖：封面、文章正文、评论、分类归档都依赖该模块的不同部分。
+- 完全删除：
+  - 删除相关 REST 路由和服务类
+  - 将随机封面改为固定图片或外部地址
+  - 移除评论上传 UI、_iro.comment_upload_img 和上传 JS
+  - 移除 html_tag_parser、图片 CDN、WebP 和分类图片钩子
+  - 从前端源码去掉灯箱导入后重构建，再删除相关 chunk
+  - 已有媒体库图片不会受影响
+13. AI 辅助阅读
+- 功能：调用兼容 OpenAI Chat Completions 的接口生成文章摘要和术语解释；保存 postmeta；在正文中插入注释标记；提供后台生成、编辑和删除界面。
+- 文件：
+  - PHP：[hooks.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\inc\\chatgpt\\hooks.php)、inc/chatgpt/chatgpt.php、inc/chatgpt/aigc-manage.php
+  - 加载：functions.php:1817-1818、inc/api.php:118-153
+  - 模板：tpl/content-single.php、tpl/content-thumbcard.php
+  - JS：page.js 中 annotation.js
+  - CSS：style.css:5717-5760
+  - 设置：theme-options.php:3489-3680
+- 依赖：REST API、文章保存钩子、the_content/the_excerpt、_iro.page_annotation。
+- 完全删除：
+  - 删除 ChatGPT hooks 的加载和 apply_chatgpt_hook()
+  - 删除 /chatgpt、/chatgpt/annotate REST 路由
+  - 删除后台菜单和 Meta Box
+  - 删除单篇/列表中的 AI 摘要输出
+  - 从 swicher.php 删除 annotation 配置；从 page.js 移除 annotation.js 并重构建
+  - 删除设置和 CSS
+  - 可选清理 ai_summon_excerpt、iro_chatgpt_annotations postmeta；不清理也不会影响运行
+14. 音乐播放器
+- 功能：APlayer 浮动播放器；通过 Meting 聚合网易云、QQ、酷狗等歌单数据；支持自定义音乐 API。
+- 文件：
+  - PHP：footer.php:143-153、inc/api.php 的 /meting/aplayer、inc/classes/Aplayer.php、Meting.php
+  - _iro：inc/swicher.php:123-129
+  - JS：6004.js（APlayer）及 app.js 中动态导入
+  - CSS：style.css 和 dark.css 中 .aplayer
+  - 设置：theme-options.php:886-980
+- 依赖：REST、cURL、外部音乐平台、全站页脚。
+- 完全删除：删除页脚播放器节点、REST 路由、两个类、_iro.float_player_on/meting_api_url、设置字段；从前端源码移除 APlayer 动态导入并重构建，再删除 6004.js。
+15. Bangumi、Bilibili 追番和收藏夹
+- 功能：Bangumi、MyAnimeList、Bilibili 追番列表；Bilibili 收藏夹目录、分页和视频弹窗；收藏数据定时缓存。
+- 文件：
+  - 页面：[page-bangumi.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\user\\page-bangumi.php)、page-followVideos.php、page-bilibiliFavList.php
+  - 类：inc/classes/bangumi.php、MyAnimeList.php、Bilibili.php、BilibiliFavList.php、BilibiliFavListCron.php、Cache.php
+  - REST：inc/api.php 中 /bangumi、/bangumi/bilibili、/movies/bilibili、/favlist/bilibili*
+  - JS：page.js 中 bili_fav.js
+  - CSS：主要位于三个页面模板的内联 <style>，另有 dark.css/responsive.css
+  - 设置：theme-options.php:2801-2910
+- 依赖：REST、外部 API、缓存管理页、WP Cron、Bilibili Cookie/用户 ID。
+- 完全删除：
+  - 删除三个用户页面模板
+  - 删除六个服务类及 api.php 中的加载和路由
+  - 删除 functions.php:640-646 的收藏夹 Cron 初始化
+  - 从 page.js 移除 bili_fav.js 并重构建
+  - 删除模板名翻译、后台选项、缓存管理操作
+  - 清理 bilibili_favlist_update_cron 和相关 transients
+16. Steam 模块
+- 功能：Steam 游戏库页面、游戏卡片、玩家资料短代码、商店/CDN 切换和缓存。
+- 文件：
+  - 页面：user/page-steam.php
+  - PHP：inc/classes/Steam.php、inc/api.php 的 /steam、functions.php 的 [steamuser] 短代码和 iro_act=steam_library
+  - JS：page.js 中 steam_card.js
+  - CSS：页面模板内联样式、style.css:5584-5716、dark.css、responsive.css
+  - 设置：theme-options.php:2966-3010
+- 依赖：Steam Web API Key、REST、缓存管理页、短代码模块。
+- 完全删除：删除模板、类、REST 路由、短代码、管理直连分支、设置和缓存操作；移除 steam_card.js 并重构建；可清理 steam_cache transient。
+17. 友情链接、访客提交和状态监控
+- 功能：读取 WordPress Link Manager 链接；按分类/名称/更新时间/评分排序；提供访客提交表单；自动建立待审核分类；每周检查失效链接并邮件通知；后台状态页和批量检测。
+- 文件：
+  - 页面：[page-links.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\user\\page-links.php)
+  - PHP：functions.php:869-940、3751-4216、inc/link-status.php
+  - JS：page.js 中 link_form.js
+  - CSS：主要位于 page-links.php 内联样式，公共部分在 style.css
+  - 设置：theme-options.php:2914-2958
+- 依赖：WordPress Link Manager、内建验证码、邮件、Cron；首页展示区也会读取友链数量和随机友链。
+- 完全删除：
+  - 删除友链页面模板、查询/输出函数、提交 Ajax handler
+  - 删除 inc/link-status.php 加载、后台页面和批量计划事件
+  - 移除 link_form.js 并重构建
+  - 从首页展示统计中删除 link count/random link
+  - 删除设置字段
+  - 清理 sakurairo_weekly_link_check 和批次计划任务；链接数据本身仍保留在 WordPress 链接表中
+18. 归档时间线与站点统计
+- 功能：按年、月、分类显示文章和说说；弹窗统计文章数、浏览量、字数和评论数；向首页展示区提供全站统计。
+- 文件：
+  - 页面：[page-archive.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\user\\page-archive.php)
+  - PHP：functions.php:3645-3747、functions.php:4232-4400
+  - REST：inc/api.php 的 /archive_info
+  - JS：page.js 中 time_archive.js
+  - CSS：几乎全部在 page-archive.php 内联样式
+- 依赖：说说、文章浏览量、字数 postmeta、分类、首页展示区。
+- 完全删除：
+  - 删除归档页面模板和 /archive_info
+  - 删除 get_archive_info()；但必须同步改写 get_site_stats() 或一并删除首页统计
+  - 从 page.js 移除 time_archive.js 并重构建
+  - 删除归档模板名翻译
+  - 现有文章数据不受影响
+19. 短代码、Gutenberg、代码高亮和数学公式
+- 功能：提供 task、warning、noway、buy、ghcard、showcard、conversations、collapse、vbilibili、steamuser、checkbox、label、progressbar、hidden、文章时间等短代码；扩展 Gutenberg 代码块语言属性；支持 Prism、Highlight.js、MathJax。
+- 文件：
+  - PHP：functions.php:2717-3195、inc/blocks/iro_blocks.php
+  - 编辑器 JS：inc/blocks/build/index.js
+  - 前端 JS：page.js 中 ghcard_theme.js、artile_attachment/
+  - 动态 chunk：
+    - 1183.js、132.js、331.js、3428.js、528.js、6941.js、7946.js、8598.js、8693.js、9394.js、9773.js：Highlight.js
+    - 2287.js、3818.js、4575.js、9653.js：Prism
+    - 9844.js：行号
+    - 4247.js：MathJax
+  - CSS：css/shortcodes.css、两套内容样式、编辑器加载的 Font Awesome
+- 依赖：部分短代码依赖 GitHub、Bilibili、Steam；代码高亮依赖页面前端包。
+- 完全删除：
+  - 删除 register_shortcodes() 和 init 钩子
+  - 删除 inc/blocks 加载和编辑器资源
+  - 从 page.js 源移除高亮、数学、GitHub/Steam 卡片模块后重构建
+  - 删除短代码 CSS 和不再被引用的动态 chunk
+  - 已发布文章中的短代码不会自动转换，删除后可能直接显示原始 [shortcode] 文本，必须先迁移内容
+20. SEO、Feed、URL 与第三方兼容层
+- 功能：输出关键词/描述；RSS 加特色图；Gravatar 代理；图片上传目录/CDN；移除分类 URL 基础；Jetpack 无限滚动/响应式视频；搜索空结果返回 404；兼容 WP-Statistics。
+- 文件：
+  - PHP：functions.php:943-1145、1653-1687、2200-2280、4409-4457
+  - URL/内容增强：inc/theme-plus.php:513-659
+  - JS/CSS：无独立文件，主要依赖公共前端包
+  - 设置：SEO、Gravatar、CDN、Jetpack、分类 URL 等字段位于 theme-options.php
+- 依赖：WordPress 查询、Feed、可选插件 Jetpack/WP-Statistics。
+- 完全删除：逐项移除对应 filter/action 和设置即可；不要整段删除 inc/theme-plus.php，因为它还包含导航、评论、文章头图和打赏等其他模块。移除分类基础功能后需要重新保存固定链接以刷新 rewrite rules。

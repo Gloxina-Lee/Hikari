@@ -61,7 +61,6 @@
 
 - 本主题使用 Codestar [Codestar Framework](https://github.com/Codestar/codestar-framework) 作为设置框架
 
-- 本主题使用 YahnisElsts [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) 以提供主题更新功能
 
 - 本主题使用 Themeum [Kirki](https://github.com/themeum/kirki) 以提供可视化编辑器相关功能
 

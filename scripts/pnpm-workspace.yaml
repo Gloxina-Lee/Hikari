@@ -1,0 +1,4 @@
+allowBuilds:
+  baguettebox.js: false
+  canvas: false
+  core-js: false

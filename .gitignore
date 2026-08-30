@@ -1,3 +1,7 @@
 tempCodeRunnerFile.php
 .vscode
 inc/blocks/node_modules
+node_modules
+.wp-env.override.json
+.js-sync-*
+js.backup-*

@@ -1,0 +1,22 @@
+{
+  "name": "sakurairo-development",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local development tooling for the Sakurairo WordPress theme.",
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "wp:start": "wp-env start",
+    "wp:stop": "wp-env stop",
+    "wp:status": "wp-env status",
+    "wp:logs": "wp-env logs development",
+    "wp:reset": "wp-env reset development",
+    "frontend:install": "pnpm --dir scripts install --frozen-lockfile",
+    "frontend:build": "pnpm --dir scripts run build",
+    "frontend:watch": "pnpm --dir scripts run watch",
+    "assets:check": "node scripts/sync-dist.mjs --check",
+    "assets:deploy": "node scripts/sync-dist.mjs --write"
+  },
+  "devDependencies": {
+    "@wordpress/env": "11.14.0"
+  }
+}
