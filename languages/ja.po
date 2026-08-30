@@ -1,0 +1,1960 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Sakurairo\n"
+"POT-Creation-Date: 2025-05-06 18:16+0900\n"
+"PO-Revision-Date: 2025-05-06 18:16+0900\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.4\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: style.css\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+"X-Poedit-SearchPathExcluded-1: inc/kirki\n"
+"X-Poedit-SearchPathExcluded-2: opt\n"
+"X-Poedit-SearchPathExcluded-3: inc/customizer.php\n"
+"X-Poedit-SearchPathExcluded-4: update-checker\n"
+"X-Poedit-SearchPathExcluded-5: js\n"
+
+#: 404.php:188
+msgid "Page Not Found"
+msgstr "お探しのページが見つかりません。"
+
+#: 404.php:191
+msgid ""
+"The page you are looking for might have been removed, had its name changed, "
+"or is temporarily unavailable."
+msgstr ""
+"お探しのページは、削除されたか、名前が変更されたか、一時的に利用できなくなっ"
+"ている可能性があります。"
+
+#: 404.php:202 header.php:194 layouts/sakura_header.php:74 search.php:176
+msgid "Search..."
+msgstr "検索…"
+
+#: archive.php:42 author.php:55 index.php:61
+msgid " Previous"
+msgstr " 前へ"
+
+#: author.php:15
+msgid "No personal profile set yet"
+msgstr "個人プロファイルはまだ設定されていません"
+
+#: comments.php:53
+msgid "Woooooow ヾ(≧∇≦*)ゝ"
+msgstr "うわーうわーヾ(≧∇≦*)ゝ"
+
+#: comments.php:75
+msgid "view comments"
+msgstr "コメントを表示する"
+
+#: comments.php:84 inc/post_metas.php:82
+msgid "NOTHING"
+msgstr "何もない"
+
+#: comments.php:86 comments.php:97
+msgid " comment"
+msgstr " コメント"
+
+#: comments.php:88 comments.php:97
+msgid " comments"
+msgstr " コメント"
+
+#: comments.php:117
+msgid "no comment"
+msgstr "コメントはありません"
+
+#: comments.php:132
+msgid "Click here to show captcha"
+msgstr "ここをクリックして認証を開始"
+
+#: comments.php:179
+msgid "Comment in private"
+msgstr "プライベートでコメント"
+
+#: comments.php:182
+msgid "Comment reply notify"
+msgstr "コメント返信通知"
+
+#: comments.php:210
+msgid "Leave a Reply to"
+msgstr "返信を残す"
+
+#: comments.php:211
+msgid "Cancel Reply"
+msgstr "返信をキャンセル"
+
+#: comments.php:234
+msgid "Nickname or QQ number"
+msgstr "ニックネーム または QQ 番号"
+
+#: comments.php:234 comments.php:238
+msgid "Must* "
+msgstr "必須* "
+
+#: comments.php:235
+msgid "Auto pull nickname and avatar with a QQ num. entered"
+msgstr "QQ 番号が入力された自動プルニックネームとアバター"
+
+#: comments.php:238
+msgid "email"
+msgstr "メールアドレス"
+
+#: comments.php:239
+msgid "You will receive notification by email"
+msgstr "メールで通知を受け取ります"
+
+#: comments.php:242
+msgid "Site"
+msgstr "サイト"
+
+#: comments.php:243
+msgid "Advertisement is forbidden 😀"
+msgstr "AD は禁止されています"
+
+#: comments.php:255
+msgid "Save your private info"
+msgstr "個人情報を保存"
+
+#: exhibition.php:31
+msgid "Content Count"
+msgstr "コンテンツ数"
+
+#: exhibition.php:32
+msgid "posts"
+msgstr "ポスト"
+
+#: exhibition.php:40
+msgid "Comment Count"
+msgstr "コメント数"
+
+#: exhibition.php:41
+msgid "comments"
+msgstr "コメント"
+
+#: exhibition.php:49
+msgid "Visitor Count"
+msgstr "訪問者数"
+
+#: exhibition.php:50
+msgid "visits"
+msgstr "訪問"
+
+#: exhibition.php:58
+msgid "Link Count"
+msgstr "リンク数"
+
+#: exhibition.php:59
+msgid "links"
+msgstr "リンク"
+
+#: exhibition.php:67
+msgid "Author Count"
+msgstr "著者数"
+
+#: exhibition.php:68
+msgid "authors"
+msgstr "著者"
+
+#: exhibition.php:76
+msgid "Total Words"
+msgstr "総語数"
+
+#: exhibition.php:77
+msgid "words"
+msgstr "ワード"
+
+#: exhibition.php:85
+msgid "Blog Running"
+msgstr "ブログランニング"
+
+#: exhibition.php:86
+msgid "days"
+msgstr "日"
+
+#: exhibition.php:94
+msgid "Last Online"
+msgstr "最後オンライン"
+
+#: exhibition.php:103
+msgid "Latest Announcement"
+msgstr "最新のお知らせ"
+
+#: exhibition.php:127
+msgid "Gold Blogger"
+msgstr "流光遷徙"
+
+#: exhibition.php:132
+msgid ""
+"The string of creation has vibrated the membrane, each resonance weaving the "
+"warp and weft of spacetime thoughts."
+msgstr ""
+"創造の弦は膜状の層を振動させ、それぞれの共鳴が空間と時間の中で思考の縦糸と横"
+"糸を織りなしている。"
+
+#: exhibition.php:139
+msgid "Silver Blogger"
+msgstr "刻入年輪"
+
+#: exhibition.php:144
+msgid ""
+"The wheel of creation has engaged the gears, each component calibrating the "
+"temporal precision of your blog."
+msgstr ""
+"創造の輪は歯車を噛み合わせ、各パーツがブログのタイミングの精度を調整してい"
+"る。"
+
+#: exhibition.php:145 exhibition.php:158
+#, php-format
+msgid "%s more days to next level"
+msgstr "次のレベルまであと %s 日"
+
+#: exhibition.php:152
+msgid "Bronze Blogger"
+msgstr "時光漣漪"
+
+#: exhibition.php:157
+msgid ""
+"The ship of creation has set sail, each wave carving the depth markers of "
+"your blog's journey."
+msgstr ""
+"クリエイティビティという名の船は出航し、それぞれの波跡がブログという深い烽火"
+"を刻む。"
+
+#: exhibition.php:175
+msgid "Gold Popularity"
+msgstr "如振落葉"
+
+#: exhibition.php:180
+msgid ""
+"You have planted a garden of wisdom, its fragrance now discovered by distant "
+"butterflies."
+msgstr "あなたは知恵の花を植え、その香りを遠くから蝶が発見している。"
+
+#: exhibition.php:187
+msgid "Silver Popularity"
+msgstr "声聞遐迩"
+
+#: exhibition.php:192
+msgid ""
+"You have illuminated the star chart of reading, each piece of writing "
+"flowing through the galaxy."
+msgstr "あなたは読書の星図を照らし、それぞれの文章は銀河を流れる。"
+
+#: exhibition.php:193 exhibition.php:206
+#, php-format
+msgid "%s more visits to next level"
+msgstr "次のレベルまであと %s 回"
+
+#: exhibition.php:200
+msgid "Bronze Popularity"
+msgstr "濫觞所始"
+
+#: exhibition.php:205
+msgid ""
+"You have built a harbor of knowledge, the ripples of thought continuously "
+"spreading."
+msgstr "あなたは知識の港を築き、アイデアの波紋は広がっている。"
+
+#: exhibition.php:223
+msgid "Gold Friendship"
+msgstr "揮袂成雲"
+
+#: exhibition.php:228
+msgid ""
+"The world of friendship has no boundaries, the starry river will mark your "
+"position."
+msgstr "友達作りの世界に境界線はなく、星の川があなたの方向性を示してくれる。"
+
+#: exhibition.php:235
+msgid "Silver Friendship"
+msgstr "呼朋引伴"
+
+#: exhibition.php:240
+msgid ""
+"The network of friendship has been laid out, each resonance will eventually "
+"echo."
+msgstr "友情のネットワークは広がり、それぞれの共鳴はやがて反響する。"
+
+#: exhibition.php:241 exhibition.php:254
+#, php-format
+msgid "%s more links to next level"
+msgstr "次のレベルまであと %s つ"
+
+#: exhibition.php:248
+msgid "Bronze Friendship"
+msgstr "初遇同好"
+
+#: exhibition.php:253
+msgid ""
+"The journey of making friends has just begun, each encounter marks a new "
+"chapter."
+msgstr "友達を作る旅は始まったばかりで、出会いのひとつひとつが新しい章となる。"
+
+#: exhibition.php:271
+msgid "Gold Author"
+msgstr "映雪囊蛍"
+
+#: exhibition.php:276
+msgid ""
+"The power of words has blossomed in your hands, rich creations have gathered "
+"into an ocean."
+msgstr "言葉の力はあなたの手の中で開花し、創造の豊かさは海に集まった。"
+
+#: exhibition.php:283
+msgid "Silver Author"
+msgstr "筆耕不輟"
+
+#: exhibition.php:288
+msgid ""
+"You have woven an extensive web of thoughts, the streams of inspiration are "
+"rushing into rivers."
+msgstr ""
+"あなたは長い思考の網を織り、インスピレーションの流れが川へと押し寄せている。"
+
+#: exhibition.php:289 exhibition.php:302
+#, php-format
+msgid "%s more words to next level"
+msgstr "次のレベルまであと %s 語"
+
+#: exhibition.php:296
+msgid "Bronze Author"
+msgstr "寸楮点墨"
+
+#: exhibition.php:301
+msgid ""
+"Sparks of words dance at your fingertips, as the faint light of thoughts "
+"quietly illuminates."
+msgstr "指先から言葉の火花が散り、アイデアのきらめく光が静かに灯る。"
+
+#: exhibition.php:438
+msgid "Meet my friend!"
+msgstr "友達に会いに来て！"
+
+#: footer.php:32
+#, php-format
+msgid "Load Time %.3f seconds | %d Query | RAM Usage %.2f MB "
+msgstr "ロード時間 %.3f 秒 | %d クエリ | RAM 使用量  %.2f MB "
+
+#: footer.php:68
+msgid "Go to top"
+msgstr "このページのトップへ"
+
+#: footer.php:69
+msgid "Control Panel"
+msgstr "コントロールパネル"
+
+#: footer.php:75 footer.php:83
+msgid "Want to find something?"
+msgstr "何かを見つけたいですか?"
+
+#: footer.php:84 header.php:260
+msgid "Search"
+msgstr "検索"
+
+#: footer.php:103
+msgid "Light Mode"
+msgstr "ライトフィルター"
+
+#: footer.php:106
+msgid "Dark Mode"
+msgstr "ダークモード"
+
+#: footer.php:112
+msgid "Toggle Page Background Image"
+msgstr "検索エリア背景画像"
+
+#: footer.php:133
+msgid "Switch To Font A"
+msgstr "フォント A に切り替え"
+
+#: footer.php:136
+msgid "Switch To Font B"
+msgstr "フォント B に切り替え"
+
+#: functions.php:127
+msgid "Nav Menus"
+msgstr "メニュー"
+
+#: functions.php:283
+msgctxt "post type general name"
+msgid "Shuoshuo"
+msgstr "ツイート"
+
+#: functions.php:284
+msgctxt "post type singular name"
+msgid "Shuoshuo"
+msgstr "ツイート"
+
+#: functions.php:285
+msgctxt "admin menu"
+msgid "Shuoshuo"
+msgstr "ツイート"
+
+#: functions.php:286
+msgctxt "add new on admin bar"
+msgid "Shuoshuo"
+msgstr "ツイート"
+
+#: functions.php:287
+msgctxt "shuoshuo"
+msgid "Add New"
+msgstr "新規追加"
+
+#: functions.php:288
+msgid "Add New Shuoshuo"
+msgstr "新しいツイートを追加"
+
+#: functions.php:289
+msgid "New Shuoshuo"
+msgstr "新しいツイート"
+
+#: functions.php:290
+msgid "Edit Shuoshuo"
+msgstr "ツイートを編集"
+
+#: functions.php:291
+msgid "View Shuoshuo"
+msgstr "ツイートを見る"
+
+#: functions.php:292
+msgid "All Shuoshuo"
+msgstr "すべてのツイート"
+
+#: functions.php:293
+msgid "Search Shuoshuo"
+msgstr "ツイートを検索"
+
+#: functions.php:294
+msgid "Parent Shuoshuo:"
+msgstr "ペアレントツイート"
+
+#: functions.php:295
+msgid "No shuoshuo found."
+msgstr "ツイートは見つからなかった。"
+
+#: functions.php:296
+msgid "No shuoshuo found in Trash."
+msgstr "ゴミ箱にツイートは見つからなかった。"
+
+#: functions.php:343
+msgid "Emotion Meta Box"
+msgstr "エモーションメタボックス"
+
+#: functions.php:356
+msgid "Emotion"
+msgstr "エモーション"
+
+#: functions.php:359
+msgid "Emotion Color"
+msgstr "エモーションカラー"
+
+#: functions.php:362
+msgid ""
+"For the Emotion, please fill in the Unicode value of the Fontawesome icon, "
+"and for the Emotion Color, please fill in the RGBA or hexadecimal color."
+msgstr ""
+"エモーションには、Fontawesome アイコンの Unicode 値を、エモーションカラーに"
+"は、RGBA または 16 進数の色を記入してください。"
+
+#: functions.php:407
+msgid "Custom Meta Box"
+msgstr "カスタム・メタ・ボックス"
+
+#: functions.php:420
+msgid "Title Style"
+msgstr "タイトル・スタイル"
+
+#: functions.php:423
+msgid "License"
+msgstr "ライセンス"
+
+#: functions.php:426
+msgid ""
+"For the Title Style, Please fill in the css style, part of the style need to "
+"add !important effective, and for the License, please go to Theme Options to "
+"learn how to set it up."
+msgstr ""
+"タイトルのスタイルについては、cssスタイルに記入してください。スタイルの一部に"
+"は、!important effectiveを追加する必要があります。ライセンスについては、テー"
+"マオプションで設定方法をご確認ください。"
+
+#: functions.php:571
+msgid "Copied!"
+msgstr "コピーしました!"
+
+#: functions.php:572
+msgid "Copy Code"
+msgstr "コードをコピー"
+
+#: functions.php:573
+msgid ""
+"Your cover API seems to not support Cross Origin Access. In this case, Cover "
+"Cache won't take effect."
+msgstr ""
+"あなたのカバー API はクロスオリジンアクセスをサポートしていないようです。この"
+"場合、Cover Cacheは有効になりません。"
+
+#: functions.php:574
+msgid "Commiting...."
+msgstr "提出中…."
+
+#: functions.php:575
+msgid "Succeed"
+msgstr "継ぐ"
+
+#: functions.php:576
+msgid "10 files max per request"
+msgstr "1 回のリクエストで送信できるファイル数の上限は 10 個です"
+
+#: functions.php:577
+msgid ""
+"5 MB max per file.\n"
+"\n"
+"「{0}」\n"
+"\n"
+"This image is too large~Please reupload!"
+msgstr ""
+"1ファイルの最大サイズは 5 MB です。\n"
+"\n"
+"「{0}」\n"
+"\n"
+"この画像が大きすぎる~再アップロードしてください!"
+
+#: functions.php:578
+msgid "Uploading..."
+msgstr "アップロード中..."
+
+#: functions.php:579
+msgid "Uploaded successfully~"
+msgstr "アップロードに成功しました~"
+
+#: functions.php:580
+msgid ""
+"Upload failed!\n"
+"File Name=> {0}\n"
+"code=> {1}\n"
+"{2}"
+msgstr ""
+"アップロードに失敗しました!\n"
+"ファイル名=> {0}\n"
+"コード=> {1}\n"
+"{2}"
+
+#: functions.php:581
+msgid "Upload failed, please retry."
+msgstr "アップロードに失敗しました、もう一度やり直してください。"
+
+#: functions.php:582
+msgid "Page Load failed. HTTP {0}"
+msgstr "ページの読み込みに失敗しました。HTTP {0}"
+
+#: functions.php:583
+msgid "Glad you come, but we've got nothing left."
+msgstr "あなたが来てうれしいですが、私たちは何も残っていません。"
+
+#: functions.php:584 search.php:85
+msgid "Post"
+msgstr "投稿"
+
+#: functions.php:585
+msgid "Tag"
+msgstr "タグ"
+
+#: functions.php:586
+msgid "Category"
+msgstr "カテゴリー"
+
+#: functions.php:587 search.php:96
+msgid "Page"
+msgstr "ページ"
+
+#: functions.php:588
+msgid "Comment"
+msgstr "コメント"
+
+#: functions.php:589
+msgid "Paused..."
+msgstr "一時停止"
+
+#: functions.php:590
+msgid "Loading Video..."
+msgstr "ビデオを読み込んでいます..."
+
+#: functions.php:591
+msgid "Downloading fonts, be aware of your data usage."
+msgstr "フォントをダウンロードするには、データ使用量に注意してください。"
+
+#: functions.php:599
+msgid "Are you sure you want to toggle private status?"
+msgstr "非公開状態を切り替えてもよろしいですか？"
+
+#: functions.php:690 inc/theme-plus.php:211
+msgid "Author"
+msgstr "投稿者"
+
+#: functions.php:690
+msgid "Blogger"
+msgstr "Blogger"
+
+#: functions.php:699 functions.php:3840
+msgid "Location"
+msgstr "場所"
+
+#: functions.php:705
+msgid "Private"
+msgstr "プライベート"
+
+#: functions.php:707
+msgid "Yes"
+msgstr "はい"
+
+#: functions.php:709
+msgid "No"
+msgstr "いいえ"
+
+#: functions.php:712 inc/link-status.php:168
+msgid "Edit"
+msgstr "編集"
+
+#: functions.php:845
+msgid "This guy is so lazy ╮(╯▽╰)╭"
+msgstr "こやつはとても怠惰な╮(╯▽╰)╭"
+
+#: functions.php:883 functions.php:3218 functions.php:3411
+msgid "Pending Links"
+msgstr "未決リンク"
+
+#: functions.php:1699 functions.php:1702 inc/theme-plus.php:366
+#: layouts/mo_toc_menu.php:29
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+#: functions.php:2251
+msgid "QQ"
+msgstr "QQ"
+
+#: functions.php:2353
+msgid "Sidebar"
+msgstr "サイドバー"
+
+#: functions.php:2381
+msgid "Please do not try to use Javascript in your comments!"
+msgstr "コメントでJavascriptを使用しないでください！"
+
+#: functions.php:2485
+msgid ""
+"<b> For a better experience, please do not set <a href=\"/wp-admin/options-"
+"permalink.php\"> permalink </a> as plain. To do this, you may need to "
+"configure <a href=\"https://www.wpdaxue.com/wordpress-rewriterule.html\" "
+"target=\"_blank\"> pseudo-static </a>. </ b>"
+msgstr ""
+"<b> より良い体験のために、 <a href=\"/wp-admin/options-permalink.php\"> パー"
+"マリンク </a> をプレーンとして設定しないでください。これを行うには、 <a "
+"href=\"https://qiita.com/cyborg__ninja/items/8a191a00d402e78d8823\" "
+"target=\"_blank\"> 擬似静的化 </a>を構成する必要があります。 </b>"
+
+#: functions.php:2618
+#, php-format
+msgid "%s says: "
+msgstr "%s は言う： "
+
+#: functions.php:2639
+msgid "Expand / Collapse"
+msgstr "展開/折りたたみ"
+
+#: functions.php:3131
+msgid "It's a secret"
+msgstr ""
+
+#: functions.php:3168
+msgid "Invalid request method."
+msgstr "無効な要求メソッド。"
+
+#: functions.php:3179
+msgid "You are submitting too frequently. Please try again later."
+msgstr "送信回数が多すぎます。後でもう一度お試しください。"
+
+#: functions.php:3185
+msgid "Security verification failed."
+msgstr "セキュリティ検証に失敗しました。"
+
+#: functions.php:3193
+msgid "Please fill in all required fields."
+msgstr "必須項目をすべてご記入ください。"
+
+#: functions.php:3238 user/page-links.php:496
+msgid ""
+"Sorry, we are not accepting new link submissions at this time due to "
+"backlog. Please try again later."
+msgstr ""
+"申し訳ございませんが、現在リンクの受付は行っておりません。後でもう一度お試し"
+"ください。"
+
+#: functions.php:3251
+msgid "Site name is too long."
+msgstr "サイト名が長すぎる。"
+
+#: functions.php:3256
+msgid "Site description is too long."
+msgstr "サイトの説明が長すぎる。"
+
+#: functions.php:3262
+msgid "Please enter a valid URL."
+msgstr "有効なURLを入力してください。"
+
+#: functions.php:3268
+msgid "Please enter a valid image URL."
+msgstr "有効な画像URLを入力してください。"
+
+#: functions.php:3274
+msgid "Please enter a valid email address."
+msgstr "有効なEメールアドレスを入力してください。"
+
+#: functions.php:3282
+msgid "This website URL is already in our links list."
+msgstr "このウェブサイトのURLはすでにリンク集に登録されています。"
+
+#: functions.php:3308 functions.php:3373
+msgid "Failed to submit link. Please try again later."
+msgstr "リンクの送信に失敗しました。後でもう一度お試しください。"
+
+#: functions.php:3320 functions.php:3380
+#, php-format
+msgid "[%s] New Friend Link Submission"
+msgstr "[%s] 新しい友達リンク投稿"
+
+#: functions.php:3322 functions.php:3382
+#, php-format
+msgid ""
+"A new friend link has been submitted on your website %s:\n"
+"\n"
+msgstr ""
+"あなたのWebサイトに新しい友達リンクが送信されました： %s \n"
+"\n"
+"\n"
+
+#: functions.php:3323
+#, php-format
+msgid "Site Name: %s\n"
+msgstr "サイト名 %s\n"
+
+#: functions.php:3324
+#, php-format
+msgid "Site URL: %s\n"
+msgstr "サイトURL：%s\n"
+
+#: functions.php:3325
+#, php-format
+msgid "Site Description: %s\n"
+msgstr "サイトの説明：%s\n"
+
+#: functions.php:3326
+#, php-format
+msgid "Site Image: %s\n"
+msgstr "サイトイメージ：%s \n"
+
+#: functions.php:3327
+#, php-format
+msgid "Contact Email: %s\n"
+msgstr "連絡先メールアドレス：%s\n"
+
+#: functions.php:3328
+#, php-format
+msgid ""
+"IP Address: %s\n"
+"\n"
+msgstr ""
+"IPアドレス： %s\n"
+"\n"
+
+#: functions.php:3329
+msgid "Please review this submission in your WordPress admin panel.\n"
+msgstr "WordPressの管理画面でこの投稿を確認してください。\n"
+
+#: functions.php:3339 functions.php:3390
+msgid "Thank you! Your link has been submitted for review."
+msgstr "ありがとうございました！あなたのリンクは審査のために提出されました。"
+
+#: functions.php:3344
+#, php-format
+msgid "Site Name: %s"
+msgstr "サイト名: %s"
+
+#: functions.php:3345
+#, php-format
+msgid "Site URL: %s"
+msgstr "サイトURL: %s"
+
+#: functions.php:3346
+#, php-format
+msgid "Site Description: %s"
+msgstr "サイトの説明：%s"
+
+#: functions.php:3347
+#, php-format
+msgid "Site Image: %s"
+msgstr "サイトイメージ：%s"
+
+#: functions.php:3348
+#, php-format
+msgid "Contact Email: %s"
+msgstr "連絡先メールアドレス：%s"
+
+#: functions.php:3349
+#, php-format
+msgid "IP Address: %s"
+msgstr "IPアドレス： %s"
+
+#: functions.php:3352
+msgid "Friend Link Submission: "
+msgstr "フレンドリンクの投稿 ："
+
+#: functions.php:3384
+msgid ""
+"\n"
+"Please review this submission in your WordPress admin panel.\n"
+msgstr ""
+"\n"
+"WordPressの管理画面でこの投稿を確認してください。\n"
+
+#: functions.php:3397
+msgid "An unexpected error occurred. Please try again later."
+msgstr "予期せぬエラーが発生しました。後でもう一度お試しください。"
+
+#: functions.php:3573
+#, php-format
+msgid "[%s] Friend Link Check Failure: %s"
+msgstr "[%s] フレンド・リンク・チェックの失敗: %s"
+
+#: functions.php:3576
+#, php-format
+msgid ""
+"The friend link '%s' has failed our status check %d times.\n"
+"\n"
+msgstr ""
+"フレンド・リンク '%s' は %d 回ステータス・チェックに失敗しました。\n"
+"\n"
+
+#: functions.php:3577
+#, php-format
+msgid "Link URL: %s\n"
+msgstr "リンクURL： %s\n"
+
+#: functions.php:3580
+#, php-format
+msgid "HTTP Status Code: %s\n"
+msgstr "HTTP ステータス・コード： %s\n"
+
+#: functions.php:3584
+#, php-format
+msgid "Error Message: %s\n"
+msgstr "エラー・メッセージ： %s\n"
+
+#: functions.php:3587
+#, php-format
+msgid ""
+"\n"
+"Last Check Time: %s\n"
+"\n"
+msgstr ""
+"\n"
+"最終チェック時間: %s\n"
+"\n"
+
+#: functions.php:3588
+msgid ""
+"You may want to check this link and consider removing it if it remains "
+"unavailable.\n"
+msgstr ""
+"このリンクをチェックし、利用できないままであれば削除を検討するとよいだろ"
+"う。\n"
+
+#: functions.php:3660
+msgid "Just now"
+msgstr "たった今"
+
+#: functions.php:3662
+#, php-format
+msgid "%d minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d 分前"
+
+#: functions.php:3665
+#, php-format
+msgid "%d hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d 時間前"
+
+#: functions.php:3668
+#, php-format
+msgid "%d day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d 日前"
+
+#: functions.php:3671
+#, php-format
+msgid "%d week ago"
+msgid_plural "%d weeks ago"
+msgstr[0] "%d 週間前"
+
+#: functions.php:3674
+#, php-format
+msgid "%d month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%dヶ月前"
+
+#: functions.php:3881
+msgid "Access denied."
+msgstr "アクセス拒否"
+
+#: header.php:269 layouts/sakura_header.php:124
+msgid "Random Background"
+msgstr "ランダムカバー"
+
+#: inc/cache_settings.php:7 inc/cache_settings.php:8 inc/cache_settings.php:42
+msgid "Cache Settings"
+msgstr "キャッシュ設定"
+
+#: inc/cache_settings.php:39
+msgid "Cache Updated!"
+msgstr "キャッシュが更新された！"
+
+#: inc/cache_settings.php:43
+msgid "Cache settings"
+msgstr "キャッシュ設定"
+
+#: inc/cache_settings.php:44
+msgid ""
+"If your server network environment is poor, you can click the link below to "
+"manually obtain the response content and fill it in"
+msgstr ""
+"サーバーのネットワーク環境が悪い場合は、以下のリンクをクリックして手動で応答"
+"内容を取得し、記入してください。"
+
+#: inc/cache_settings.php:45
+msgid ""
+"If the content is empty or incorrect, the server will try to automatically "
+"pull it"
+msgstr ""
+"コンテンツが空であったり、不正確であったりした場合、サーバーはそれを自動的に"
+"引き出そうとします。"
+
+#: inc/cache_settings.php:46
+msgid ""
+"The link target will be automatically updated after the relevant settings "
+"are saved"
+msgstr "リンク先は、関連する設定が保存された後に自動的に更新されます。"
+
+#: inc/cache_settings.php:47
+msgid ""
+"The unit is seconds. And it will take effect permanently when it was set to "
+"0."
+msgstr "単位は秒。また、0に設定すると永続的に有効になる。"
+
+#: inc/cache_settings.php:55 inc/cache_settings.php:67
+msgid "Cache expire time"
+msgstr "キャッシュの有効期限"
+
+#: inc/cache_settings.php:61
+msgid "Bangumi Cache"
+msgstr "バングミ・キャッシュ"
+
+#: inc/cache_settings.php:73
+msgid "Steam Cache"
+msgstr "Steam キャッシュ"
+
+#: inc/categories-images.php:44 inc/categories-images.php:65
+msgid "category/tag image"
+msgstr "カテゴリ/タグ画像"
+
+#: inc/categories-images.php:47 inc/categories-images.php:67
+#: inc/categories-images.php:196
+msgid "add image"
+msgstr "画像を追加する"
+
+#: inc/categories-images.php:68 inc/categories-images.php:197
+msgid "remove image"
+msgstr "画像を削除"
+
+#: inc/categories-images.php:213
+msgid "image"
+msgstr "画像"
+
+#: inc/categories-images.php:222
+msgid "no image"
+msgstr "画像なし"
+
+#: inc/chatgpt/aigc-manage.php:15 inc/chatgpt/aigc-manage.php:16
+#: inc/chatgpt/aigc-manage.php:93
+msgid "Article Annotations Management"
+msgstr "記事注釈管理"
+
+#: inc/chatgpt/aigc-manage.php:37
+msgid "Successfully generated annotations for the post!"
+msgstr "投稿の注釈生成に成功！"
+
+#: inc/chatgpt/aigc-manage.php:40
+msgid ""
+"Failed to generate annotations. Please check API settings or view error logs."
+msgstr ""
+"アノテーションの生成に失敗しました。API設定を確認するか、エラーログを表示して"
+"ください。"
+
+#: inc/chatgpt/aigc-manage.php:46
+msgid "Annotations for the post have been deleted."
+msgstr "この投稿の注釈は削除されました。"
+
+#: inc/chatgpt/aigc-manage.php:51
+msgid "Example Term"
+msgstr "タームの例"
+
+#: inc/chatgpt/aigc-manage.php:51
+msgid "This is a example explanation"
+msgstr "これは説明の一例である。"
+
+#: inc/chatgpt/aigc-manage.php:54
+#, php-format
+msgid "Attempting to save test data to post %d..."
+msgstr "テスト・データをポスト %d に保存しようとしています。"
+
+#: inc/chatgpt/aigc-manage.php:59
+msgid "Save failed!"
+msgstr "保存に失敗しました！"
+
+#: inc/chatgpt/aigc-manage.php:61
+#, php-format
+msgid "Save successful! Update ID: %s"
+msgstr "保存に成功しました！更新 ID: %s"
+
+#: inc/chatgpt/aigc-manage.php:65
+#, php-format
+msgid "Read result: %s"
+msgstr "読み取り結果: %s"
+
+#: inc/chatgpt/aigc-manage.php:65
+msgid "Success (array, contains "
+msgstr "成功（配列、以下を含む "
+
+#: inc/chatgpt/aigc-manage.php:65
+msgid " items)"
+msgstr " 項目)"
+
+#: inc/chatgpt/aigc-manage.php:65
+msgid "Failed"
+msgstr "失敗"
+
+#: inc/chatgpt/aigc-manage.php:72
+#, php-format
+msgid "Database query result: %s"
+msgstr "データベース・クエリの結果: %s"
+
+#: inc/chatgpt/aigc-manage.php:72
+msgid "Found "
+msgstr "見つかりました "
+
+#: inc/chatgpt/aigc-manage.php:72
+msgid " records"
+msgstr " 記録"
+
+#: inc/chatgpt/aigc-manage.php:72
+msgid "No records found"
+msgstr "記録なし"
+
+#: inc/chatgpt/aigc-manage.php:103
+msgid "System Information"
+msgstr "システム情報"
+
+#: inc/chatgpt/aigc-manage.php:104
+msgid "ChatGPT API Settings Status"
+msgstr "ChatGPT API 設定ステータス"
+
+#: inc/chatgpt/aigc-manage.php:106
+msgid "API Endpoint: "
+msgstr ""
+
+#: inc/chatgpt/aigc-manage.php:106 inc/chatgpt/aigc-manage.php:107
+#: inc/chatgpt/aigc-manage.php:108
+msgid "Not set"
+msgstr "未設定"
+
+#: inc/chatgpt/aigc-manage.php:107
+msgid "API Key: "
+msgstr ""
+
+#: inc/chatgpt/aigc-manage.php:107
+msgid "Set (Length: "
+msgstr "セット（長さ："
+
+#: inc/chatgpt/aigc-manage.php:108
+msgid "Model: "
+msgstr "モデル："
+
+#: inc/chatgpt/aigc-manage.php:113
+msgid "About Article Annotations"
+msgstr "記事注釈について"
+
+#: inc/chatgpt/aigc-manage.php:114
+msgid ""
+"This feature uses ChatGPT to analyze the content of the post, identify "
+"complex or specialized terms, and automatically generate explanatory "
+"annotations. The annotations will be displayed in the post, and visitors can "
+"click to view explanations."
+msgstr ""
+"この機能は、ChatGPTを使って投稿内容を分析し、複雑な用語や専門的な用語を特定"
+"し、説明用の注釈を自動的に生成します。注釈は投稿に表示され、訪問者はクリック"
+"して説明を見ることができます。"
+
+#: inc/chatgpt/aigc-manage.php:115
+msgid "Note:"
+msgstr "メモ："
+
+#: inc/chatgpt/aigc-manage.php:115
+msgid "This feature requires a valid OpenAI API key."
+msgstr "この機能には有効なOpenAI APIキーが必要です。"
+
+#: inc/chatgpt/aigc-manage.php:121
+msgid ""
+"API key not set, please configure the ChatGPT API key in the theme settings "
+"first."
+msgstr ""
+"APIキーが設定されていません。まずテーマ設定でChatGPT APIキーを設定してくださ"
+"い。"
+
+#: inc/chatgpt/aigc-manage.php:128
+msgid "Generate Annotations for Post"
+msgstr "投稿の注釈を生成する"
+
+#: inc/chatgpt/aigc-manage.php:133
+msgid "Select Post"
+msgstr "ポストを選択"
+
+#: inc/chatgpt/aigc-manage.php:136
+msgid "-- Select Post --"
+msgstr "-- セレクト・ポスト --"
+
+#: inc/chatgpt/aigc-manage.php:145
+msgid "Generate Annotations"
+msgstr "注釈の生成"
+
+#: inc/chatgpt/aigc-manage.php:146
+msgid "Delete Annotations"
+msgstr "注釈の削除"
+
+#: inc/chatgpt/aigc-manage.php:146
+msgid "Are you sure you want to delete the annotation data for this post?"
+msgstr "本当にこの記事の注釈データを削除しますか？"
+
+#: inc/chatgpt/aigc-manage.php:147
+msgid "Create empty data"
+msgstr "空のデータを作成する"
+
+#: inc/chatgpt/aigc-manage.php:147
+msgid "Create empty terms for your custom article"
+msgstr "カスタム・アーティクルに空の用語を作成する"
+
+#: inc/chatgpt/aigc-manage.php:154
+msgid "Posts with Generated Annotations"
+msgstr "生成された注釈付きの投稿"
+
+#: inc/chatgpt/aigc-manage.php:156
+msgid "Currently, no posts contain annotation data."
+msgstr "現在、注釈データを含む投稿はない。"
+
+#: inc/chatgpt/aigc-manage.php:161
+msgid "Post Title"
+msgstr "記事のタイトル"
+
+#: inc/chatgpt/aigc-manage.php:162
+msgid "Number of Annotations"
+msgstr "注釈数"
+
+#: inc/chatgpt/aigc-manage.php:163 inc/chatgpt/aigc-manage.php:255
+#: inc/link-status.php:108
+msgid "Actions"
+msgstr "操作"
+
+#: inc/chatgpt/aigc-manage.php:180
+msgid "View Annotations"
+msgstr "注釈を見る"
+
+#: inc/chatgpt/aigc-manage.php:181
+msgid "Edit Post"
+msgstr "投稿を編集する"
+
+#: inc/chatgpt/aigc-manage.php:186
+msgid "Debug Information"
+msgstr "デバッグ情報"
+
+#: inc/chatgpt/aigc-manage.php:203
+#, php-format
+msgid "Annotations Debug Information for post \"%s\" (ID: %d)"
+msgstr "投稿 「%s」 の注釈デバッグ情報 (ID: %d)"
+
+#: inc/chatgpt/aigc-manage.php:208
+msgid "Data Type:"
+msgstr "データタイプ："
+
+#: inc/chatgpt/aigc-manage.php:211
+msgid "Number of Annotations:"
+msgstr "注釈数："
+
+#: inc/chatgpt/aigc-manage.php:212 inc/chatgpt/aigc-manage.php:217
+msgid "Annotation Data:"
+msgstr "注釈データ："
+
+#: inc/chatgpt/aigc-manage.php:227
+msgid "Database Records:"
+msgstr "データベースの記録："
+
+#: inc/chatgpt/aigc-manage.php:227
+msgid "records"
+msgstr "記録"
+
+#: inc/chatgpt/aigc-manage.php:231
+msgid "Record ID:"
+msgstr "レコードID："
+
+#: inc/chatgpt/aigc-manage.php:232
+msgid "Original Value:"
+msgstr "元の数値："
+
+#: inc/chatgpt/aigc-manage.php:247 inc/chatgpt/aigc-manage.php:273
+msgid "Post Annotations: "
+msgstr "注釈："
+
+#: inc/chatgpt/aigc-manage.php:253 inc/chatgpt/aigc-manage.php:558
+msgid "Term"
+msgstr "用語"
+
+#: inc/chatgpt/aigc-manage.php:254 inc/chatgpt/aigc-manage.php:558
+msgid "Explanation"
+msgstr "解説"
+
+#: inc/chatgpt/aigc-manage.php:262
+msgid "Add Annotation"
+msgstr "注釈の追加"
+
+#: inc/chatgpt/aigc-manage.php:263
+msgid "Save Annotations"
+msgstr "注釈の保存"
+
+#: inc/chatgpt/aigc-manage.php:283 inc/chatgpt/aigc-manage.php:318
+msgid "Delete"
+msgstr "削除"
+
+#: inc/chatgpt/aigc-manage.php:353
+msgid "Annotations updated successfully."
+msgstr "アノテーションは正常に更新されました。"
+
+#: inc/chatgpt/aigc-manage.php:356
+msgid "Update failed."
+msgstr "アップデートに失敗した。"
+
+#: inc/chatgpt/aigc-manage.php:474 inc/chatgpt/aigc-manage.php:510
+msgid "Invalid post ID"
+msgstr "無効な投稿ID"
+
+#: inc/chatgpt/aigc-manage.php:479
+msgid "Post not found"
+msgstr "投稿が見つかりません"
+
+#: inc/chatgpt/aigc-manage.php:486
+msgid "This post does not have any annotation data"
+msgstr "この投稿には注釈データはありません"
+
+#: inc/chatgpt/aigc-manage.php:502 inc/chatgpt/aigc-manage.php:505
+msgid "Access denied"
+msgstr "アクセス拒否"
+
+#: inc/chatgpt/aigc-manage.php:516
+msgid "Invalid annotations data"
+msgstr "無効な注釈データ"
+
+#: inc/chatgpt/aigc-manage.php:522
+msgid "Failed to update annotations"
+msgstr "注釈の更新に失敗"
+
+#: inc/chatgpt/aigc-manage.php:525
+msgid "Annotations updated successfully"
+msgstr "注釈の更新に成功"
+
+#: inc/chatgpt/aigc-manage.php:536
+msgid "Post Annotation Data"
+msgstr "ポスト注釈データ"
+
+#: inc/chatgpt/aigc-manage.php:552
+#, php-format
+msgid ""
+"This post currently does not have any annotation data. You can generate "
+"annotations on the <a href=\"%s\">Article Annotations Management</a> page."
+msgstr ""
+"この投稿には現在、注釈データはありません。 <a href=\"%s\">記事の注釈管理 </"
+"a> ページで注釈を生成できます。"
+
+#: inc/chatgpt/aigc-manage.php:567
+msgid "Edit in Annotations Management Page"
+msgstr "注釈管理ページでの編集"
+
+#: inc/classes/Bilibili.php:49 inc/classes/BilibiliFavList.php:124
+#: inc/classes/BilibiliFavList.php:129 inc/classes/BilibiliFavList.php:141
+#: inc/classes/MyAnimeList.php:76
+msgid "Backend error"
+msgstr "バックエンドエラー"
+
+#: inc/classes/Bilibili.php:54 inc/classes/MyAnimeList.php:89
+msgid "Following "
+msgstr "次 "
+
+#: inc/classes/Bilibili.php:54 inc/classes/MyAnimeList.php:89
+msgid " anime."
+msgstr " アニメ。"
+
+#: inc/classes/Bilibili.php:69
+msgid "The author seems to have hidden their bangumi list."
+msgstr "著者は彼らのバングミリストを隠したようです。"
+
+#: inc/classes/Bilibili.php:99 inc/classes/BilibiliFavList.php:202
+msgid "Load More"
+msgstr "さらに読み込む"
+
+#: inc/classes/BilibiliFavList.php:159
+msgid "Item count: "
+msgstr "アイテム数: "
+
+#: inc/classes/BilibiliFavList.php:160
+msgid "Expand"
+msgstr "拡張"
+
+#: inc/classes/BilibiliFavList.php:177
+msgid "All item has been loaded."
+msgstr "すべてのアイテムが読み込まれました。"
+
+#: inc/classes/Cache.php:70 inc/theme-plus.php:654
+msgid "The comment is private"
+msgstr "このコメントは非公開です"
+
+#: inc/classes/Captcha.php:174
+msgid "Bad Request."
+msgstr "要求が正しくありません。"
+
+#: inc/classes/Captcha.php:178
+msgid "Look like you forgot to enter the captcha."
+msgstr "キャプチャを入力するのを忘れたようです。"
+
+#: inc/classes/Captcha.php:181
+msgid "Captcha timeout."
+msgstr "キャプチャのタイムアウト。"
+
+#: inc/classes/Captcha.php:185
+msgid "Captcha check passed."
+msgstr "キャプチャ チェックに合格しました。"
+
+#: inc/classes/Captcha.php:188
+msgid "Captcha incorrect."
+msgstr "キャプチャが正しくありません。"
+
+#: inc/classes/Captcha.php:192
+msgid "An error has occurred."
+msgstr "エラーが発生しました。"
+
+#: inc/classes/Images.php:24
+msgid "Image Failed to Load"
+msgstr ""
+
+#: inc/classes/IpLocation.php:246 inc/classes/IpLocation.php:275
+msgid "Unknown"
+msgstr "不明"
+
+#: inc/classes/IpLocation.php:249 inc/classes/IpLocation.php:278
+msgid "Reserved Address"
+msgstr "リザーブド・アドレス"
+
+#: inc/classes/IpLocation.php:252 inc/classes/IpLocation.php:266
+msgid "Empty Address"
+msgstr "空アドレス"
+
+#: inc/classes/MyAnimeList.php:90
+msgid " Watched "
+msgstr " 見て "
+
+#: inc/classes/MyAnimeList.php:90
+msgid " episodes."
+msgstr " エピソード。"
+
+#: inc/classes/MyAnimeList.php:128
+msgid "Finished "
+msgstr "終えた "
+
+#: inc/classes/MyAnimeList.php:137
+msgid "Watching "
+msgstr "ウォッチング "
+
+#: inc/classes/MyAnimeList.php:144
+msgid "Planning to Watch "
+msgstr "視聴を計画する "
+
+#: inc/classes/MyAnimeList.php:153
+msgid "Dropped "
+msgstr "削除 "
+
+#: inc/classes/MyAnimeList.php:162
+msgid "Paused "
+msgstr "一時 停止 "
+
+#: inc/classes/Steam.php:99
+msgid "Load more"
+msgstr "もっと読み込む"
+
+#: inc/classes/Steam.php:150
+msgid "Not Played Yet"
+msgstr "まだプレイしていません"
+
+#: inc/classes/Steam.php:154
+msgid "minute"
+msgstr "分"
+
+#: inc/classes/Steam.php:157
+msgid "hour"
+msgstr "時間"
+
+#: inc/classes/bangumi.php:104
+msgid "Bangumi ID not set."
+msgstr "Bangumi アカウント ID が設定されていません"
+
+#: inc/classes/bangumi.php:112
+msgid "No data"
+msgstr "データなし"
+
+#: inc/classes/bangumi.php:129
+msgid "Release date: "
+msgstr "公開日"
+
+#: inc/classes/bangumi.php:135
+msgid "Watch progress: "
+msgstr "視聴進捗"
+
+#: inc/classes/bangumi.php:136
+msgid "No introduction yet"
+msgstr "説明なし"
+
+#: inc/classes/bangumi.php:148
+msgid "An error occured: "
+msgstr "エラーが発生しました。"
+
+#: inc/classes/bangumi.php:154
+msgid "Load more..."
+msgstr "さらに読み込む"
+
+#: inc/classes/gallery.php:79
+msgid "Successfully initialized the index."
+msgstr "インデックス再構築成功"
+
+#: inc/classes/gallery.php:113 inc/classes/gallery.php:117
+msgid ""
+"The target directory is not accessible. Please check the permission settings."
+msgstr "目的のディレクトリにアクセスできません。権限を確認してください"
+
+#: inc/classes/gallery.php:120
+msgid ""
+"Successfully backed up images from the 'img' folder to the 'backup' folder."
+msgstr "imgフォルダの内容をbackupフォルダに正常にバックアップしました"
+
+#: inc/classes/gallery.php:122
+msgid ""
+"Detected content in the 'backup' folder. Verifying and attempting to restore "
+"conversion operations."
+msgstr "backupフォルダにデータを検出、途中から復元を試みています"
+
+#: inc/classes/gallery.php:153
+msgid ""
+"All images have been compressed to WebP format. The original files are "
+"stored in the 'backup' folder.<br> Please confirm correctness before "
+"reinitializing the index.<br>"
+msgstr ""
+"すべての画像はWebp形式に変換され、元のファイルはbackupフォルダに保存されまし"
+"た。<br>問題がなければインデックスを再構築してください。<br>"
+
+#: inc/classes/gallery.php:203
+msgid ""
+"No images found. Please contact the administrator to check if images exist "
+"in the 'iro_gallary' directory and ensure the directory is readable and "
+"writable."
+msgstr ""
+"画像が見つかりません。'iro_gallery'フォルダに画像があり、読み書き可能であるこ"
+"とを管理者に確認してください"
+
+#: inc/link-status.php:19 inc/link-status.php:72
+msgid "Friend Links Status"
+msgstr "フレンドリンク状況"
+
+#: inc/link-status.php:20 inc/link-status.php:97
+msgid "Links Status"
+msgstr "リンク状況"
+
+#: inc/link-status.php:41
+msgid ""
+"All links check has been triggered. Please refresh this page in a few "
+"moments to see the results."
+msgstr ""
+"すべてのリンクのチェックが開始されました。結果を確認するには、しばらくしてか"
+"らこのページを更新してください。"
+
+#: inc/link-status.php:48
+#, php-format
+msgid "Link \"%s\" has been checked. Refresh to see the results."
+msgstr ""
+"リンク 「%s」 がチェックされました。結果を表示するには更新してください。"
+
+#: inc/link-status.php:58
+msgid "Link status has been reset."
+msgstr "リンク状態がリセットされた。"
+
+#: inc/link-status.php:78
+#, php-format
+msgid "Last automatic check: %s"
+msgstr "最後の自動チェック: %s"
+
+#: inc/link-status.php:80
+msgid "No automatic check has been performed yet."
+msgstr "自動チェックはまだ行われていない。"
+
+#: inc/link-status.php:84
+msgid ""
+"The system automatically checks a batch of links (5 links) every week to "
+"avoid overloading the server."
+msgstr ""
+"サーバーへの過負荷を避けるため、システムは自動的に毎週リンクのバッチ（5リン"
+"ク）をチェックします。"
+
+#: inc/link-status.php:90
+msgid "Check All Links Now"
+msgstr "今すぐすべてのリンクをチェック"
+
+#: inc/link-status.php:90
+msgid "This will check all links and may take some time. Continue?"
+msgstr ""
+"すべてのリンクをチェックしますので、時間がかかる場合があります。続ける？"
+
+#: inc/link-status.php:91
+msgid ""
+"This will check all links in batches of 5 with a delay between batches to "
+"avoid overloading the server."
+msgstr ""
+"これは、サーバーへの過負荷を避けるため、バッチ間に遅延を設け、5つのバッチです"
+"べてのリンクをチェックする。"
+
+#: inc/link-status.php:102
+msgid "Link Name"
+msgstr "リンク名"
+
+#: inc/link-status.php:103
+msgid "URL"
+msgstr ""
+
+#: inc/link-status.php:104
+msgid "Status"
+msgstr "状態"
+
+#: inc/link-status.php:105
+msgid "Last Check"
+msgstr "最終チェック"
+
+#: inc/link-status.php:106
+msgid "Failures"
+msgstr "失敗"
+
+#: inc/link-status.php:107
+msgid "Details"
+msgstr "詳細"
+
+#: inc/link-status.php:114
+msgid "No links found."
+msgstr "リンクが見つかりません。"
+
+#: inc/link-status.php:127
+msgid "Not checked"
+msgstr "未確認"
+
+#: inc/link-status.php:129
+msgid "Success"
+msgstr "成功"
+
+#: inc/link-status.php:131
+msgid "Failure"
+msgstr "失敗"
+
+#: inc/link-status.php:137
+#, php-format
+msgid "Status Code: %s"
+msgstr "ステータス・コード： %s"
+
+#: inc/link-status.php:140
+#, php-format
+msgid "Error: %s"
+msgstr "エラー: %s"
+
+#: inc/link-status.php:147
+msgid "Not visible"
+msgstr "表示なし"
+
+#: inc/link-status.php:152
+msgid "Never"
+msgstr "一度もしない"
+
+#: inc/link-status.php:159
+msgid "Check Now"
+msgstr "今すぐ確認"
+
+#: inc/link-status.php:165
+msgid "Reset Status"
+msgstr "状態をリセット"
+
+#: inc/link-status.php:283 inc/link-status.php:294 inc/link-status.php:306
+msgid "priority"
+msgstr "優先度"
+
+#: inc/link-status.php:285 inc/link-status.php:299
+msgid "The higher the value, the higher the priority (default is 0)."
+msgstr "値が大きいほど優先度が高くなります (デフォルトは 0)"
+
+#: inc/post_metas.php:54
+msgid "Less than 1 minute"
+msgstr "1 分未満"
+
+#: inc/post_metas.php:57
+#, php-format
+msgid "%s Hour"
+msgid_plural "%s Hours"
+msgstr[0] "%s 時間"
+
+#: inc/post_metas.php:59
+#, php-format
+msgid "%s Minute"
+msgid_plural "%s Minutes"
+msgstr[0] "%s 分"
+
+#: inc/post_metas.php:75
+#, php-format
+msgid "%s Word"
+msgid_plural "%s Words"
+msgstr[0] "%s 文字数"
+
+#: inc/post_metas.php:82
+msgid "1 Comment"
+msgstr "1件のコメント"
+
+#: inc/post_metas.php:82
+msgid "Comments"
+msgstr "コメント"
+
+#: inc/post_metas.php:82
+msgid "Comment Closed"
+msgstr "コメント募集は終了しました"
+
+#: inc/template-tags.php:28
+#, php-format
+msgctxt "post date"
+msgid "Posted on %s"
+msgstr "投稿日時: %s"
+
+#: inc/template-tags.php:33
+#, php-format
+msgctxt "post author"
+msgid "by %s"
+msgstr "%s"
+
+#. translators: used between list items, there is a space after the comma
+#: inc/template-tags.php:50 inc/template-tags.php:56
+msgid ", "
+msgstr ", "
+
+#: inc/template-tags.php:52
+#, php-format
+msgid "Posted in %1$s"
+msgstr "%1$s への投稿"
+
+#: inc/template-tags.php:58
+#, php-format
+msgid "Tagged %1$s"
+msgstr "タグは %1$s"
+
+#. translators: %s: post title
+#: inc/template-tags.php:65
+#, php-format
+msgid "Leave a Comment<span class=\"screen-reader-text\"> on %s</span>"
+msgstr "コメントを残す<span class=\"screen-reader-text\"> に %s</span>"
+
+#. translators: %s: Name of current post
+#: inc/template-tags.php:72 tpl/content-page.php:38
+#, php-format
+msgid "Edit %s"
+msgstr "%sを編集"
+
+#: inc/theme-plus.php:57
+msgid " days ago"
+msgstr " 日前"
+
+#: inc/theme-plus.php:58
+msgid " hours ago"
+msgstr " 時間前"
+
+#: inc/theme-plus.php:59
+msgid " minutes ago"
+msgstr " 分前"
+
+#: inc/theme-plus.php:60
+msgid " seconds ago"
+msgstr " 秒前"
+
+#: inc/theme-plus.php:67
+msgid "Posted on "
+msgstr "投稿日時は　"
+
+#: inc/theme-plus.php:147
+msgid "Please upgrade wordpress to version 4.4+"
+msgstr "WordPress バージョン 4.4 以上が必要です"
+
+#: inc/theme-plus.php:160
+msgid "You may post nothing"
+msgstr "メッセージを送信していないようです。"
+
+#: inc/theme-plus.php:166
+msgid "Please fill in the captcha answer"
+msgstr "認証質問を入力してください。"
+
+#: inc/theme-plus.php:169
+msgid ""
+"Have you modified the captcha code data? Or refresh the captcha and try "
+"again?"
+msgstr "認証コードを変更しましたか？または更新してみてください。"
+
+#: inc/theme-plus.php:177
+msgid "Please fill in the correct captcha answer"
+msgstr "正しく回答されていない可能性があります"
+
+#: inc/theme-plus.php:260 inc/theme-plus.php:313
+#, php-format
+msgid "Search results for \" %s \""
+msgstr "\"%s\" の検索結果"
+
+#: inc/theme-plus.php:330 tpl/content-thumbcard.php:56
+#: tpl/content-thumbcard.php:62
+msgid "Your browser does not support HTML5 video."
+msgstr "お使いのブラウザはHTML5ビデオをサポートしていません."
+
+#: inc/theme-plus.php:361
+msgid "Signed in as"
+msgstr "ようこそ"
+
+#: inc/theme-plus.php:367 layouts/mo_toc_menu.php:30
+msgid "New post"
+msgstr "新しい記事"
+
+#: inc/theme-plus.php:369 layouts/mo_toc_menu.php:34
+msgid "Profile"
+msgstr "プロフィール"
+
+#: inc/theme-plus.php:370 layouts/mo_toc_menu.php:35
+msgid "Sign out"
+msgstr "ログアウト"
+
+#: inc/theme-plus.php:391 layouts/mo_toc_menu.php:66
+msgid "Log in"
+msgstr "ログイン"
+
+#: layouts/mo_toc_menu.php:71
+msgid "Register"
+msgstr "新規登録"
+
+#: layouts/post-nextprev.php:15
+msgid "Previous Post"
+msgstr "前の投稿"
+
+#: layouts/post-nextprev.php:24
+msgid "Next Post"
+msgstr "次の投稿"
+
+#: search.php:45
+#, php-format
+msgid "Search result: %s"
+msgstr "検索結果: %s"
+
+#: search.php:76
+msgid "results found"
+msgstr "件の結果"
+
+#: search.php:90
+msgid "shuoshuo"
+msgstr "ツイート"
+
+#: search.php:101
+msgid "If no option is selected, all results are retrieved by default"
+msgstr "カテゴリを選択しない場合、すべての結果を検索します"
+
+#: search.php:102
+msgid "Click to filter"
+msgstr "フィルターを適用"
+
+#: tpl/content-none.php:14
+msgid "There is nothing here！"
+msgstr "ここには何もありません！"
+
+#: tpl/content-none.php:21
+#, php-format
+msgid ""
+"Ready to post your first article? <a href=\"%1$s\">Click here to start</a>."
+msgstr ""
+"あなたの最初の記事を投稿する準備はできましたか? <a href=\"%1$s\">を開始するに"
+"は、ここをクリック</a>してください。"
+
+#: tpl/content-none.php:25
+msgid "Didn't find what you want, look at the other ones."
+msgstr "あなたが望むものを見つけられなかった、他のものを見てください。"
+
+#: tpl/content-none.php:43
+msgid "We didn't seem to find what you want. Maybe you can search for it."
+msgstr ""
+"私たちはあなたが望むものを見つけられなかったようです。たぶん、あなたはそれを"
+"検索することができます。"
+
+#: tpl/content-page.php:27 tpl/content-single.php:33 tpl/single-image.php:25
+msgid "Pages:"
+msgstr "ページ:"
+
+#: tpl/content-single.php:26 tpl/content-thumbcard.php:181
+msgid "AI Excerpt"
+msgstr "AI 概要"
+
+#: tpl/content-thumbcard.php:4
+msgid "Hit"
+msgid_plural "Hits"
+msgstr[0] "ヒット"
+
+#: tpl/content-thumbcard.php:37 tpl/entry-census.php:57
+msgid "Estimate Reading Time"
+msgstr "読み時間の推定"
+
+#: tpl/content-thumbcard.php:167
+msgid "Sticky"
+msgstr "粘着"
+
+#: tpl/content-thumbcard.php:184
+msgid "Excerpt"
+msgstr "概要"
+
+#: tpl/entry-census.php:6
+msgid "EDIT"
+msgstr "編集"
+
+#: tpl/entry-census.php:41
+msgid "View"
+msgid_plural "Views"
+msgstr[0] "表示"
+
+#: tpl/entry-census.php:73 tpl/section-article-function.php:73
+msgid "Last updated on "
+msgstr "最終更新日 "
+
+#: tpl/entry-census.php:75 tpl/entry-census.php:77
+msgid "Last updated on"
+msgstr "最終更新日 "
+
+#: tpl/section-article-function.php:19 tpl/section-article-function.php:24
+#, php-format
+msgid "This article is licensed under %s"
+msgstr "この投稿は %s クリエイティブ・コモンズ・ライセンスの下で利用可能です。"
+
+#: tpl/section-article-function.php:64
+msgid "This author has not provided a description."
+msgstr "この作者はプロフィールを設定していません"
+
+#: user/page-bangumi.php:217 user/page-bilibiliFavList.php:652
+#: user/page-followVideos.php:207
+msgid "Please fill in the Bilibili UID in Sakura Options."
+msgstr "オプションにBilibili UIDを記入してください。"
+
+#: user/page-bangumi.php:224
+msgid "Please fill in the Bangumi UID in Sakura Options."
+msgstr "オプションにBangumi UIDを記入してください。"
+
+#: user/page-bangumi.php:230
+msgid "Please fill in the My Anime List Username in Sakura Options."
+msgstr "オプションにマイアニメリストユーザー名を入力してください。"
+
+#: user/page-links.php:490
+msgid "Submit Link"
+msgstr "リンクを送信する"
+
+#: user/page-links.php:542
+msgid "Submit Your Link"
+msgstr "リンクを送信する"
+
+#: user/page-links.php:543
+msgid "Please fill out the form below to submit your website link."
+msgstr ""
+"以下のフォームに必要事項をご記入の上、ウェブサイトへのリンクを送信してくださ"
+"い。"
+
+#: user/page-links.php:549
+msgid "Site Name"
+msgstr "サイト名"
+
+#: user/page-links.php:554
+msgid "Site URL"
+msgstr "サイト URL"
+
+#: user/page-links.php:559
+msgid "Site Description"
+msgstr "サイトの説明"
+
+#: user/page-links.php:564
+msgid "Site Logo/Avatar URL"
+msgstr "サイトロゴ/アバターURL"
+
+#: user/page-links.php:569
+msgid "Your Email"
+msgstr "メールアドレス"
+
+#: user/page-links.php:575
+msgid "Verification Code"
+msgstr "認証コード"
+
+#: user/page-timearchive.php:621
+msgid "Posts"
+msgstr "投稿"
+
+#. Theme Name of the plugin/theme
+msgid "Sakurairo"
+msgstr "桜いろ"
+
+#. Theme URI of the plugin/theme
+msgid "https://github.com/mirai-mamori/Sakurairo"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"A WordPress theme that is built with AI-assisted reading features, colorful, "
+"user-friendly, well-rounded, and rich in functionalities. (Based on Theme "
+"Sakura)"
+msgstr ""
+"AIが読み上げをアシストするWordPressテーマ。カラフルで親しみやすく、機能が充実"
+"しています。(テーマ「さくら」を基に作成）"
+
+#. Author of the plugin/theme
+msgid "Created by Fuukei"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://docs.fuukei.org/"
+msgstr ""
