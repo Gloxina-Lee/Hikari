@@ -10,7 +10,6 @@
 /**
  * Classes
  */
-include_once('classes/Aplayer.php');
 include_once('classes/Bilibili.php');
 include_once('classes/Cache.php');
 include_once('classes/Images.php');
@@ -99,12 +98,6 @@ add_action('rest_api_init', function () {
     register_rest_route('sakura/v1', '/favlist/bilibili/folders', array(
         'methods' => 'GET',
         'callback' => 'favlist_bilibili_folders',
-        'permission_callback' => '__return_true'
-    )
-    );
-    register_rest_route('sakura/v1', '/meting/aplayer', array(
-        'methods' => 'GET',
-        'callback' => 'meting_aplayer',
         'permission_callback' => '__return_true'
     )
     );
@@ -490,44 +483,6 @@ function favlist_bilibili_folders(WP_REST_Request $request)
         );
         return new WP_REST_Response($output, 500);
     }
-}
-
-function meting_aplayer(WP_REST_Request $request)
-{
-    $type = sanitize_text_field($request->get_param('type'));
-    $id = sanitize_text_field($request->get_param('id'));
-    $wpnonce = sanitize_text_field($request->get_param('_wpnonce')) ?: null;
-    $meting_nonce = sanitize_text_field($request->get_param('meting_nonce')) ?: null;
-
-    // 必须提供至少一个有效 nonce，否则拒绝
-    $wpnonce_valid = $wpnonce && wp_verify_nonce($wpnonce, 'wp_rest');
-    $meting_nonce_valid = $meting_nonce && wp_verify_nonce($meting_nonce, $type . '#:' . $id);
-
-    if (!$wpnonce_valid && !$meting_nonce_valid) {
-        $output = array(
-            'status' => 403,
-            'success' => false,
-            'message' => 'Unauthorized client.'
-        );
-        $response = new WP_REST_Response($output, 403);
-    } else {
-        $Meting_API = new \Sakura\API\Aplayer();
-        $data = $Meting_API->get_data($type, $id);
-        if ($type === 'playlist') {
-            $response = new WP_REST_Response($data, 200);
-            $response->set_headers(array('cache-control' => 'max-age=3600'));
-        } elseif ($type === 'lyric') {
-            $response = new WP_REST_Response();
-            $response->set_headers(array('cache-control' => 'max-age=3600'));
-            $response->set_headers(array('Content-Type' => 'text/plain; charset=utf-8'));
-            $response->set_data($data);
-        } else {
-            $response = new WP_REST_Response();
-            $response->set_status(301);
-            $response->header('Location', esc_url_raw($data));
-        }
-    }
-    return $response;
 }
 
 function create_CAPTCHA()

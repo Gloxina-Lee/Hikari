@@ -4168,11 +4168,6 @@ function iro_action_operator()
             header("Location: $direct_url", true, 302);
             break;
 
-        case 'playlist' :
-            $direct_url = rest_url('sakura/v1/meting/aplayer') . '?_wpnonce=' . wp_create_nonce('wp_rest') . '&server=' . (iro_opt('aplayer_server') ?: 'netease') . '&type=playlist&id=' . (iro_opt('aplayer_playlistid') ?: '5380675133');
-            header("Location: $direct_url", true, 302);
-            break;
-
         case 'gallery_init':
             include_once('inc/classes/gallery.php');
             $gallery = new Sakura\API\gallery();

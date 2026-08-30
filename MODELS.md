@@ -143,34 +143,6 @@
   - 移除 html_tag_parser、图片 CDN、WebP 和分类图片钩子
   - 从前端源码去掉灯箱导入后重构建，再删除相关 chunk
   - 已有媒体库图片不会受影响
-13. AI 辅助阅读
-- 功能：调用兼容 OpenAI Chat Completions 的接口生成文章摘要和术语解释；保存 postmeta；在正文中插入注释标记；提供后台生成、编辑和删除界面。
-- 文件：
-  - PHP：[hooks.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\inc\\chatgpt\\hooks.php)、inc/chatgpt/chatgpt.php、inc/chatgpt/aigc-manage.php
-  - 加载：functions.php:1817-1818、inc/api.php:118-153
-  - 模板：tpl/content-single.php、tpl/content-thumbcard.php
-  - JS：page.js 中 annotation.js
-  - CSS：style.css:5717-5760
-  - 设置：theme-options.php:3489-3680
-- 依赖：REST API、文章保存钩子、the_content/the_excerpt、_iro.page_annotation。
-- 完全删除：
-  - 删除 ChatGPT hooks 的加载和 apply_chatgpt_hook()
-  - 删除 /chatgpt、/chatgpt/annotate REST 路由
-  - 删除后台菜单和 Meta Box
-  - 删除单篇/列表中的 AI 摘要输出
-  - 从 swicher.php 删除 annotation 配置；从 page.js 移除 annotation.js 并重构建
-  - 删除设置和 CSS
-  - 可选清理 ai_summon_excerpt、iro_chatgpt_annotations postmeta；不清理也不会影响运行
-14. 音乐播放器
-- 功能：APlayer 浮动播放器；通过 Meting 聚合网易云、QQ、酷狗等歌单数据；支持自定义音乐 API。
-- 文件：
-  - PHP：footer.php:143-153、inc/api.php 的 /meting/aplayer、inc/classes/Aplayer.php、Meting.php
-  - _iro：inc/swicher.php:123-129
-  - JS：6004.js（APlayer）及 app.js 中动态导入
-  - CSS：style.css 和 dark.css 中 .aplayer
-  - 设置：theme-options.php:886-980
-- 依赖：REST、cURL、外部音乐平台、全站页脚。
-- 完全删除：删除页脚播放器节点、REST 路由、两个类、_iro.float_player_on/meting_api_url、设置字段；从前端源码移除 APlayer 动态导入并重构建，再删除 6004.js。
 15. Bangumi、Bilibili 追番和收藏夹
 - 功能：Bangumi、MyAnimeList、Bilibili 追番列表；Bilibili 收藏夹目录、分页和视频弹窗；收藏数据定时缓存。
 - 文件：
@@ -271,3 +243,31 @@
   - 删除 update-checker/
   - 删除后台授权通知、目录检查、iro_act=del_exist_theme 分支
   - 删除版本统计设置与 daily_event 注册，并清理已存在的计划任务
+13. AI 辅助阅读
+- 功能：调用兼容 OpenAI Chat Completions 的接口生成文章摘要和术语解释；保存 postmeta；在正文中插入注释标记；提供后台生成、编辑和删除界面。
+- 文件：
+  - PHP：[hooks.php](C:\\Users\\gloxi\\Documents\\Developments\\sakurairo\\inc\\chatgpt\\hooks.php)、inc/chatgpt/chatgpt.php、inc/chatgpt/aigc-manage.php
+  - 加载：functions.php:1817-1818、inc/api.php:118-153
+  - 模板：tpl/content-single.php、tpl/content-thumbcard.php
+  - JS：page.js 中 annotation.js
+  - CSS：style.css:5717-5760
+  - 设置：theme-options.php:3489-3680
+- 依赖：REST API、文章保存钩子、the_content/the_excerpt、_iro.page_annotation。
+- 完全删除：
+  - 删除 ChatGPT hooks 的加载和 apply_chatgpt_hook()
+  - 删除 /chatgpt、/chatgpt/annotate REST 路由
+  - 删除后台菜单和 Meta Box
+  - 删除单篇/列表中的 AI 摘要输出
+  - 从 swicher.php 删除 annotation 配置；从 page.js 移除 annotation.js 并重构建
+  - 删除设置和 CSS
+  - 可选清理 ai_summon_excerpt、iro_chatgpt_annotations postmeta；不清理也不会影响运行
+14. 音乐播放器
+- 功能：APlayer 浮动播放器；通过 Meting 聚合网易云、QQ、酷狗等歌单数据；支持自定义音乐 API。
+- 文件：
+  - PHP：footer.php:143-153、inc/api.php 的 /meting/aplayer、inc/classes/Aplayer.php、Meting.php
+  - _iro：inc/swicher.php:123-129
+  - JS：6004.js（APlayer）及 app.js 中动态导入
+  - CSS：style.css 和 dark.css 中 .aplayer
+  - 设置：theme-options.php:886-980
+- 依赖：REST、cURL、外部音乐平台、全站页脚。
+- 完全删除：删除页脚播放器节点、REST 路由、两个类、_iro.float_player_on/meting_api_url、设置字段；从前端源码移除 APlayer 动态导入并重构建，再删除 6004.js。
