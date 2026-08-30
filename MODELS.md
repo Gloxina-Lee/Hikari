@@ -1,3 +1,5 @@
+# MODELS.md
+
 1. 主题启动、基础能力与设置存储
 - 功能：定义版本、加载语言包、注册主导航、缩略图、HTML5、文章格式、小工具、标题支持；通过 iro_options 和 iro_opt() 向其他模块提供设置；选择资源 CDN。
 - 文件：
@@ -6,17 +8,6 @@
   - 语言：languages/、opt/languages/
 - 依赖：几乎所有模块都直接依赖 iro_opt()；这是整个主题最核心的横向依赖。
 - 完全删除：无法在主题继续工作的前提下直接删除。必须先替换 iro_opt()/iro_opt_update()，并处理整个仓库中所有 iro_opt(...) 调用。若只移除后台设置 UI，可以保留读取函数和默认值，再删除 opt/ 的后台注册代码。
-2. 在线更新、版本遥测和主题维护
-- 功能：从 GitHub/官方源检查更新；首次启用提示是否允许版本统计；检查并尝试修正主题目录名；显示权限警告。
-- 文件：
-  - PHP：functions.php:73-95、functions.php:1850-2120、functions.php:2689-2714、functions.php:4470-4540、update-checker/
-  - 设置：theme-options.php 中更新源、更新通道、版本统计相关字段
-- 依赖：依赖 Codestar 设置、WordPress Cron、文件系统 API。业务模块不依赖更新器本身。
-- 完全删除：
-  - 删除更新器 require、PucFactory、UpdateCheck() 和更新源 switch
-  - 删除 update-checker/
-  - 删除后台授权通知、目录检查、iro_act=del_exist_theme 分支
-  - 删除版本统计设置与 daily_event 注册，并清理已存在的计划任务
 3. Customizer、动态样式和缓存管理
 - 功能：Kirki 可视化实时预览；把 Customizer 的 theme_mod 同步回 iro_options；输出大量设置驱动的动态 CSS；提供外部数据缓存管理页。
 - 文件：
@@ -266,3 +257,17 @@
   - 设置：SEO、Gravatar、CDN、Jetpack、分类 URL 等字段位于 theme-options.php
 - 依赖：WordPress 查询、Feed、可选插件 Jetpack/WP-Statistics。
 - 完全删除：逐项移除对应 filter/action 和设置即可；不要整段删除 inc/theme-plus.php，因为它还包含导航、评论、文章头图和打赏等其他模块。移除分类基础功能后需要重新保存固定链接以刷新 rewrite rules。
+
+
+## 已移除的功能
+2. 在线更新、版本遥测和主题维护
+- 功能：从 GitHub/官方源检查更新；首次启用提示是否允许版本统计；检查并尝试修正主题目录名；显示权限警告。
+- 文件：
+  - PHP：functions.php:73-95、functions.php:1850-2120、functions.php:2689-2714、functions.php:4470-4540、update-checker/
+  - 设置：theme-options.php 中更新源、更新通道、版本统计相关字段
+- 依赖：依赖 Codestar 设置、WordPress Cron、文件系统 API。业务模块不依赖更新器本身。
+- 完全删除：
+  - 删除更新器 require、PucFactory、UpdateCheck() 和更新源 switch
+  - 删除 update-checker/
+  - 删除后台授权通知、目录检查、iro_act=del_exist_theme 分支
+  - 删除版本统计设置与 daily_event 注册，并清理已存在的计划任务
