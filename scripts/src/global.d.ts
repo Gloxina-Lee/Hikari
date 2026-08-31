@@ -71,7 +71,6 @@ declare namespace _iro {
     const loading_ph:string
     const qq_api_url: string
     const qzone_autocomplete: boolean
-    const random_graphs_mts: boolean
     const site_name: string
     const skin_bg0: string
     const site_url: string
@@ -80,14 +79,10 @@ declare namespace _iro {
     const skin_bg3: string
     const skin_bg4: string
     const code_highlight: "prism" | "hljs" | "custom"
+    const theme_asset_base_url: string
     const theme_mathjax: boolean
     const code_highlight_prism: {
         line_number_all: boolean
-        autoload_path: string,
-        theme: {
-            light: string,
-            dark: string
-        }
     }
     /**
      * 开启评论上传图片功能
@@ -100,10 +95,6 @@ declare namespace _iro {
     const cache_cover: boolean
     const site_bg_as_cover: boolean
     const yiyan_api: Array<string>
-    /**
-     * 是否从CDN源加载第三方库
-     */
-    const ext_shared_lib: boolean
     const dev_mode: boolean
     const is_admin: boolean | string
 }
@@ -129,5 +120,4 @@ interface Effect {
 }
 //#region define const
 declare const BUILD_INFO: { hash: string, date: string }
-declare const PKG_INFO:Record<string,string>
 //#endregion

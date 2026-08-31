@@ -23,7 +23,7 @@ function font_end_js_control()
         return get_the_author_meta('display_name', 1);
     };
 
-    $vision_resource_basepath = iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/');
+    $vision_resource_basepath = iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL);
     $movies = iro_opt('cover_video') ?
         array(
             'url' => iro_opt('cover_video_link'),
@@ -64,7 +64,7 @@ function font_end_js_control()
         'email_domain' => iro_opt('email_domain', ''),
         'email_name' => iro_opt('email_name', ''),
         'extract_theme_skin' => iro_opt('extract_theme_skin_from_cover', false)?true:false,
-        'ext_shared_lib' => iro_opt('external_vendor_lib'),
+        'theme_asset_base_url' => trailingslashit(get_template_directory_uri()) . 'js/',
         'cookie_version_control' => iro_opt('cookie_version', ''),
         'qzone_autocomplete' => false,
         'site_name' => get_bloginfo('name'),
@@ -79,7 +79,6 @@ function font_end_js_control()
         'loading_ph' => iro_opt('load_in_svg'),
         'clipboardRef' => iro_opt('clipboard_ref') == '0' ? false : true,
         'entry_content_style' => iro_opt('entry_content_style'),
-        'random_graphs_mts' => check(iro_opt('random_graphs_mts')),
         'code_highlight' => iro_opt('code_highlight_method', 'hljs'),
         'theme_mathjax' => check(iro_opt('enable_theme_mathjax', true)),
         'comment_upload_img' => iro_opt('img_upload_api') == 'off' ? false : true,
@@ -119,20 +118,8 @@ function font_end_js_control()
     }
     if (iro_opt('code_highlight_method', 'hljs') == 'prism') {
         $iro_opt['code_highlight_prism'] = [
-            'line_number_all' => check(iro_opt('code_highlight_prism_line_number_all')),
-            'autoload_path' => iro_opt('code_highlight_prism_autoload_path', '') ?: null
+            'line_number_all' => check(iro_opt('code_highlight_prism_line_number_all'))
         ];
-        $theme_light = iro_opt('code_highlight_prism_theme_light');
-        $theme_dark = iro_opt('code_highlight_prism_theme_dark');
-        if ($theme_light) {
-            if ($theme_dark) {
-                $iro_opt['code_highlight_prism']['theme'] = ['light' => $theme_light, 'dark' => $theme_dark];
-            } else {
-                $iro_opt['code_highlight_prism']['theme'] = ['light' => $theme_light];
-            }
-        } else if ($theme_dark) {
-            $iro_opt['code_highlight_prism']['theme'] = ['dark' => $theme_dark];
-        }
     }
     $preload_blur = iro_opt('preload_blur', 0);
     if ($preload_blur) $iro_opt['preload_blur'] = $preload_blur;

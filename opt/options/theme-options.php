@@ -20,7 +20,7 @@ array(
   "EDIT" => __("Action Edit (only displays while user has sufficient permissions)","sakurairo_csf"),
 ));
 
-$vision_resource_basepath = get_option('iro_options')['vision_resource_basepath'] ?? 'https://s.nmxc.ltd/sakurairo_vision/@3.0/';
+$vision_resource_basepath = trailingslashit( get_option('iro_options')['vision_resource_basepath'] ?? SAKURAIRO_VISION_BASE_URL );
 
 $prefix = 'iro_options';
 
@@ -35,29 +35,6 @@ $prefix = 'iro_options';
   Sakurairo_CSF::createOptions( $prefix, array(
     'menu_title' => __('iro-Options','sakurairo_csf'),
     'menu_slug'  => 'iro_options',
-  ) );
-
-  Sakurairo_CSF::createSection($prefix, array(
-    'title' => __('Hello!','sakurairo_csf'),
-    'icon'        => 'fa fa-podcast',
-    'fields'      => array(
-
-      array(
-        'type'    => 'heading',
-        'content' => __('Thank you to everyone who supports us!','sakurairo_csf'),
-      ),
-
-      array(
-        'type'    => 'content',
-        'content' => __('<a href="https://afdian.com/a/mamori"><img alt="afdian" height="50" src="https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/afdian.webp"></a><a href="https://liberapay.com/furina/donate"><img alt="liberapay" height="50" src="https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/liberapay.webp"></a><a href="https://app.unifans.io/c/somekawahitomi"><img alt="unifans" height="50" src="https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/unifans.webp"></a>','sakurairo_csf'),
-      ),
-
-      array(
-        'type'    => 'content',
-        'content' => __('<img src="https://fuukei-api.nyat.icu/api/sponsors"  alt="Sponsor" width="100%" height="100%" />','sakurairo_csf'),
-      ),
-
-    )
   ) );
 
   Sakurairo_CSF::createSection( $prefix, array(
@@ -418,9 +395,18 @@ $prefix = 'iro_options';
       ),
 
       array(
+        'id'      => 'load_google_fonts',
+        'type'    => 'switcher',
+        'title'   => __('Load External Google Fonts','sakurairo_csf'),
+        'desc'    => __('Disabled by default to avoid third-party font requests. Enable only when you trust the configured font service.','sakurairo_csf'),
+        'default' => false,
+      ),
+
+      array(
         'id'     => 'gfonts_api',
         'type'   => 'text',
         'title'  => __('Google Fonts Api Link','sakurairo_csf'),
+        'dependency' => array( 'load_google_fonts', '==', 'true', '', 'true' ),
         'default' => 'fonts.googleapis.com'
       ),
 
@@ -428,6 +414,7 @@ $prefix = 'iro_options';
         'id'     => 'gfonts_add_name',
         'type'   => 'text',
         'title'  => __('Google Fonts Name','sakurairo_csf'),
+        'dependency' => array( 'load_google_fonts', '==', 'true', '', 'true' ),
         'desc'   => __('Please make sure that the added fonts can be referenced in Google Fonts library. Fill in the font names. The added fonts must be preceded by "|". If multiple fonts are referenced, use "|" as the separator. If the font name has spaces, use a plus sign instead. For example: | zcool + xiaowei| Ma + Shan + Zheng','sakurairo_csf'),
       ),
 
@@ -3453,39 +3440,6 @@ $prefix = 'iro_options';
       ),
 
       array(
-        'id' => 'code_highlight_prism_autoload_path',
-        'type' => 'text',
-        'title' => __('Prism.js: Autoload Address','sakurairo_csf'),
-        'dependency' => array(
-          array( 'code_highlight_method', '==', 'prism', '', 'true' ),
-        ),
-        'desc' => __('Leave blank to use default values','sakurairo_csf'),
-        'default'=>'https://fastly.jsdelivr.net/npm/prismjs@1.23.0/'
-      ),
-
-      array(
-        'id' => 'code_highlight_prism_theme_light',
-        'type' => 'text',
-        'title' => __('Prism.js: Code Highlight Theme','sakurairo_csf'),
-        'desc' => __('Relative to autoload address. Leave blank to use default values','sakurairo_csf'),
-        'dependency' => array(
-          array( 'code_highlight_method', '==', 'prism', '', 'true' ),
-        ),
-        'default' => 'themes/prism.min.css'
-      ), 
-      
-      array(
-        'id' => 'code_highlight_prism_theme_dark',
-        'type' => 'text',
-        'title' => __('Prism.js: Code Highlight Theme (Dark Mode)','sakurairo_csf'),
-        'desc' => __('Relative to autoload address. Leave blank to use default values','sakurairo_csf'),
-        'dependency' => array(
-          array( 'code_highlight_method', '==', 'prism', '', 'true' ),
-        ),
-        'default' => 'themes/prism-tomorrow.min.css'
-      ),
-
-      array(
         'id' => 'enable_theme_mathjax',
         'type' => 'switcher',
         'title' => __('Enable Built-in MathJax','sakurairo_csf'),
@@ -3537,14 +3491,6 @@ $prefix = 'iro_options';
       ),
 
       array(
-        'id' => 'fontawesome_source',
-        'type' => 'text',
-        'title' => __('Fontawesome Source','sakurairo_csf'),
-        'desc' => __('The source link of Fontawesome icons style','sakurairo_csf'),
-        'default' => "https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css",
-      ),
-
-      array(
         'id'    => 'dev_mode',
         'type'  => 'switcher',
         'title' => __('Dev Mode','sakurairo_csf'),
@@ -3592,7 +3538,7 @@ $prefix = 'iro_options';
 
       array(
         'type'    => 'content',
-        'content' => __('<img src="https://s.nmxc.ltd/sakurairo_vision/@3.0/series/headlogo.webp"  alt="Theme Information" />','sakurairo_csf'),
+        'content' => '<img src="' . esc_url( $vision_resource_basepath . 'series/headlogo.webp' ) . '" alt="Theme Information" />',
       ),
 
       array(
@@ -3607,57 +3553,16 @@ $prefix = 'iro_options';
       ),
 
       array(
-        'id' => 'core_library_basepath',
-        'type' => 'switcher',
-        'title' => __('Provide Critical Frontend Resource locally','sakurairo_csf'),
-        'label' => __('Enabeld by default. Critical resources are those resources whose loading performance will have a significant impact on the user experience.','sakurairo_csf'),
-        'default' => true
+        'type' => 'content',
+        'content' => __('Theme scripts, styles, and bundled third-party libraries are always served from this WordPress installation.','sakurairo_csf'),
       ),
-
-      array(
-        'id' => 'shared_library_basepath',
-        'type' => 'switcher',
-        'title' => __('Provide Other Frontend Resource locally','sakurairo_csf'),
-        'label' => __('Less important frontend resource in the theme\'s folder.','sakurairo_csf'),
-        'default' => false
-      ),
-
-      array(
-        'id' => 'lib_cdn_path',
-        'type' => 'image_select',
-        'title' => __('Public CDN Basepath','sakurairo_csf'),
-        'label' => __('Control the basepath of Frontend Resource.','sakurairo_csf'),
-        'options'     => array(
-          'https://s.nmxc.ltd/sakurairo/@'  => $vision_resource_basepath . 'options/update_source_wafpro.webp',
-          'https://fastly.jsdelivr.net/gh/mirai-mamori/Sakurairo@'  => $vision_resource_basepath . 'options/update_source_jsd.webp',
-        ),
-        'default'     => 'https://s.nmxc.ltd/sakurairo/@'
-      ),
-
-      array(        
-      'id' => 'external_vendor_lib',
-      'type' => 'switcher',
-      'title' => __('Provide 3rd-party library from Public CDN','sakurairo_csf'),
-      'label' => __('When disabled, 3rd-party dependencies, which have been built to bundles along with themes\'s entry script, will be loaded from the exact same origin with Critical Frontend Resource. ','sakurairo_csf'),
-      'default' => false
-    ),
 
       array(
         'id' => 'vision_resource_basepath',
         'type' => 'text',
         'title' => __('Vision Resource Basepath','sakurairo_csf'),
-        'desc' => __('This link directory structure needs to be consistent with the <a href="https://github.com/Fuukei/Sakurairo_Vision">Sakurairo Vision</a> repositories officially provided by fuukei, otherwise some resources 404 may appear. The image source officially provided by <a href="https://waf.pro/">WAFPRO</a> is adopted by default.','sakurairo_csf'),
-        'default' => "https://s.nmxc.ltd/sakurairo_vision/@3.0/"
-      ),
-
-      array(
-        'type' => 'subheading',
-        'content' => __('Theme Contributors','sakurairo_csf'),
-      ),
-
-      array(
-        'type'    => 'content',
-        'content' => __('<img src="https://fuukei-api.nyat.icu/api/contributors" alt="Theme Contributors" width="100%" height="100%" />','sakurairo_csf'),
+        'desc' => __('This link directory structure needs to be consistent with the <a href="https://github.com/Fuukei/Sakurairo_Vision">Sakurairo Vision</a> repository, otherwise some resources may return 404. When this value changes, saved theme-option URLs that still start with the previous Vision base path are updated automatically.','sakurairo_csf'),
+        'default' => SAKURAIRO_VISION_BASE_URL
       ),
 
       array(

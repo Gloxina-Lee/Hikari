@@ -14,6 +14,7 @@ define('IRO_VERSION', wp_get_theme()->get('Version'));
 define('BUILD_VERSION', '3');
 define('INT_VERSION', '20.0.11');
 define('SSU_URL', 'https://api.fuukei.org/update/ssu.json');
+define('SAKURAIRO_VISION_BASE_URL', 'https://cdn.gloxina.com/sakurairo_vision/@3.0/');
 
 function check_php_version($preset_version)
 {
@@ -54,8 +55,78 @@ if (!function_exists('iro_opt_update')) {
     }
 }
 
-$shared_lib_basepath = iro_opt('shared_library_basepath') ? get_template_directory_uri() : (iro_opt('lib_cdn_path', 'https://fastly.jsdelivr.net/gh/mirai-mamori/Sakurairo@') . IRO_VERSION);
-$core_lib_basepath = iro_opt('core_library_basepath') ? get_template_directory_uri() : (iro_opt('lib_cdn_path', 'https://fastly.jsdelivr.net/gh/mirai-mamori/Sakurairo@') . IRO_VERSION);
+if (!function_exists('sakurairo_local_asset_url')) {
+    function sakurairo_local_asset_url($path = '')
+    {
+        return trailingslashit(get_template_directory_uri()) . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('sakurairo_rebase_vision_option_urls')) {
+    function sakurairo_rebase_vision_option_urls($value, $old_basepath, $new_basepath)
+    {
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = sakurairo_rebase_vision_option_urls($item, $old_basepath, $new_basepath);
+            }
+            return $value;
+        }
+
+        if (is_string($value) && strpos($value, $old_basepath) === 0) {
+            return $new_basepath . substr($value, strlen($old_basepath));
+        }
+
+        return $value;
+    }
+}
+
+if (!function_exists('sakurairo_rebase_vision_options')) {
+    function sakurairo_rebase_vision_options($new_options, $old_options)
+    {
+        if (!is_array($new_options)) {
+            return $new_options;
+        }
+
+        $default_basepath = SAKURAIRO_VISION_BASE_URL;
+        $old_basepath = trailingslashit($old_options['vision_resource_basepath'] ?? $default_basepath);
+        $new_basepath = trailingslashit($new_options['vision_resource_basepath'] ?? $default_basepath);
+
+        if ($old_basepath !== $new_basepath) {
+            $new_options = sakurairo_rebase_vision_option_urls($new_options, $old_basepath, $new_basepath);
+            $new_options['vision_resource_basepath'] = $new_basepath;
+        }
+
+        return $new_options;
+    }
+}
+add_filter('pre_update_option_iro_options', 'sakurairo_rebase_vision_options', 10, 2);
+
+if (!function_exists('sakurairo_migrate_legacy_vision_basepath')) {
+    function sakurairo_migrate_legacy_vision_basepath()
+    {
+        $legacy_basepath = 'https://s.nmxc.ltd/sakurairo_vision/@3.0/';
+        $options = get_option('iro_options');
+
+        if (!is_array($options)) {
+            return;
+        }
+
+        $current_basepath = trailingslashit($options['vision_resource_basepath'] ?? $legacy_basepath);
+        if ($current_basepath !== $legacy_basepath) {
+            return;
+        }
+
+        $options = sakurairo_rebase_vision_option_urls($options, $legacy_basepath, SAKURAIRO_VISION_BASE_URL);
+        $options['vision_resource_basepath'] = SAKURAIRO_VISION_BASE_URL;
+        update_option('iro_options', $options);
+        $GLOBALS['iro_options'] = $options;
+    }
+}
+add_action('after_setup_theme', 'sakurairo_migrate_legacy_vision_basepath', 1);
+
+// Theme and bundled third-party assets are always served from this installation.
+$shared_lib_basepath = get_template_directory_uri();
+$core_lib_basepath = get_template_directory_uri();
 
 // 屏蔽php日志信息
 if (iro_opt('php_notice_filter') != 'inner') {
@@ -656,7 +727,7 @@ function sakura_scripts()
     }
     
     // 平滑滚动脚本优化为延迟加载
-    if (iro_opt('smoothscroll_option')) {
+    if (iro_opt('smoothscroll_option', true)) {
         wp_enqueue_script('SmoothScroll', $shared_lib_basepath . '/js/smoothscroll.js', array(), IRO_VERSION . iro_opt('cookie_version', ''), true);
     }
 }
@@ -823,7 +894,7 @@ function get_author_class($comment_author_email, $user_id)
     }
 
     // $Lv = $author_count < 5 ? 0 : ($author_count < 10 ? 1 : ($author_count < 20 ? 2 : ($author_count < 40 ? 3 : ($author_count < 80 ? 4 : ($author_count < 160 ? 5 : 6)))));
-    echo "<span class=\"showGrade{$Lv}\" title=\"Lv{$Lv}\"><img alt=\"level_img\" src=\"" . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . "comment_level/level_{$Lv}.svg\" style=\"height: 1.5em; max-height: 1.5em; display: inline-block;\"></span>";
+    echo "<span class=\"showGrade{$Lv}\" title=\"Lv{$Lv}\"><img alt=\"level_img\" src=\"" . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . "comment_level/level_{$Lv}.svg\" style=\"height: 1.5em; max-height: 1.5em; display: inline-block;\"></span>";
 }
 
 /**
@@ -1019,7 +1090,7 @@ function visual_resource_updates($specified_version, $option_name, $new_value)
     if (version_compare($current_version, $specified_version, '>')) {
         $option_value = iro_opt($option_name);
         if (empty($option_value)) {
-            $option_value = "https://s.nmxc.ltd/sakurairo_vision/@3.0/";
+            $option_value = SAKURAIRO_VISION_BASE_URL;
         } else if (strpos($option_value, '@') === false || substr($option_value, strpos($option_value, '@') + 1) !== $new_value) {
             $option_value = preg_replace('/@.*/', '@' . $new_value, $option_value);
         }
@@ -1371,7 +1442,7 @@ function comment_mail_notify($comment_id)
         
         // 处理表情符号和特殊格式
         $message = convert_smilies($message);
-        $message = str_replace('{{', '<img src="' . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . '/smilies/bilipng/emoji_', $message);
+        $message = str_replace('{{', '<img src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . '/smilies/bilipng/emoji_', $message);
         $message = str_replace('}}', '.png" alt="emoji" style="height: 1.5em; max-height: 1.5em; vertical-align: middle;">', $message);
         
         // 处理图片
@@ -1642,9 +1713,9 @@ function push_tieba_smilies()
     foreach ($tiebaname as $tieba_Name) {
         $grin = make_onclick_grin($tieba_Name,'tieba');
         // 选择面版
-        $return_smiles = $return_smiles . '<span title="' . $tieba_Name . '" '.$grin.'><img alt="tieba_smilie" loading="lazy" src="' . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . 'smilies/' . $tiebaimgdir . 'icon_' . $tieba_Name . $smiliesgs . '" /></span>';
+        $return_smiles = $return_smiles . '<span title="' . $tieba_Name . '" '.$grin.'><img alt="tieba_smilie" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $tiebaimgdir . 'icon_' . $tieba_Name . $smiliesgs . '" /></span>';
         // 正文转换
-        $wpsmiliestrans['::' . $tieba_Name . '::'] = '<span title="' . $tieba_Name . '" '.$grin.'><img alt="tieba_smilie" loading="lazy" src="' . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . 'smilies/' . $tiebaimgdir . 'icon_' . $tieba_Name . $smiliesgs . '" /></span>';
+        $wpsmiliestrans['::' . $tieba_Name . '::'] = '<span title="' . $tieba_Name . '" '.$grin.'><img alt="tieba_smilie" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $tiebaimgdir . 'icon_' . $tieba_Name . $smiliesgs . '" /></span>';
     }
     return $return_smiles;
 }
@@ -1680,9 +1751,9 @@ function push_bili_smilies()
     foreach ($name as $smilies_Name) {
         $grin = make_onclick_grin($smilies_Name,'Math');
         // 选择面版
-        $return_smiles = $return_smiles . '<span title="' . $smilies_Name . '" '.$grin.'><img alt="bili_smilies" loading="lazy" src="' . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . 'smilies/' . $biliimgdir . 'emoji_' . $smilies_Name . $smiliesgs . '" /></span>';
+        $return_smiles = $return_smiles . '<span title="' . $smilies_Name . '" '.$grin.'><img alt="bili_smilies" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $biliimgdir . 'emoji_' . $smilies_Name . $smiliesgs . '" /></span>';
         // 正文转换
-        $bilismiliestrans['{{' . $smilies_Name . '}}'] = '<span title="' . $smilies_Name . '" '.$grin.'><img alt="bili_smilies" loading="lazy" src="' . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . 'smilies/' . $biliimgdir . 'emoji_' . $smilies_Name . $smiliesgs . '" /></span>';
+        $bilismiliestrans['{{' . $smilies_Name . '}}'] = '<span title="' . $smilies_Name . '" '.$grin.'><img alt="bili_smilies" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $biliimgdir . 'emoji_' . $smilies_Name . $smiliesgs . '" /></span>';
     }
     return $return_smiles;
 }
@@ -1714,7 +1785,7 @@ function bili_smile_filter_rss($content)
     $type = is_webp() ? 'webp' : 'png';
     $biliimgdir = 'bili' . $type . '/';
     $smiliesgs = '.' . $type;
-    $content = str_replace('{{', '<img src="' . iro_opt('vision_resource_basepath', 'https://s.nmxc.ltd/sakurairo_vision/@3.0/') . 'smilies/' . $biliimgdir, $content);
+    $content = str_replace('{{', '<img src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $biliimgdir, $content);
     $content = str_replace('}}', $smiliesgs . '" alt="emoji" style="height: 2em; max-height: 2em;">', $content);
     $content = str_replace('[img]', '<img src="', $content);
     $content = str_replace('[/img]', '" style="display: block;margin-left: auto;margin-right: auto;">', $content);

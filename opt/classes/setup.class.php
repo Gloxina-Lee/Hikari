@@ -562,13 +562,9 @@ if ( ! class_exists( 'Sakurairo_CSF' ) ) {
       wp_enqueue_style( 'wp-color-picker' );
       wp_enqueue_script( 'wp-color-picker' );
 
-      // Font awesome 4 and 5 loader
-      if ( apply_filters( 'csf_fa4', false ) ) {
-        wp_enqueue_style( 'csf-fa', 'https://s4.zstatic.net/ajax/libs/font-awesome/4.7.0/css/font-awesome'. $min .'.css', array(), '4.7.0', 'all' );
-      } else {
-        wp_enqueue_style( 'csf-fa5', 'https://s4.zstatic.net/ajax/libs/font-awesome/5.15.4/css/all'. $min .'.css', array(), '5.15.5', 'all' );
-        wp_enqueue_style( 'csf-fa5-v4-shims', 'https://s4.zstatic.net/ajax/libs/font-awesome/5.15.4/css/v4-shims'. $min .'.css', array(), '5.15.5', 'all' );
-      }
+      // Font Awesome is bundled with the theme to avoid executing CSS from a public CDN.
+      wp_enqueue_style( 'csf-fa5', sakurairo_local_asset_url( 'assets/vendor/fontawesome/css/all.min.css' ), array(), '6.7.2', 'all' );
+      wp_enqueue_style( 'csf-fa5-v4-shims', sakurairo_local_asset_url( 'assets/vendor/fontawesome/css/v4-shims.min.css' ), array( 'csf-fa5' ), '6.7.2', 'all' );
 
       // Main style
       wp_enqueue_style( 'sakurairo_csf', self::include_plugin_url( 'assets/css/style'. $min .'.css' ), array(), self::$version, 'all' );
@@ -651,7 +647,7 @@ if ( ! class_exists( 'Sakurairo_CSF' ) ) {
             $fonts[] = $family . ( ( ! empty( $styles ) ) ? ':'. implode( ',', $styles ) : '' );
           }
 
-          wp_enqueue_script( 'csf-google-web-fonts', esc_url( '//ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js' ), array(), null );
+          wp_enqueue_script( 'csf-google-web-fonts', sakurairo_local_asset_url( 'inc/kirki/kirki-packages/module-webfonts/src/assets/scripts/vendor-typekit/webfontloader.js' ), array(), '1.6.28' );
 
           wp_localize_script( 'csf-google-web-fonts', 'WebFontConfig', array( 'google' => array( 'families' => $fonts ) ) );
 

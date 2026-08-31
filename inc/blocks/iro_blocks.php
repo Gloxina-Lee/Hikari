@@ -30,7 +30,8 @@ function iro_editor_vars( $hook ) {
 add_action('enqueue_block_editor_assets', 'sakurairo_editor_styles');
 function sakurairo_editor_styles() {
     global $core_lib_basepath;
-    wp_enqueue_style('fontawesome-icons',iro_opt('fontawesome_source','https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css'),array(),null);
+    wp_enqueue_style('fontawesome-icons', sakurairo_local_asset_url('assets/vendor/fontawesome/css/all.min.css'), array(), '6.7.2');
+    wp_enqueue_style('fontawesome-v4-shims', sakurairo_local_asset_url('assets/vendor/fontawesome/css/v4-shims.min.css'), array('fontawesome-icons'), '6.7.2');
     wp_enqueue_style('iro-codes', $core_lib_basepath . '/css/shortcodes.css', array(), IRO_VERSION);
 }
 

@@ -1,9 +1,7 @@
 import { isInDarkMode } from '../app/darkmode'
 import { loadCSS } from 'fg-loadcss'
-import { importExternal, resolvePath } from '../common/npmLib';
 import { __ } from './sakurairo_global';
 
-const PRISM_VERSION = PKG_INFO['prismjs']
 const attributes = {
     'autocomplete': 'off',
     'autocorrect': 'off',
@@ -71,13 +69,12 @@ export async function hljs_process(pre, code) {
     }
 }
 //Prism
-const PrismBaseUrl = _iro.code_highlight_prism?.autoload_path || resolvePath('', 'prismjs', PRISM_VERSION)
+const PrismBaseUrl = new URL('vendor/prism/', _iro.theme_asset_base_url).toString()
 let currentPrismThemeCSS = undefined
 const themeCSS = (() => {
-    const { light, dark } = _iro.code_highlight_prism?.theme || {}
     const theme = {
-        light: light || 'themes/prism.min.css',
-        dark: dark || 'themes/prism-tomorrow.min.css',
+        light: 'themes/prism.min.css',
+        dark: 'themes/prism-tomorrow.min.css',
     }
     for (const theme_name in theme) {
         theme[theme_name] = new URL(theme[theme_name], PrismBaseUrl).toString()
@@ -112,13 +109,7 @@ async function importPrismJS() {
             //必备插件全家桶
             loadCSS(new URL('plugins/toolbar/prism-toolbar.min.css', PrismBaseUrl).toString())
             loadCSS(new URL('plugins/previewers/prism-previewers.min.css', PrismBaseUrl).toString())
-            if (_iro.ext_shared_lib) {
-                await Promise.all([importExternal('components/prism-core.min.js', 'prismjs', PRISM_VERSION),
-                importExternal('plugins/autoloader/prism-autoloader.min.js', 'prismjs', PRISM_VERSION),
-                importExternal('plugins/toolbar/prism-toolbar.min.js', 'prismjs', PRISM_VERSION),
-                importExternal('plugins/previewers/prism-previewers.min.js', 'prismjs', PRISM_VERSION),
-                importExternal('plugins/show-language/prism-show-language.min.js', 'prismjs', PRISM_VERSION)])
-            } else await import('./prism_pack')
+            await import('./prism_pack')
             Prism.plugins.autoloader.languages_path = new URL('components/', PrismBaseUrl).toString()
         }
     } catch (reason) {
@@ -127,27 +118,15 @@ async function importPrismJS() {
 }
 function loadPrismPluginLineNumbers() {
     loadCSS(new URL('plugins/line-numbers/prism-line-numbers.min.css', PrismBaseUrl).toString())
-    if (_iro.ext_shared_lib) {
-        return importExternal('plugins/line-numbers/prism-line-numbers.min.js', 'prismjs', PRISM_VERSION)
-    } else {
-        return import('prismjs/plugins/line-numbers/prism-line-numbers')
-    }
+    return import('prismjs/plugins/line-numbers/prism-line-numbers')
 }
 function loadPrismMatchBraces() {
     loadCSS(new URL('plugins/match-braces/prism-match-braces.min.css', PrismBaseUrl).toString())
-    if (_iro.ext_shared_lib) {
-        return importExternal('plugins/match-braces/prism-match-braces.min.js', 'prismjs', PRISM_VERSION)
-    } else {
-        return import('prismjs/plugins/match-braces/prism-match-braces')
-    }
+    return import('prismjs/plugins/match-braces/prism-match-braces')
 }
 function loadPrismCommandLine() {
     loadCSS(new URL('plugins/command-line/prism-command-line.css', PrismBaseUrl).toString())
-    if (_iro.ext_shared_lib) {
-        return importExternal('plugins/command-line/prism-command-line.min.js', 'prismjs', PRISM_VERSION)
-    } else {
-        return import('prismjs/plugins/command-line/prism-command-line')
-    }
+    return import('prismjs/plugins/command-line/prism-command-line')
 }
 /**
  * 
@@ -228,12 +207,7 @@ export async function code_highlight_style() {
             code[j].setAttribute('id', 'code-block-' + j);
             code[j].insertAdjacentHTML('afterend', '<a class="copy-code" href="javascript:" data-clipboard-target="#code-block-' + j + '" title="' + __("拷贝代码") + '"><i class="fa-regular fa-clipboard"></i>');
         }
-        if (_iro.ext_shared_lib) {
-            await importExternal('dist/clipboard.min.js', 'clipboard')
-            new ClipboardJS('.copy-code')
-        } else {
-            const ClipboardJS = (await import('clipboard')).default
-            new ClipboardJS('.copy-code');
-        }
+        const ClipboardJS = (await import('clipboard')).default
+        new ClipboardJS('.copy-code');
     }
 }

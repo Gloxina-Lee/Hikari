@@ -5,7 +5,6 @@ const { commitHash } = require('./commit_hash')
 /* const { VueLoaderPlugin } = require('vue-loader')
  */const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const package_info = require('./package_info')
 
 const javascript_loader = {
     loader: 'babel-loader',
@@ -121,8 +120,7 @@ module.exports = {
             BUILD_INFO: JSON.stringify({
                 hash: commitHash,
                 date: new Date().toLocaleDateString()
-            }),
-            PKG_INFO: JSON.stringify(package_info)
+            })
         }),
         new CopyWebpackPlugin({
             patterns: [
@@ -132,6 +130,34 @@ module.exports = {
                     context: path.resolve(__dirname, 'external'),
                     to: path.resolve(define.dist_path),
                     noErrorOnMissing: true,
+                },
+                {
+                    from: path.resolve(__dirname, 'node_modules/baguettebox.js/dist/baguetteBox.min.css'),
+                    to: path.resolve(define.dist_path, 'vendor/baguettebox/baguetteBox.min.css'),
+                },
+                {
+                    from: path.resolve(__dirname, 'node_modules/@fancyapps/fancybox/dist/jquery.fancybox.min.css'),
+                    to: path.resolve(define.dist_path, 'vendor/fancybox/jquery.fancybox.min.css'),
+                },
+                {
+                    from: '*.min.js',
+                    context: path.resolve(__dirname, 'node_modules/prismjs/components'),
+                    to: path.resolve(define.dist_path, 'vendor/prism/components/[name][ext]'),
+                },
+                {
+                    from: '*.css',
+                    context: path.resolve(__dirname, 'node_modules/prismjs/themes'),
+                    to: path.resolve(define.dist_path, 'vendor/prism/themes/[name][ext]'),
+                },
+                {
+                    from: '**/*.css',
+                    context: path.resolve(__dirname, 'node_modules/prismjs/plugins'),
+                    to: path.resolve(define.dist_path, 'vendor/prism/plugins/[path][name][ext]'),
+                },
+                {
+                    from: '**/*',
+                    context: path.resolve(__dirname, 'node_modules/mathjax/es5/output/chtml/fonts/woff-v2'),
+                    to: path.resolve(define.dist_path, 'vendor/mathjax/fonts/[path][name][ext]'),
                 }
             ]
         })

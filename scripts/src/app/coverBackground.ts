@@ -1,20 +1,16 @@
 import { get, set, del } from './cache'
 import { Accept_Image } from './compatibility';
 import { __ } from '../common/sakurairo_global';
-import { isMobile } from './mobile';
 import { createButterbar } from '../common/butterbar';
 import { noop } from '../common/util';
-let bgn = 1;
 let blob_url = ''
 let RecordedBG = '';
 export async function nextBG() {
-    changeCoverBG(await getCoverPath(true))
-    bgn++;
+    changeCoverBG(await getCoverPath())
 }
 
 export async function preBG() {
-    bgn--;
-    changeCoverBG(await getCoverPath(true))
+    changeCoverBG(await getCoverPath())
 }
 const centerbg = document.querySelector<HTMLElement>(".centerbg")
 /**
@@ -41,16 +37,10 @@ function parseCSSUrl(cssText?: string) {
 export const getCurrentBG: () => (string | void) = _iro.site_bg_as_cover ? () => parseCSSUrl(document.body.style.backgroundImage) :
     (centerbg ? () => parseCSSUrl(centerbg.style.backgroundImage) : noop)
 
-function getAPIPath(useBGN = false) {
-    const cover_api_url = new URL(_iro.cover_api)
-    if (isMobile() && _iro.random_graphs_mts == true) {
-        cover_api_url.searchParams.set('type', 'mobile')
-        return cover_api_url.toString() + (useBGN ? "&" + bgn : '')
-    } else {
-        return cover_api_url.toString() + (useBGN ? (cover_api_url.search === '' ? "?" : '&') + bgn : '');
-    }
+function getAPIPath() {
+    return _iro.cover_api
 }
-export const getCoverPath = _iro.cache_cover ? (useBGN = false) =>
+export const getCoverPath = _iro.cache_cover ? () =>
     get('cover').then(coverBG => {
         if (coverBG && coverBG instanceof ArrayBuffer) {
             cleanBlobUrl()
@@ -58,15 +48,15 @@ export const getCoverPath = _iro.cache_cover ? (useBGN = false) =>
             return blob_url
         } else {
             //fallback
-            return getAPIPath(useBGN)
+            return getAPIPath()
         }
     }).finally(() => {
-        fetchThenCache(useBGN)
+        fetchThenCache()
     })
     : getAPIPath
-async function fetchThenCache(useBGN = false) {
+async function fetchThenCache() {
     try {
-        const resp = await fetch(getAPIPath(useBGN), { headers: { Accept: Accept_Image } });
+        const resp = await fetch(getAPIPath(), { headers: { Accept: Accept_Image } });
         if (resp.status == 500) {
             const result = await resp.json()
             createButterbar(result.message)

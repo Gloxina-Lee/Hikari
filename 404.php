@@ -26,7 +26,8 @@ $random_bg_url = DEFAULT_FEATURE_IMAGE();
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="<?php echo esc_url(iro_opt('favicon_link', '')); ?>" />
-    <link rel="stylesheet" href="<?php echo (iro_opt('fontawesome_source','https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css') ?? 'https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css')?>" type="text/css" media="all" />
+    <link rel="stylesheet" href="<?= esc_url(sakurairo_local_asset_url('assets/vendor/fontawesome/css/all.min.css')); ?>" type="text/css" media="all" />
+    <link rel="stylesheet" href="<?= esc_url(sakurairo_local_asset_url('assets/vendor/fontawesome/css/v4-shims.min.css')); ?>" type="text/css" media="all" />
     <title>404 - <?php echo esc_html(get_bloginfo('name')); ?></title>
     <?php wp_head(); ?>
     <style>

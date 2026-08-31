@@ -23,7 +23,7 @@ if ( ! class_exists( 'CSF_Options' ) ) {
     public $args         = array(
 
       // framework title
-      'framework_title'         => '<img src="https://s.nmxc.ltd/sakurairo_vision/@3.0/series/login_logo.webp" style="width:50px;height:50px;transform:translateY(32%);margin-right: 13px;">iro 主题设置 <small> / Theme Options / テーマの設定</small>',
+      'framework_title'         => 'iro 主题设置 <small> / Theme Options / テーマの設定</small>',
       'framework_class'         => '',
 
       // menu settings
@@ -94,6 +94,11 @@ if ( ! class_exists( 'CSF_Options' ) ) {
       $this->unique   = $key;
       $this->args     = apply_filters( "csf_{$this->unique}_args", wp_parse_args( $params['args'], $this->args ), $this );
       $this->sections = apply_filters( "csf_{$this->unique}_sections", $params['sections'], $this );
+
+      if ( empty( $params['args']['framework_title'] ) ) {
+        $logo_url = trailingslashit( iro_opt( 'vision_resource_basepath', SAKURAIRO_VISION_BASE_URL ) ) . 'series/login_logo.webp';
+        $this->args['framework_title'] = '<img src="'. esc_url( $logo_url ) .'" style="width:50px;height:50px;transform:translateY(32%);margin-right: 13px;">iro 主题设置 <small> / Theme Options / テーマの設定</small>';
+      }
 
       // run only is admin panel options, avoid performance loss
       $this->pre_tabs     = $this->pre_tabs( $this->sections );

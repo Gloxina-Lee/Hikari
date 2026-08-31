@@ -11,8 +11,6 @@ if ( ! class_exists( 'CSF_Field_map' ) ) {
   class CSF_Field_map extends CSF_Fields {
 
     public $version = '1.9.2';
-    public $cdn_url = 'https://lib.baomitu.com/leaflet/';
-
     public function __construct( $field, $value = '', $unique = '', $where = '', $parent = '' ) {
       parent::__construct( $field, $value, $unique, $where, $parent );
     }
@@ -81,11 +79,11 @@ if ( ! class_exists( 'CSF_Field_map' ) ) {
     public function enqueue() {
 
       if ( ! wp_script_is( 'csf-leaflet' ) ) {
-        wp_enqueue_script( 'csf-leaflet', esc_url( $this->cdn_url . $this->version .'/leaflet.js' ), array( 'sakurairo_csf' ), $this->version, true );
+        wp_enqueue_script( 'csf-leaflet', sakurairo_local_asset_url( 'assets/vendor/leaflet/leaflet.js' ), array( 'sakurairo_csf' ), $this->version, true );
       }
 
       if ( ! wp_style_is( 'csf-leaflet' ) ) {
-        wp_enqueue_style( 'csf-leaflet', esc_url( $this->cdn_url . $this->version .'/leaflet.css' ), array(), $this->version );
+        wp_enqueue_style( 'csf-leaflet', sakurairo_local_asset_url( 'assets/vendor/leaflet/leaflet.css' ), array(), $this->version );
       }
 
       if ( ! wp_script_is( 'jquery-ui-autocomplete' ) ) {

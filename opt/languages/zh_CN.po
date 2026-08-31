@@ -699,31 +699,6 @@ msgstr "编辑按钮（只在拥有编辑权限时显示）"
 msgid "iro-Options"
 msgstr "iro 主题设置"
 
-#: options/theme-options.php:41
-msgid "Hello!"
-msgstr "你好！"
-
-#: options/theme-options.php:47
-msgid "Thank you to everyone who supports us!"
-msgstr "感谢每一位支持我们的你"
-
-#: options/theme-options.php:52
-msgid ""
-"<a href=\"https://afdian.com/a/mamori\"><img alt=\"afdian\" height=\"50\" "
-"src=\"https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/afdian.webp\"></a><a "
-"href=\"https://liberapay.com/furina/donate\"><img alt=\"liberapay\" "
-"height=\"50\" src=\"https://s.nmxc.ltd/sakurairo_vision/@3.0/readme/"
-"liberapay.webp\"></a><a href=\"https://app.unifans.io/c/"
-"somekawahitomi\"><img alt=\"unifans\" height=\"50\" src=\"https://s.nmxc.ltd/"
-"sakurairo_vision/@3.0/readme/unifans.webp\"></a>"
-msgstr ""
-
-#: options/theme-options.php:57
-msgid ""
-"<img src=\"https://fuukei-api.nyat.icu/api/sponsors\"  alt=\"Sponsor\" "
-"width=\"100%\" height=\"100%\" />"
-msgstr ""
-
 #: options/theme-options.php:65
 msgid "Preliminary Options"
 msgstr "初步设置"
@@ -4401,16 +4376,6 @@ msgstr ""
 "此链接目录结构需要与 Fuukei 官方提供的 <a href=\"https://github.com/Fuukei/"
 "Sakurairo_Vision\">Sakurairo Vision</a> 公共仓库保持一致，否则可能会出现一些"
 "资源 404。默认采用 <a href=\"https://waf.pro/\">WAFPRO</a> 提供的镜像源。"
-
-#: options/theme-options.php:4119
-msgid "Theme Contributors"
-msgstr "贡献者"
-
-#: options/theme-options.php:4124
-msgid ""
-"<img src=\"https://fuukei-api.nyat.icu/api/contributors\" alt=\"Theme "
-"Contributors\" width=\"100%\" height=\"100%\" />"
-msgstr ""
 
 #: options/theme-options.php:4129
 msgid "Privacy information"

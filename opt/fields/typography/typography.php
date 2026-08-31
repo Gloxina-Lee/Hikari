@@ -355,7 +355,7 @@ if (!class_exists('CSF_Field_typography')) {
 
         Sakurairo_CSF::include_plugin_file('fields/typography/google-fonts.php');
 
-        wp_enqueue_script('csf-webfontloader', 'https://lib.baomitu.com/webfont/1.6.28/webfontloader.js', array('sakurairo_csf'), '1.6.28', true);
+        wp_enqueue_script('csf-webfontloader', sakurairo_local_asset_url('inc/kirki/kirki-packages/module-webfonts/src/assets/scripts/vendor-typekit/webfontloader.js'), array('sakurairo_csf'), '1.6.28', true);
 
         $webfonts = array();
 

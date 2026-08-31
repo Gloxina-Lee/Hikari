@@ -38,7 +38,7 @@ function use_customize_data() { // 模版中加载，解决其他位置获取不
 }
 if ( is_customize_preview() ) { use_customize_data(); } //预览模式将临时值写入theme_mod中的iro_options
 
-$core_lib_basepath = iro_opt('core_library_basepath') ? get_template_directory_uri() : (iro_opt('lib_cdn_path', 'https://fastly.jsdelivr.net/gh/mirai-mamori/Sakurairo@') . IRO_VERSION);
+$core_lib_basepath = get_template_directory_uri();
 $nav_text_logo = iro_opt('nav_text_logo');
 $vision_resource_basepath = iro_opt('vision_resource_basepath');
 header('X-Frame-Options: SAMEORIGIN');
@@ -63,19 +63,23 @@ header('X-Frame-Options: SAMEORIGIN');
 
     <!-- 优化资源加载 -->
     <meta http-equiv="x-dns-prefetch-control" content="on">
-    <link rel="preconnect" href="https://<?= esc_attr(iro_opt('gfonts_api', 'fonts.googleapis.com')); ?>">
-    <link rel="preconnect" href="https://s4.zstatic.net" crossorigin>
+    <?php if ( iro_opt( 'load_google_fonts', false ) ) : ?>
+        <link rel="preconnect" href="https://<?= esc_attr(iro_opt('gfonts_api', 'fonts.googleapis.com')); ?>">
+    <?php endif; ?>
 
-    <link rel="preload" href="<?php echo (iro_opt('fontawesome_source','https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css') ?? 'https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css')?>" as="style">
-    <link rel="stylesheet" href="<?php echo (iro_opt('fontawesome_source','https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css') ?? 'https://s4.zstatic.net/ajax/libs/font-awesome/6.7.2/css/all.min.css')?>" type="text/css" media="all" />
+    <link rel="preload" href="<?= esc_url(sakurairo_local_asset_url('assets/vendor/fontawesome/css/all.min.css')); ?>" as="style">
+    <link rel="stylesheet" href="<?= esc_url(sakurairo_local_asset_url('assets/vendor/fontawesome/css/all.min.css')); ?>" type="text/css" media="all" />
+    <link rel="stylesheet" href="<?= esc_url(sakurairo_local_asset_url('assets/vendor/fontawesome/css/v4-shims.min.css')); ?>" type="text/css" media="all" />
     
     <link rel="shortcut icon" href="<?= esc_url(iro_opt('favicon_link', '')); ?>" />
     
     <?php wp_head(); ?>
     <link rel="alternate" type="application/rss+xml" title="<?php bloginfo('name'); ?>｜<?php bloginfo('description'); ?>" href="<?php bloginfo('rss2_url'); ?>" />
     
-    <link rel="preload" as="style" href="https://<?= esc_attr(iro_opt('gfonts_api', 'fonts.googleapis.com')); ?>/css?family=Noto+Serif+SC|Noto+Sans+SC|Fira+Code<?= esc_attr(iro_opt('gfonts_add_name')); ?>&display=swap">
-    <link rel="stylesheet" href="https://<?= esc_attr(iro_opt('gfonts_api', 'fonts.googleapis.com')); ?>/css?family=Noto+Serif+SC|Noto+Sans+SC|Fira+Code<?= esc_attr(iro_opt('gfonts_add_name')); ?>&display=swap" media="all">
+    <?php if ( iro_opt( 'load_google_fonts', false ) ) : ?>
+        <link rel="preload" as="style" href="https://<?= esc_attr(iro_opt('gfonts_api', 'fonts.googleapis.com')); ?>/css?family=Noto+Serif+SC|Noto+Sans+SC|Fira+Code<?= esc_attr(iro_opt('gfonts_add_name')); ?>&display=swap">
+        <link rel="stylesheet" href="https://<?= esc_attr(iro_opt('gfonts_api', 'fonts.googleapis.com')); ?>/css?family=Noto+Serif+SC|Noto+Sans+SC|Fira+Code<?= esc_attr(iro_opt('gfonts_add_name')); ?>&display=swap" media="all">
+    <?php endif; ?>
     <?php if (iro_opt('google_analytics_id')) : ?>
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=<?= esc_attr(iro_opt('google_analytics_id')); ?>"></script>
