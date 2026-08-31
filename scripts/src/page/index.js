@@ -13,7 +13,6 @@ import prepareEmoji from './emoji'
 import initLinkSubmission from './link_form'
 import ghcardTheme from './ghcard_theme'
 import initTimeArchive from './time_archive'
-import bili_fav_init from './bili_fav'
 import init_comment_captcha from './comment_captcha'
 
 function apply_post_theme_color() {
@@ -512,7 +511,6 @@ function whileLoaded() {
     document.addEventListener('ajax_comment_complete', afterAjaxCommentComplete)
     initLinkSubmission();
     initTimeArchive();
-    bili_fav_init();
     init_comment_captcha();
 }
 whileLoaded()

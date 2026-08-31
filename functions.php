@@ -100,6 +100,83 @@ function sakurairo_cleanup_legacy_update_state()
 }
 add_action('init', 'sakurairo_cleanup_legacy_update_state', 1);
 
+/**
+ * Remove schedules, cached data, and credentials left by the retired tracking
+ * and Bilibili favourites module.
+ */
+function sakurairo_cleanup_legacy_tracking_state()
+{
+    if (get_option('sakurairo_tracking_module_cleanup_complete')) {
+        return;
+    }
+
+    wp_clear_scheduled_hook('bilibili_favlist_update_cron');
+
+    $transients = array(
+        'bangumi_cache',
+        'bangumi_cache_expire',
+        'bangumi_cache_duration',
+        'bilibili_favlist_folders',
+        'bilibili_favlist_folders_expire',
+    );
+
+    foreach ($transients as $transient) {
+        delete_transient($transient);
+    }
+
+    // Folder and page identifiers were embedded in transient names, so remove
+    // every matching database entry rather than relying on a fixed key list.
+    global $wpdb;
+    $transient_prefixes = array(
+        '_transient_bilibili_favlist_',
+        '_transient_timeout_bilibili_favlist_',
+    );
+
+    foreach ($transient_prefixes as $prefix) {
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $wpdb->esc_like($prefix) . '%'
+            )
+        );
+    }
+
+    $retired_options = array(
+        'bangumi_source',
+        'my_anime_list_username',
+        'my_anime_list_sort',
+        'bilibili_id',
+        'bilibili_cookie',
+        'bangumi_id',
+        'bangumi_cache',
+    );
+
+    $options = get_option('iro_options');
+    if (is_array($options)) {
+        $original_options = $options;
+        foreach ($retired_options as $option) {
+            unset($options[$option]);
+        }
+        if ($options !== $original_options) {
+            update_option('iro_options', $options);
+        }
+    }
+
+    $theme_mod_options = get_theme_mod('iro_options', array());
+    if (is_array($theme_mod_options)) {
+        $original_theme_mod_options = $theme_mod_options;
+        foreach ($retired_options as $option) {
+            unset($theme_mod_options[$option]);
+        }
+        if ($theme_mod_options !== $original_theme_mod_options) {
+            set_theme_mod('iro_options', $theme_mod_options);
+        }
+    }
+
+    add_option('sakurairo_tracking_module_cleanup_complete', '1', '', false);
+}
+add_action('init', 'sakurairo_cleanup_legacy_tracking_state', 1);
+
 add_action('init', 'set_user_locale');
 function set_user_locale() {
     if (is_user_logged_in()) {
@@ -239,21 +316,6 @@ function i18n_templates_name ($translated_name, $original_name) {
             'zh_CN' => '友情链接模板',
             'zh_TW' => '友情連結模板',
             'ja'    => 'フレンドリーリンクテンプレート',
-        ),
-        'Bangumi Template' => array(
-            'zh_CN' => '追番模板',
-            'zh_TW' => '追番模板',
-            'ja'    => 'バンガミテンプレート',
-        ),
-        'Bilibili FavList Template' => array(
-            'zh_CN' => 'Bilibili 收藏模板',
-            'zh_TW' => 'Bilibili 收藏模板',
-            'ja'    => 'Bilibili お気に入りテンプレート',
-        ),
-        'Bilibili FollowVideos Template' => array(
-            'zh_CN' => 'Bilibili 追剧模板',
-            'zh_TW' => 'Bilibili 追劇模板',
-            'ja'    => 'Bilibili フォロービデオテンプレート',
         ),
         'Archive Template' => array(
             'zh_CN' => '归档模板',
@@ -628,19 +690,6 @@ require get_template_directory() . '/inc/api.php';
  * Custom template tags for this theme.
  */
 require get_template_directory() . '/inc/template-tags.php';
-
-/**
- * 初始化Bilibili收藏夹缓存定时任务
- */
-add_action('init', function() {
-    if (class_exists('Sakura\API\BilibiliFavListCron')) {
-        Sakura\API\BilibiliFavListCron::init();
-    }
-});
-
-// 加载缓存设置页
-
-require get_template_directory() . '/inc/cache_settings.php';
 
 /**
  * Customizer功能
@@ -4015,27 +4064,6 @@ function iro_action_operator()
     $direct_info = sanitize_key($_GET['iro_act']);
 
     switch($direct_info){
-        case 'bangumi' :
-            $direct_url = 'https://api.bgm.tv/v0/users/' . (iro_opt('bangumi_id') ?: '944883') . '/collections';
-            header("Location: $direct_url", true, 302);
-            break;
-
-        case 'mal' :
-            switch (iro_opt('my_anime_list_sort')) {
-                case 1: // Status and Last Updated
-                    $sort = 'order=16&order2=5&status=7';
-                    break;
-                case 2: // Last Updated
-                    $sort = 'order=5&status=7';
-                    break;
-                case 3: // Status
-                    $sort = 'order=16&status=7';
-                    break;
-            }
-            $direct_url = 'https://myanimelist.net/animelist/' . (iro_opt('my_anime_list_username') ?: 'username') . '/load.json?' . $sort;
-            header("Location: $direct_url", true, 302);
-            break;
-        
         case 'gallery_init':
             include_once('inc/classes/gallery.php');
             $gallery = new Sakura\API\gallery();
