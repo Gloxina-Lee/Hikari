@@ -62,7 +62,6 @@ if (iro_opt('php_notice_filter') != 'inner') {
 
     if (iro_opt('php_notice_filter','normal') == 'normal') { //仅显示严重错误
         error_reporting(E_ALL & ~E_DEPRECATED);
-        ini_set('display_errors', '1');
     }
     if (iro_opt('php_notice_filter') == 'all') { //屏蔽大部分错误
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
@@ -663,21 +662,27 @@ function sakura_scripts()
 }
 add_action('wp_enqueue_scripts', 'sakura_scripts');
 
-add_action("after_setup_theme",function(){
-    if(iro_opt("poi_pjax",true)==true){
+function sakurairo_configure_block_asset_loading()
+{
+    if (iro_opt('poi_pjax', true) == true) {
         // 禁用wp6.9按需加载
         add_filter( 'wp_should_load_separate_core_block_assets', '__return_false' );
         add_filter( 'should_load_separate_core_block_assets', '__return_false', 1 );
         add_filter( 'should_load_block_assets_on_demand', '__return_false', 1 );
         add_filter( 'enqueue_empty_block_content_assets', '__return_true' );
+    }
+}
+add_action('after_setup_theme', 'sakurairo_configure_block_asset_loading');
 
-        // 全量加载wordpress区块和原生组件样式
+function sakurairo_enqueue_core_block_styles()
+{
+    if (iro_opt('poi_pjax', true) == true) {
+        // 分离加载已关闭，组合样式已包含评论和小工具等核心区块。
         wp_enqueue_style( 'wp-block-library' );
         wp_enqueue_style( 'wp-block-library-theme' );
-        wp_enqueue_style( 'wp-block-library-comments' );
-        wp_enqueue_style( 'wp-block-library-widgets' );
     }
-});
+}
+add_action('wp_enqueue_scripts', 'sakurairo_enqueue_core_block_styles', 20);
 
 /**
  * load .php.
