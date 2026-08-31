@@ -1,4 +1,4 @@
-# Hikari Theme
+# Sakurairo Theme
 
 > 一个 WordPress 主题，对 Sakurairo 进行二次修改。
 
