@@ -178,7 +178,7 @@ $reception_background = iro_opt('reception_background');
     </script>
 <?php endif; ?>
 <!-- Particles动效 -->
-<?php if (iro_opt('particles_effects', 'true')): ?>
+<?php if (iro_opt('particles_effects', false)): ?>
   <style>
     #particles-js {
       width: 100%;

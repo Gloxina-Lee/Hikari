@@ -115,7 +115,7 @@ function font_end_js_control()
     }
     $preload_blur = iro_opt('preload_blur', 0);
     if ($preload_blur) $iro_opt['preload_blur'] = $preload_blur;
-    $sakura_effect = iro_opt('sakura_falling_effects');
+    $sakura_effect = iro_opt('sakura_falling_effects', 'off');
     if ($sakura_effect != 'off') $iro_opt['effect'] = array('amount' => $sakura_effect);
     if (iro_opt('theme_darkmode_auto')) $iro_opt['dm_strategy'] = iro_opt('theme_darkmode_strategy', 'time');
     wp_add_inline_script('app', 'var _iro = ' . json_encode($iro_opt, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE), 'before');

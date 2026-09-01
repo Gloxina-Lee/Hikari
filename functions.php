@@ -707,38 +707,102 @@ add_action('save_post', 'save_custom_meta_box');
 // 载入区块编辑器修改
 include_once('inc/blocks/iro_blocks.php');
 
-//主查询逻辑，类型只能多不能少，主查询通过后模版页查询才能干扰拓展
-function customize_query_functions($query) {
-    //只影响前端
-    if ($query->is_main_query() && !is_admin()) {
-        //主页可以显示文章和说说
-        if (is_home()) {
-            //index引用content-thumb，其中根据设置项决定是否在主页排除说说
-            $post_types = array('post','shuoshuo');
-            $query->set('post_type', $post_types);
-        } elseif (is_archive() || is_category() || is_author()) {
-            // 保持其他页面的原有逻辑
-            $query->set('post_type', array('post', 'shuoshuo'));
-        }
+function sakurairo_get_search_available_post_types()
+{
+    $post_types = array('post');
 
-        // 在搜索页面中排除分类页和特定类别
-        if ($query->is_search) {
-            $post_types = array('post', 'link','shuoshuo','page');
-            $query->set('post_type', $post_types);
-            $tax_query = array(
-                array(
-                    'taxonomy' => 'category',
-                    'field'    => 'name',
-                    'terms'    => get_search_query(),
-                    'operator' => 'NOT IN'
-                )
-            );
-            $query->set('tax_query', $tax_query);
+    if (iro_opt('search_for_shuoshuo', true)) {
+        $post_types[] = 'shuoshuo';
+    }
+
+    $pages_enabled = iro_opt('search_for_pages', true);
+    $pages_restricted = iro_opt('only_admin_can_search_pages', true);
+    if ($pages_enabled && (!$pages_restricted || current_user_can('manage_options'))) {
+        $post_types[] = 'page';
+    }
+
+    return array_values(array_unique($post_types));
+}
+
+function sakurairo_get_search_post_types()
+{
+    $available_post_types = sakurairo_get_search_available_post_types();
+    if (!isset($_GET['content_type'])) {
+        return $available_post_types;
+    }
+
+    $raw_content_types = wp_unslash($_GET['content_type']);
+    $raw_content_types = is_array($raw_content_types) ? $raw_content_types : array($raw_content_types);
+    $requested_post_types = array();
+
+    foreach ($raw_content_types as $raw_content_type) {
+        foreach (explode(',', (string) $raw_content_type) as $post_type) {
+            $post_type = sanitize_key($post_type);
+            if ($post_type !== '') {
+                $requested_post_types[] = $post_type;
+            }
         }
+    }
+
+    $selected_post_types = array_values(array_intersect($available_post_types, array_unique($requested_post_types)));
+    return $selected_post_types ?: $available_post_types;
+}
+
+function sakurairo_get_search_excluded_post_ids()
+{
+    $raw_ids = (string) iro_opt('custom_exclude_search_results', '');
+    if ($raw_ids === '') {
+        return array();
+    }
+
+    return array_values(array_filter(array_map('absint', preg_split('/[\s,]+/', $raw_ids))));
+}
+
+// Configure the main query once so the search template does not load every
+// matching post into PHP and paginate the result a second time.
+function customize_query_functions($query)
+{
+    if (!$query->is_main_query() || is_admin()) {
+        return;
+    }
+
+    // 主页可以显示文章和说说
+    if ($query->is_home()) {
+        // index引用content-thumb，其中根据设置项决定是否在主页排除说说
+        $query->set('post_type', array('post', 'shuoshuo'));
+    } elseif ($query->is_archive() || $query->is_category() || $query->is_author()) {
+        $query->set('post_type', array('post', 'shuoshuo'));
+    }
+
+    if ($query->is_search()) {
+        $query->set('post_type', sakurairo_get_search_post_types());
+        $query->set('post__not_in', sakurairo_get_search_excluded_post_ids());
+        $query->set('posts_per_page', 10);
+        $query->set('ignore_sticky_posts', true);
+        $query->set('sakurairo_prioritize_sticky', (bool) iro_opt('sticky_pinned_content', true));
     }
 }
 
 add_action('pre_get_posts', 'customize_query_functions');
+
+function sakurairo_prioritize_sticky_search_results($orderby, $query)
+{
+    if (is_admin() || !$query->is_main_query() || !$query->is_search() || !$query->get('sakurairo_prioritize_sticky')) {
+        return $orderby;
+    }
+
+    $sticky_post_ids = array_values(array_filter(array_map('absint', (array) get_option('sticky_posts', array()))));
+    $sticky_post_ids = array_values(array_diff($sticky_post_ids, sakurairo_get_search_excluded_post_ids()));
+    if (!$sticky_post_ids) {
+        return $orderby;
+    }
+
+    global $wpdb;
+    $sticky_orderby = 'CASE WHEN ' . $wpdb->posts . '.ID IN (' . implode(',', $sticky_post_ids) . ') THEN 0 ELSE 1 END ASC';
+    return $orderby ? $sticky_orderby . ', ' . $orderby : $sticky_orderby;
+}
+
+add_filter('posts_orderby', 'sakurairo_prioritize_sticky_search_results', 10, 2);
 
 /**
  * Set the content width in pixels, based on the theme's design and stylesheet.
@@ -779,6 +843,7 @@ function sakura_scripts()
             $index = 'index.php';
         }
         $css_files = array(
+            'css/index.php',
             'style.css',
             'css/shortcodes.css',
             'css/dark.css',
@@ -795,10 +860,9 @@ function sakura_scripts()
         }
         $css_version = sakurairo_local_asset_version($css_files);
         $iro_css = $core_lib_basepath . '/css/' . $index . '?' . $sakura_header . '&' . $content_style . '&' . $wave . '&minify&ver=' . rawurlencode($css_version);
-        add_action('wp_head', function() use ($iro_css) {
-            echo '<link rel="preload" href="' .$iro_css. '" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-            echo '<link rel="stylesheet" href="' . $iro_css . '">';
-        }, 9);
+        // A stylesheet discovered in the head already receives high priority.
+        // Enqueue it once instead of turning a preload into a second stylesheet.
+        wp_enqueue_style('iro-css', $iro_css, array(), null);
 
     } else {        
         wp_enqueue_style('iro-css', $core_lib_basepath . '/style.css', array(), sakurairo_local_asset_version('style.css'));
@@ -2355,6 +2419,72 @@ function register_shortcodes() {
         return '<div class="buy shortcodestyle"><i class="fa-solid fa-square-check"></i>' . $content . '</div>';
     });
 
+    if (!function_exists('sakurairo_github_card_cache_key')) {
+        function sakurairo_github_card_cache_key($path)
+        {
+            return 'sakurairo_ghcard_' . md5(strtolower($path));
+        }
+
+        function sakurairo_schedule_github_card_refresh($path)
+        {
+            $lock_key = sakurairo_github_card_cache_key($path) . '_lock';
+            if (get_transient($lock_key)) {
+                return;
+            }
+
+            $event_args = array($path);
+            if (!wp_next_scheduled('sakurairo_refresh_github_card', $event_args)) {
+                wp_schedule_single_event(time() + 1, 'sakurairo_refresh_github_card', $event_args);
+            }
+            set_transient($lock_key, '1', 10 * MINUTE_IN_SECONDS);
+        }
+
+        function sakurairo_refresh_github_card($path)
+        {
+            if (!is_string($path) || !preg_match('/^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/', $path)) {
+                return;
+            }
+
+            $cache_key = sakurairo_github_card_cache_key($path);
+            $lock_key = $cache_key . '_lock';
+            list($username, $repo) = explode('/', $path, 2);
+            $api_url = sprintf('https://api.github.com/repos/%s/%s', rawurlencode($username), rawurlencode($repo));
+            $response = wp_remote_get($api_url, array(
+                'headers' => array(
+                    'Accept' => 'application/vnd.github+json',
+                    'User-Agent' => 'WordPress-Sakurairo-GitHubCard',
+                ),
+                'redirection' => 3,
+                'timeout' => 5,
+            ));
+
+            if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+                set_transient($cache_key, array('status' => 'error'), 15 * MINUTE_IN_SECONDS);
+                delete_transient($lock_key);
+                return;
+            }
+
+            $data = json_decode(wp_remote_retrieve_body($response), true);
+            if (!is_array($data) || empty($data['full_name']) || empty($data['html_url'])) {
+                set_transient($cache_key, array('status' => 'error'), 15 * MINUTE_IN_SECONDS);
+                delete_transient($lock_key);
+                return;
+            }
+
+            set_transient($cache_key, array(
+                'status' => 'success',
+                'full_name' => (string) $data['full_name'],
+                'description' => (string) ($data['description'] ?? ''),
+                'language' => (string) ($data['language'] ?? ''),
+                'stargazers_count' => (int) ($data['stargazers_count'] ?? 0),
+                'html_url' => (string) $data['html_url'],
+            ), 12 * HOUR_IN_SECONDS);
+            delete_transient($lock_key);
+        }
+
+        add_action('sakurairo_refresh_github_card', 'sakurairo_refresh_github_card');
+    }
+
     add_shortcode('ghcard', function($attr, $content = '') {
         //获取内容
         $atts = shortcode_atts(array("path" => "mirai-mamori/Sakurairo"), $attr);
@@ -2369,59 +2499,20 @@ function register_shortcodes() {
             return '<p>Invalid GitHub repository path: ' . esc_html($path) . '</p>';
         }
     
-        list($username, $repo) = explode('/', $path, 2);
-    
-        //构造卡片内容
-        /*
-        $card_content = '';
-    
-        if (iro_opt('ghcard_proxy')) {
-            
-            $svg_url = 'https://github-readme-stats.vercel.app/api/pin/?hide_border=true&username=' . esc_attr($username) . '&repo=' . esc_attr($repo);
-            $response = wp_remote_get($svg_url);
-    
-            if (!is_wp_error($response)) {
-                $svg_content = wp_remote_retrieve_body($response);
-                if (!empty($svg_content)) {
-                    $card_content = $svg_content;
-                } else {
-                    $card_content = '';
-                }
-            } else {
-                $card_content = '';
-            }
-        }
-    
-        //获取失败或未启用代理
-        if (empty($card_content)) {
-            $card_content = '<img decoding="async" src="https://github-readme-stats.vercel.app/api/pin/?hide_border=true&username=' . esc_attr($username) . '&repo=' . esc_attr($repo) . '" alt="Github-Card">';
-        }
-    
-        //输出内容
-        $ghcard = '<div class="ghcard">';
-        $ghcard .= '<a href="https://github.com/' . esc_attr($path) . '" target="_blank" rel="noopener noreferrer">';
-        $ghcard .= $card_content;
-        $ghcard .= '</a>';
-        $ghcard .= '</div>';
-    
-        return $ghcard;
-        */
-        $api_url = sprintf('https://api.github.com/repos/%s/%s', $username, $repo);
-        $response = wp_remote_get($api_url, array(
-            'headers' => array(
-                'User-Agent' => 'WordPress-GitHubCard-Shortcode'
-            )
-        ));
-
-        if (is_wp_error($response)) {
-            return sprintf('<p>Failed to fetch GitHub repository data: %s</p>', esc_html($response->get_error_message()));
+        $cache_key = sakurairo_github_card_cache_key($path);
+        $data = get_transient($cache_key);
+        if (!is_array($data)) {
+            sakurairo_schedule_github_card_refresh($path);
+            $data = array('status' => 'pending');
         }
 
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-
-        if (!is_array($data) || isset($data['message'])) {
-            return sprintf('<p>Unable to fetch GitHub data for: %s</p>', esc_html($path));
+        if (($data['status'] ?? '') !== 'success') {
+            return sprintf(
+                '<div class="ghcard" style="border:1px solid #ddd; border-radius:10px; padding:16px; max-width:300px; background:#fff;"><a href="%s" target="_blank" rel="noopener noreferrer">%s</a><div style="margin-top:8px; color:#666; font-size:14px;">%s</div></div>',
+                esc_url('https://github.com/' . $path),
+                esc_html($path),
+                esc_html__('Repository details are being refreshed.', 'sakurairo')
+            );
         }
 
         // 获取数据

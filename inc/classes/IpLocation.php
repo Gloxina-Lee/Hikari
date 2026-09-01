@@ -57,7 +57,10 @@ class IpLocation
         // 定义需要获取哪些信息，用法见接口文档
         $fields = '49177';
         $url = "http://ip-api.com/json/$this->ip?fields=$fields&lang=$lang";
-        $response = wp_remote_get($url);
+        $response = wp_remote_get($url, array(
+            'redirection' => 2,
+            'timeout' => 3,
+        ));
         // 检查响应
         if (is_wp_error($response)) {
             $errorMessage = $response->get_error_message();
@@ -219,39 +222,75 @@ class IpLocationParse
     }
 
     /**
-     * 通过评论ID获取IP地理位置信息，当数据库里不存在IP地理位置信息时会自动请求接口获取
+     * 通过评论ID获取IP地理位置信息；缓存缺失时安排后台任务获取，避免阻塞页面渲染。
      *
      * @param int $comment_id 评论ID
-     * @return string 成功时返回IP地理位置信息：“国家 地区（省份） 城市”；失败时返回“Unknown”或“Reserved Address”或“Empty Address”
+     * @return string 成功时返回IP地理位置信息：“国家 地区（省份） 城市”；等待时返回“Pending”
      */
     public static function getIpLocationByCommentId(int $commentId)
     {
         $ipLocation = get_comment_meta($commentId, 'iro_ip_location', true);
-        if ($ipLocation) {
+        if (is_array($ipLocation) && $ipLocation) {
             $location = new IpLocationParse($ipLocation);
             return $location->getLocationConcision();
-        } else {
-            // 解析IP地址地理位置
-            $commentIp = get_comment_author_IP($commentId);
-            if (!empty($commentIp)) {
-                if (IPLocation::checkIpValid($commentIp)) {
-                    $ipLocation = new IPLocation($commentIp);
-                    $location = $ipLocation->getLocation();
-                    // 记录IP地理位置信息
-                    if ($location) {
-                        if (iro_opt('save_location')) add_comment_meta($commentId, 'iro_ip_location', $location);
-                        $locationParse = new IpLocationParse($location);
-                        return $locationParse->getLocationConcision();
-                    } else {
-                        return __('Unknown');
-                    }
-                } else {
-                    return __('Reserved Address');
-                }
-            } else {
-                return __('Empty Address');
-            }
         }
+
+        $cache_key = 'sakurairo_comment_location_' . $commentId;
+        $cached_location = get_transient($cache_key);
+        if (is_array($cached_location) && $cached_location) {
+            $location = new IpLocationParse($cached_location);
+            return $location->getLocationConcision();
+        }
+        if ($cached_location === 'error') {
+            return __('Unknown', 'sakurairo');
+        }
+
+        $commentIp = get_comment_author_IP($commentId);
+        if (empty($commentIp)) {
+            return __('Empty Address', 'sakurairo');
+        }
+        if (!IPLocation::checkIpValid($commentIp)) {
+            return __('Reserved Address', 'sakurairo');
+        }
+
+        $lock_key = $cache_key . '_lock';
+        $event_args = array($commentId);
+        if (!get_transient($lock_key)) {
+            if (!wp_next_scheduled('sakurairo_resolve_comment_ip_location', $event_args)) {
+                wp_schedule_single_event(time() + 1, 'sakurairo_resolve_comment_ip_location', $event_args);
+            }
+            set_transient($lock_key, '1', 10 * MINUTE_IN_SECONDS);
+        }
+
+        return __('Pending', 'sakurairo');
+    }
+
+    public static function resolveCommentIpLocation(int $commentId)
+    {
+        $cache_key = 'sakurairo_comment_location_' . $commentId;
+        $lock_key = $cache_key . '_lock';
+        $commentIp = get_comment_author_IP($commentId);
+
+        if (empty($commentIp) || !IPLocation::checkIpValid($commentIp)) {
+            set_transient($cache_key, 'error', HOUR_IN_SECONDS);
+            delete_transient($lock_key);
+            return;
+        }
+
+        $ipLocation = new IPLocation($commentIp);
+        $location = $ipLocation->getLocation();
+        if (!$location) {
+            set_transient($cache_key, 'error', HOUR_IN_SECONDS);
+            delete_transient($lock_key);
+            return;
+        }
+
+        if (iro_opt('save_location', true)) {
+            update_comment_meta($commentId, 'iro_ip_location', $location);
+        } else {
+            set_transient($cache_key, $location, DAY_IN_SECONDS);
+        }
+        delete_transient($lock_key);
     }
 
     /**
@@ -279,3 +318,5 @@ class IpLocationParse
         }
     }
 }
+
+add_action('sakurairo_resolve_comment_ip_location', array(IpLocationParse::class, 'resolveCommentIpLocation'));

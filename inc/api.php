@@ -155,6 +155,39 @@ function upload_image(WP_REST_Request $request)
  * @rest api接口路径：https://sakura.2heng.xin/wp-json/sakura/v1/cache_search/json
  * @可在cache_search_json()函数末尾通过设置 HTTP header 控制 json 缓存时间
  */
+function sakurairo_live_search_cache_key($include_comments = null)
+{
+    if ($include_comments === null) {
+        $include_comments = (bool) iro_opt('live_search_comment', false);
+    }
+
+    return 'sakurairo_live_search_' . md5(get_locale() . '|' . ($include_comments ? 'comments' : 'content'));
+}
+
+function sakurairo_clear_live_search_cache()
+{
+    delete_transient(sakurairo_live_search_cache_key(false));
+    delete_transient(sakurairo_live_search_cache_key(true));
+}
+
+function sakurairo_clear_live_search_cache_for_post($post_id)
+{
+    if (wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    if (in_array(get_post_type($post_id), array('post', 'page'), true)) {
+        sakurairo_clear_live_search_cache();
+    }
+}
+
+add_action('save_post', 'sakurairo_clear_live_search_cache_for_post', 30);
+add_action('before_delete_post', 'sakurairo_clear_live_search_cache_for_post', 30);
+add_action('comment_post', 'sakurairo_clear_live_search_cache');
+add_action('edit_comment', 'sakurairo_clear_live_search_cache');
+add_action('deleted_comment', 'sakurairo_clear_live_search_cache');
+add_action('update_option_iro_options', 'sakurairo_clear_live_search_cache', 10, 0);
+
 function cache_search_json(WP_REST_Request $request)
 {
     if (!sakura_verify_rest_request_nonce($request)) {
@@ -165,13 +198,18 @@ function cache_search_json(WP_REST_Request $request)
         );
         $result = new WP_REST_Response($output, 403);
     } else {
-        $output = Cache::search_json();
+        $cache_key = sakurairo_live_search_cache_key();
+        $output = get_transient($cache_key);
+        if (!is_array($output)) {
+            $output = Cache::search_json();
+            set_transient($cache_key, $output, HOUR_IN_SECONDS);
+        }
         $result = new WP_REST_Response($output, 200);
     }
     $result->set_headers(
         array(
             'Content-Type' => 'application/json',
-            'Cache-Control' => 'max-age=3600', // json 缓存控制
+            'Cache-Control' => 'public, max-age=3600, stale-while-revalidate=60',
         )
     );
     return $result;
