@@ -30,6 +30,54 @@ body.dark .wrapper {
   border-top: 1.5px solid var(--dark-border-color);
 }
 
+body.dark.single-post {
+  --article-surface: rgba(20, 24, 32, 0.92);
+  --article-surface-border: rgba(255, 255, 255, 0.14);
+  --article-text-primary: #f5f7fa;
+  --article-text-secondary: #d7dce4;
+  --article-link: #93c5fd;
+  --article-quote-surface: rgba(51, 65, 85, 0.62);
+}
+
+body.dark.single-post article.type-post {
+  color: var(--article-text-secondary);
+  background: var(--article-surface);
+  border-color: var(--article-surface-border);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.38);
+}
+
+body.dark.single-post .entry-content p,
+body.dark.single-post .entry-content ul,
+body.dark.single-post .entry-content ol,
+body.dark.single-post .entry-content li {
+  color: var(--article-text-secondary) !important;
+}
+
+body.dark.single-post .entry-content h1,
+body.dark.single-post .entry-content h2,
+body.dark.single-post .entry-content h3,
+body.dark.single-post .entry-content h4,
+body.dark.single-post .entry-content h5,
+body.dark.single-post .entry-content h6 {
+  color: var(--article-text-primary);
+}
+
+body.dark.single-post .entry-content a,
+body.dark.single-post article.type-post > .entry-header .entry-census a {
+  color: var(--article-link);
+}
+
+body.dark.single-post .entry-content blockquote {
+  color: var(--article-text-secondary);
+  background: var(--article-quote-surface);
+  border-left-color: var(--article-link);
+}
+
+body.dark.single-post .entry-content ul,
+body.dark.single-post .entry-content ol {
+  border-color: var(--article-surface-border);
+}
+
 body.dark .comments {
   background: none !important;
 }

@@ -728,6 +728,58 @@
     padding: 0 4%;
   }
 
+  body.single-post #content.site-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 4%;
+  }
+
+  body.single-post article.type-post {
+    margin: 24px 0 36px;
+    padding: 26px 22px;
+    border-radius: 18px;
+  }
+
+  body.single-post .single-center header.single-header {
+    width: 100%;
+    max-width: 100%;
+    bottom: 24px;
+    padding: 0 5%;
+  }
+
+  body.single-post .single-center .single-header h1.entry-title {
+    font-size: clamp(24px, 7vw, 29px) !important;
+    line-height: 1.22;
+  }
+
+  body.single-post .single-center .entry-census {
+    margin-top: 10px;
+    padding: 7px 10px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  body.single-post .single-center .entry-census span img {
+    width: 21px;
+    height: 21px;
+  }
+
+  body.single-post article.type-post > .entry-header h1.entry-title {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  body.single-post .entry-content {
+    font-size: 16.5px;
+    line-height: 1.8;
+    letter-spacing: 0.006em;
+  }
+
+  body.single-post .entry-content p {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
   .feature img {
     width: 52px;
     height: 52px;
