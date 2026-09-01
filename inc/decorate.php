@@ -229,22 +229,22 @@ html {
 /*可变项目*/
 
 body.dark .header-info
-{color:#fff;background:rgba(51,51,51,<?=iro_opt('theme_darkmode_widget_transparency'); ?>);transition: all 0.6s ease-in-out;}
+{color:#fff;background:rgba(51,51,51,<?=iro_opt('theme_darkmode_widget_transparency'); ?>);transition:color 0.6s ease-in-out,background-color 0.6s ease-in-out;}
 
 body.dark .top-social img
-{background:rgba(51,51,51,<?=iro_opt('theme_darkmode_widget_transparency'); ?>);transition: all 0.6s ease-in-out;}
+{background:rgba(51,51,51,<?=iro_opt('theme_darkmode_widget_transparency'); ?>);transition:background-color 0.6s ease-in-out;}
 
 body.dark .top-social_v2 i
-{color:#ababab;transition: all 0.6s ease-in-out;}
+{color:#ababab;transition:color 0.6s ease-in-out;}
 
 body.dark .top-social i
-{color:#ababab;background:rgba(51,51,51,<?=iro_opt('theme_darkmode_widget_transparency'); ?>);transition: all 0.6s ease-in-out;}
+{color:#ababab;background:rgba(51,51,51,<?=iro_opt('theme_darkmode_widget_transparency'); ?>);transition:color 0.6s ease-in-out,background-color 0.6s ease-in-out;}
 
 body.dark input[type=submit] 
-{background-color:rgba(38,38,38,<?=iro_opt('theme_darkmode_widget_transparency'); ?>) !important;transition: all 0.6s ease-in-out;}
+{background-color:rgba(38,38,38,<?=iro_opt('theme_darkmode_widget_transparency'); ?>) !important;transition:color 0.6s ease-in-out,background-color 0.6s ease-in-out,border-color 0.6s ease-in-out,box-shadow 0.6s ease-in-out;}
 
 body.dark .headertop-down svg path 
-{fill: <?=iro_opt('drop_down_arrow_dark_color'); ?> !important;transition: all 0.6s ease-in-out;}
+{fill: <?=iro_opt('drop_down_arrow_dark_color'); ?> !important;transition:fill 0.6s ease-in-out;}
 
 body.dark img,
 body.dark .highlight-wrap,

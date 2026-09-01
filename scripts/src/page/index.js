@@ -245,10 +245,10 @@ function sm() {
 }
 function throttling(fn, wait, maxTimelong) {
     let timeout = null,
-        startTime = Date.parse(new Date);
-    return function () {
+        startTime = Date.now();
+    const throttled = function () {
         if (timeout !== null) clearTimeout(timeout);
-        let curTime = Date.parse(new Date);
+        let curTime = Date.now();
         if (curTime - startTime >= maxTimelong) {
             fn();
             startTime = curTime;
@@ -256,8 +256,16 @@ function throttling(fn, wait, maxTimelong) {
             timeout = setTimeout(fn, wait);
         }
     }
+    throttled.cancel = () => {
+        if (timeout !== null) clearTimeout(timeout);
+        timeout = null;
+    }
+    return throttled
 }
+let cleanupTocResizeListeners = () => {}
 function resizeTOC() {
+    cleanupTocResizeListeners()
+    cleanupTocResizeListeners = () => {}
     const toc_container = document.querySelector(".toc-container"),
         sc = document.querySelector(".site-content")
     if (toc_container && sc) {
@@ -265,9 +273,16 @@ function resizeTOC() {
             toc_container.style.height = Math.min(sc.getBoundingClientRect()["height"], document.documentElement.offsetHeight - toc_container.offsetTop) + "px";
         }
         resize()
-        //TODO:性能
-        window.addEventListener('resize', debounce(resize), { passive: true })
-        document.addEventListener('scroll', throttling(resize, 200, 1000))
+        const resizeListener = debounce(resize)
+        const scrollListener = throttling(resize, 200, 1000)
+        window.addEventListener('resize', resizeListener, { passive: true })
+        document.addEventListener('scroll', scrollListener, { passive: true })
+        cleanupTocResizeListeners = () => {
+            window.removeEventListener('resize', resizeListener)
+            document.removeEventListener('scroll', scrollListener)
+            resizeListener.clear && resizeListener.clear()
+            scrollListener.cancel()
+        }
     }
 }
 function tableOfContentScroll(flag) {

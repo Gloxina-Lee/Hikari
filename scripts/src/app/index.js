@@ -100,14 +100,7 @@ window.addEventListener('hashchange', () => {
 
 checkDarkModeSetting();
 
-import POWERMODE from 'activate-power-mode'
 import { coverVideoIni, coverVideo } from './video'
-
-function powermode() {
-    POWERMODE.colorful = true;
-    POWERMODE.shake = false;
-    document.body.addEventListener('input', POWERMODE)
-}
 //afterDOMContentLoaded
 
 ready(function () {
@@ -153,7 +146,6 @@ ready(function () {
     //#endregion
     preload_screen()
     lazyload();
-    powermode()
     //#region mashiro_global.ini.normalize();
     post_list_show_animation();
     coverVideoIni();

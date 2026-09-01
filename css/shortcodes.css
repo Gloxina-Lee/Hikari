@@ -121,7 +121,6 @@
   background: rgba(255, 255, 255, 0.5);
   -webkit-backdrop-filter: saturate(180%) blur(10px);
   backdrop-filter: saturate(180%) blur(10px);
-  will-change: backdrop-filter;
   padding: 5px;
   font-size: 16px;
   width: 30px;

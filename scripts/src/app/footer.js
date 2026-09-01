@@ -1,11 +1,12 @@
 export default function initFooter(action = 'init') {
   let footer = document.getElementById('colophon');
   if (!footer) return;
+  let ticking = false;
+  let delayedCheck = 0;
 
   // 隐藏 footer
   function hideFooter() {
-    let footer = document.getElementById('colophon');
-    footer.classList.remove('show');
+    footer && footer.classList.remove('show');
   }
 
   function adjustWrapperPadding() {
@@ -19,48 +20,51 @@ export default function initFooter(action = 'init') {
   function checkFooterVisibility() {
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
     const windowHeight   = window.innerHeight;
-    const documentHeight = document.body.scrollHeight;
+    const documentHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight
+    );
     const showThreshold  = documentHeight - 100;
 
-    if (scrollPosition + windowHeight >= showThreshold) {
-      if (!footer.classList.contains('show')) {
-        requestAnimationFrame(() => footer.classList.add('show'));
-      }
-    } else {
-      if (footer.classList.contains('show')) {
-        requestAnimationFrame(() => footer.classList.remove('show'));
-      }
-    }
+    footer.classList.toggle('show', scrollPosition + windowHeight >= showThreshold);
+  }
+
+  function scheduleVisibilityCheck() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      checkFooterVisibility();
+      ticking = false;
+    });
+  }
+
+  function onScroll() {
+    scheduleVisibilityCheck();
+  }
+
+  function onResize() {
+    adjustWrapperPadding();
+    scheduleVisibilityCheck();
   }
 
   function initialize() {
     footer = document.getElementById('colophon');
+    if (!footer) return;
     // 初始化隐藏
     hideFooter();
     adjustWrapperPadding();
 
     // 解绑旧的监听，避免重复
     window.removeEventListener('scroll', onScroll);
-    window.removeEventListener('resize', checkFooterVisibility);
+    window.removeEventListener('resize', onResize);
 
     // 首次检查（延迟100ms，保证页面渲染完成后也能正确显示）
     checkFooterVisibility();
-    setTimeout(checkFooterVisibility, 100);
+    window.clearTimeout(delayedCheck);
+    delayedCheck = window.setTimeout(scheduleVisibilityCheck, 100);
 
-    // 节流滚动监听
-    let ticking = false;
-    function onScroll() {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          checkFooterVisibility();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-
-    window.addEventListener('scroll', onScroll);
-    window.addEventListener('resize', checkFooterVisibility);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
   }
 
   // 监听 PJAX 完成后再次初始化

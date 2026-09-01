@@ -13,6 +13,7 @@ const hslaCSSText = ([h, s, l, a]: Vector4) => {
 }
 
 let load_post_timer: ReturnType<typeof setTimeout>;
+let paginationObserver: IntersectionObserver | null = null;
 const load_post = onlyOnceATime(
     async function load_post() {
         const now_href = document.location.href
@@ -126,7 +127,13 @@ function XLS_Listener(e: MouseEvent) {
     }
 }
 export function XLS() {
-    const intersectionObserver = new IntersectionObserver((entries) => {
+    clearTimeout(load_post_timer)
+    paginationObserver?.disconnect()
+
+    const footerContent = document.querySelector('.footer-content')
+    if (!footerContent) return
+
+    paginationObserver = new IntersectionObserver((entries) => {
         if (entries[0].intersectionRatio <= 0) return;
         // var page_next = $('#pagination a').attr("href");
         const _page_next = document.querySelector('#pagination a')
@@ -142,9 +149,7 @@ export function XLS() {
             }
         }
     });
-    intersectionObserver.observe(
-        document.querySelector('.footer-content')
-    );
+    paginationObserver.observe(footerContent);
     document.body.removeEventListener('click', XLS_Listener)
     document.body.addEventListener("click", XLS_Listener)
 }

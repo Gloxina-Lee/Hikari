@@ -6,46 +6,52 @@ export default function scrollHandler() {
     const skinMenu = document.querySelector(".skin-menu")
     const changskin = document.querySelector<HTMLElement>("#changskin")
     const mb_to_top = document.querySelector<HTMLElement>("#moblieGoTop")
-    const common = (scrollTop: number) => {
-        //NH
-        const cssText = scrollTop > 20 ? "scale(1)" : "scale(0)"
-        mb_to_top.style.transform = cssText;
-        changskin.style.transform = cssText;
+    const progressBar = document.getElementById('bar')
+    const controls = [mb_to_top, changskin].filter(
+        (element): element is HTMLElement => element !== null
+    )
+    let ticking = false
+    let controlsVisible: boolean | null = null
+    let lastProgress = -1
+
+    const updateScrollUi = () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop
+        const shouldShowControls = scrollTop > 20
+
+        if (shouldShowControls !== controlsVisible) {
+            const transform = shouldShowControls ? "scale(1)" : "scale(0)"
+            controls.forEach(element => element.style.transform = transform)
+            controlsVisible = shouldShowControls
+        }
+
+        if (skinMenu && skinMenu.classList.contains("show")) {
+            skinMenu.classList.remove("show")
+        }
+
+        if (!isMobile() && progressBar) {
+            const scrollableHeight = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0)
+            const progress = scrollableHeight > 0
+                ? Math.min(100, Math.max(0, Math.round(scrollTop / scrollableHeight * 100)))
+                : 0
+
+            if (progress !== lastProgress) {
+                progressBar.style.width = progress + '%'
+                lastProgress = progress
+            }
+        }
+
+        ticking = false
     }
 
-    if (isMobile()) {
-        const smallScreenHandler = () => {
-            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop           
-            skinMenu && skinMenu.classList.remove("show")
-            common(scrollTop)
-        }
-        window.addEventListener("scroll", smallScreenHandler)
-    } else {
-        const cached = document.getElementById('bar')      
-        const recalcuScrollbar = (scrollTop: number) => {
-            const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
-            const result = Math.round(scrollTop / (scrollHeight - window.innerHeight) * 100)
-            cached.style.width = result + '%';
-            /* switch (true) {
-                case (result <= 19): c = '#cccccc'; break;
-                case (result <= 39): c = '#50bcb6'; break;
-                case (result <= 59): c = '#85c440'; break;
-                case (result <= 79): c = '#f2b63c'; break;
-                case (result <= 99): c = '#FF0000'; break;
-                case (result == 100): c = '#5aaadb'; break;
-                default: c = "orange";
-            }
-            cached.style.background = c; */
-            //炫彩scrollbar好像不是很好看，又被php那边的样式强制覆盖了，就先注释掉
-            skinMenu && skinMenu.classList.remove("show");
-        }
-        const largeScreenHandler = () => {
-            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-            recalcuScrollbar(scrollTop)
-            common(scrollTop)
-        }
-        window.addEventListener("scroll", largeScreenHandler)
+    const scheduleScrollUiUpdate = () => {
+        if (ticking) return
+        ticking = true
+        window.requestAnimationFrame(updateScrollUi)
     }
+
+    window.addEventListener("scroll", scheduleScrollUiUpdate, { passive: true })
+    window.addEventListener("resize", scheduleScrollUiUpdate, { passive: true })
+    updateScrollUi()
 }
 //pjax.complete ready
 /* function NH() {
