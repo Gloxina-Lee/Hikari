@@ -1617,7 +1617,7 @@ $prefix = 'iro_options';
                               array( 'cover_switch', '==', 'true', '', 'true' ),
                               array( 'random_graphs_options', '!=', 'gallery', '', 'true' ),
                         ),
-        'default' => 'https://api.fuukei.org/random-img/default/pc.php',
+        'default' => 'https://bs.gloxina.com/random?albums=landscape',
         'sanitize' => false,
         'validate' => 'csf_validate_url',
       ),
@@ -1632,7 +1632,7 @@ $prefix = 'iro_options';
                               array( 'random_graphs_options', '!=', 'gallery', '', 'true' ),
                         ),
         'desc' => __('Fill in an URL','sakurairo_csf'),
-        'default' => 'https://api.fuukei.org/random-img/default/mobile.php',
+        'default' => 'https://bs.gloxina.com/random?albums=portrait',
         'sanitize' => false,
         'validate' => 'csf_validate_url',
       ),
@@ -2070,7 +2070,6 @@ $prefix = 'iro_options';
         "multiple" => true,
         "sortable" => true,
         "options"=> array(
-            'exhibition'  => __('Display Area','sakurairo_csf'),
             'primary'     => __('Article Area','sakurairo_csf'),
             'static_page' => __('Static Page','sakurairo_csf'),
         ),
@@ -2090,22 +2089,6 @@ $prefix = 'iro_options';
       array(
         'type' => 'subheading',
         'content' => __('Area Title','sakurairo_csf'),
-      ),
-
-      array(
-        'id' => 'exhibition_area_icon',
-        'type' => 'text',
-        'title' => __('Display Area Icon','sakurairo_csf'),
-        'desc' => __('Default is "fa-solid fa-laptop", You can check the <a href="https://fontawesome.com/search?o=r&m=free">FontAwesome Website</a> to see the icons that can be filled in' ,'sakurairo_csf'),
-        'default' => 'fa-solid fa-laptop'
-      ),
-
-      array(
-        'id' => 'exhibition_area_title',
-        'type' => 'text',
-        'title' => __('Display Area Title','sakurairo_csf'),
-        'desc' => __('Default is "Display", you can change it to anything else, but of course it CANNOT be used as an ad! Not allowed!!!' ,'sakurairo_csf'),
-        'default' => 'Display'
       ),
 
       array(
@@ -2146,109 +2129,6 @@ $prefix = 'iro_options';
   
     )
   ));
-
-  Sakurairo_CSF::createSection( $prefix, array(
-    'parent' => 'homepage', 
-    'title' => __('Display Area Options','sakurairo_csf'),
-    'icon' => 'fa fa-bookmark',
-    'fields' => array(
-
-      array(
-        'type' => 'submessage',
-        'style' => 'info',
-        'content' => __('You can click <a href="https://docs.fuukei.org/Sakurairo/Homepage/#%E5%B1%95%E7%A4%BA%E5%8C%BA%E5%9F%9F%E8%AE%BE%E7%BD%AE">here</a> to learn how to set the options on this page','sakurairo_csf'),
-      ),
-
-      array(
-        'type'    => 'submessage',
-        'style'   => 'normal',
-        'content' => __('It will only be displayed when "Display Area" is selected in the homepage component settings','sakurairo_csf'),
-      ),
-
-      array(
-        'id' => 'capsule_components',
-        "type" => "select",
-        "title" => __("Capsule Components","sakurairo_csf"),
-        'desc' => __('Select the components you want to display.','sakurairo_csf'),
-        "chosen" => true,
-        "multiple" => true,
-        "sortable" => true,
-        "options"=> array(
-            'post_count'     => __('Posts Capsule','sakurairo_csf'),
-            'comment_count'  => __('Comments Capsule','sakurairo_csf'),
-            'view_count'  => __('Visitors Capsule','sakurairo_csf'),
-            'link_count'     => __('Links Capsule','sakurairo_csf'),
-            'author_count'     => __('Authors Capsule','sakurairo_csf'),
-            'total_words'     => __('Total Words Capsule','sakurairo_csf'),
-            'blog_days'     => __('Blog Running Capsule','sakurairo_csf'),
-            'admin_online'     => __('Last Online Capsule','sakurairo_csf'),
-            'random_link'     => __('Random Link Capsule','sakurairo_csf'),
-            'announcement'     => __('Announcement Capsule','sakurairo_csf'),
-        ),
-        "default" => array(''),
-      ),
-      
-      array(
-        'id'     => 'show_medal_capsules',
-        'type'   => 'switcher',
-        'title'  => __('Show Medal Badges Style Capsule', 'sakurairo_csf'),
-        'desc'   => __('Enable to show bronze/silver/gold medal badges for blog milestones, Requires you to unlock the relevant milestone to replace the relevant capsule', 'sakurairo_csf'),
-        'default' => true,
-      ),
-      
-      array(
-        'id'     => 'stat_announcement_text',
-        'type'   => 'textarea',
-        'title'  => __('Announcement Text', 'sakurairo_csf'),
-        'desc'   => __('Set the text for announcement capsule. The front-end will automatically split the text into two lines, you can also use line breaks for manual line breaks', 'sakurairo_csf'),
-        'sanitize' => false,
-      ),
-
-      array(
-        'id'        => 'exhibition',
-        'type'      => 'repeater',
-        'title'     => __('Display Area Content','sakurairo_csf'),
-        'fields'    => array(
-            array(
-                'id'   => 'img',
-                'type' => 'upload',
-                'title' => __('image', 'sakurairo_csf'),
-                'desc'  => __('best width 260px, best height 160px', 'sakurairo_csf'),
-            ),
-            array(
-                'id'    => 'title',
-                'type'  => 'text',
-                'title' => __('title', 'sakurairo_csf'),
-            ),
-            array(
-                'id'    => 'description',
-                'type'  => 'text',
-                'title' => __('description', 'sakurairo_csf'),
-            ),
-            array(
-                'id'    => 'link',
-                'type'  => 'text',
-                'title' => __('add URL', 'sakurairo_csf'),
-            ),
-        ),
-        'default'   => array(
-            array(
-                'img' => $vision_resource_basepath . 'series/exhibition2.webp',
-                'title' => '夏霞',
-                'description' => 'あの儚く散る花火の下で、馬鹿みたいに永遠を誓った',
-                'link' => '',
-            ),
-            array(
-                'img' => $vision_resource_basepath . 'series/exhibition3.webp',
-                'title' => '雪冴ゆる',
-                'description' => '独りぽっちの冴えない僕を暗闇から連れ出してくれた',
-                'link' => '',
-            ),
-        )
-    )
-
-    )
-  ) );
 
   Sakurairo_CSF::createSection( $prefix, array(
     'parent' => 'homepage', 
@@ -2313,7 +2193,7 @@ $prefix = 'iro_options';
           'type_1' => __('Cover Random Image','sakurairo_csf'),
           'type_2' => __('External API Random Image','sakurairo_csf'),
         ),
-        'default' => 'type_1'
+        'default' => 'type_2'
       ),
 
       array(
@@ -2321,6 +2201,7 @@ $prefix = 'iro_options';
         'type' => 'text',
         'title' => __('Article Area Featured Image External API Random Image Address','sakurairo_csf'),
         'desc' => __('add URL','sakurairo_csf'),
+        'default' => 'https://bs.gloxina.com/random?albums=article',
         'sanitize' => false,
         'validate' => 'iro_validate_optional_url',
       ),
@@ -2716,58 +2597,6 @@ $prefix = 'iro_options';
         'default' => '40'
       ),
 
-      array(
-        'type' => 'subheading',
-        'content' => __('Friend Link Template Settings','sakurairo_csf'),
-      ),
-
-      array(
-        'id' => 'friend_link_align',
-        'type' => 'image_select',
-        'title' => __('Friend Link Template Unit Alignment','sakurairo_csf'),
-        'options'     => array(
-          'left'  => $vision_resource_basepath . 'options/friend_link_left.webp',
-          'right'  => $vision_resource_basepath . 'options/friend_link_right.webp',
-          'center'  => $vision_resource_basepath . 'options/friend_link_center.webp',
-        ),
-        'default'     => 'left'
-      ),
-
-      array(
-        'id' => 'friend_link_form',
-        'type' => 'switcher',
-        'title' => __('Friend Link Apply Form','sakurairo_csf'),
-        'label' => __('Add a apply form on the friend link page','sakurairo_csf'),
-        'default' => true,
-      ),
-
-      array(
-        'id' => 'friend_link_sorting_mode',
-        'type' => 'select',
-        'title' => __('Friend Link Sorting Mode','sakurairo_csf'),
-        'desc' => __('Select the friend link sorting mode, "Name" is used by Default.','sakurairo_csf'),
-        'options' => array(
-          'name' => __('Name','sakurairo_csf'),
-          'rating'  => __('Rating','sakurairo_csf'),
-          'updated'  => __('Updated','sakurairo_csf'),
-          'rand'  => __('Rand','sakurairo_csf'),
-        ),
-        'default'     => 'name'
-      ),
-
-      array(
-        'id' => 'friend_link_order',
-        'type' => 'select',
-        'title' => __('Ascending OR Descending','sakurairo_csf'),
-        'desc' => __('Order friend link in ascending or descending.','sakurairo_csf'),
-        'dependency' => array( 'friend_link_sorting_mode', '!=', 'rand', '', 'true' ),
-        'options' => array(
-          'ASC' => __('Ascending','sakurairo_csf'),
-          'DESC'  => __('Descending','sakurairo_csf'),
-        ),
-        'default'     => 'ASC'
-      ),
-      
     )
   ) );
 
@@ -2829,49 +2658,6 @@ $prefix = 'iro_options';
       ),
 
       array(
-        'id'       => 'smilies_list',
-        'type'     => 'button_set',
-        'title' => __('Comment Area Emoticon','sakurairo_csf'),
-        'desc' => __('Select the emoticons to be displayed in the comment area input box. Uncheck all to turn off the comment input box emoticon function.','sakurairo_csf'),
-        'multiple' => true,
-        'options'  => array(
-          'bilibili'   => __('BiliBili Emoticon Pack','sakurairo_csf'),
-          'tieba'   => __('Baidu Tieba Emoticon Pack','sakurairo_csf'),
-          'yanwenzi' => __('Emoji','sakurairo_csf'),
-          'custom' => __('Customized Emoticon Pack','sakurairo_csf'),
-        ),
-        'default'  => array( 'bilibili', 'tieba', 'yanwenzi' )
-      ),
-
-      array(
-        'id'         => 'smilies_name',
-        'type'       => 'text',
-        'title' => __('Customized Emoticon Column Name','sakurairo_csf'),
-        'desc' => __('It is recommended to enter less than 4 Chinese characters in length to avoid causing compatibility issues on mobile terminals.','sakurairo_csf'),
-        'dependency' => array( 'smilies_list', 'any', 'custom', '', 'true' ),
-        'default' => 'custom'
-      ),
-    
-      array(
-        'id'         => 'smilies_dir',
-        'type'       => 'text',
-        'title' => __('Path To Custom Expression','sakurairo_csf'),
-        'desc' => __('Click <a href="./admin.php?update_custom_smilies=true" target="_blank">here</a> updating emoticon list. Specific usage reference: <a href="https://docs.fuukei.org/Sakurairo/Pages/#%E8%AF%84%E8%AE%BA%E7%9B%B8%E5%85%B3%E8%AE%BE%E7%BD%AE" target="_blank">Comment related settings</a>','sakurairo_csf'),
-        'dependency' => array( 'smilies_list', 'any', 'custom', '', 'true' ),
-      ),
-
-      array(
-        'id'         => 'smilies_proxy',
-        'type'       => 'text',
-        'title' => __('Custom Emoticon Proxy Address','sakurairo_csf'),
-        'desc' => __('Fill in the CDN address of the emoticon image. If left blank, the CDN proxy function will not be enabled.','sakurairo_csf'),
-        'dependency' => array( 
-                              array('smilies_list', 'any', 'custom', '', 'true' ),
-                              array('smilies_dir', '!=', '', '', 'true'),
-                            ),
-      ),
-
-      array(
         'id' => 'comment_useragent',
         'type' => 'switcher',
         'title' => __('Page Comment Area UA Info','sakurairo_csf'),
@@ -2922,19 +2708,6 @@ $prefix = 'iro_options';
           'turnstile' => __('Cloudflare Turnstile',"sakurairo_csf")
         ),
         'default' => 'iro_captcha',
-      ),
-
-      array(
-        'id' => 'qq_avatar_link',
-        'type' => 'select',
-        'title' => __('QQ Avatar Link Encryption','sakurairo_csf'),
-        'options' => array(
-          'off' => __('Off','sakurairo_csf'),
-          'type_1' => __('Redirect (low security)','sakurairo_csf'),
-          'type_2' => __('Get avatar data in the backend (medium security)','sakurairo_csf'),
-          'type_3' => __('Parse avatar interface in the backend (high security, slow)','sakurairo_csf'),
-        ),
-        'default' => 'off'
       ),
 
       array(
@@ -3534,11 +3307,6 @@ $prefix = 'iro_options';
       array(
         'type'    => 'subheading',
         'content' => __('Version Info','sakurairo_csf'),
-      ),
-
-      array(
-        'type'    => 'content',
-        'content' => '<img src="' . esc_url( $vision_resource_basepath . 'series/headlogo.webp' ) . '" alt="Theme Information" />',
       ),
 
       array(

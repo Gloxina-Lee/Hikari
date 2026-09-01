@@ -373,11 +373,6 @@
 
 /* 1080px 断点适配 */
 @media (max-width: 1080px) {
-  .bento-medium {
-    grid-column: span 6;
-    min-height: 14rem;
-    height: 14rem;
-  }
   .comments {
     padding: 4% 0 0;
     padding-bottom: 80px;
@@ -469,26 +464,6 @@
   img {
     height: auto;
     max-width: 100%;
-  }
-}
-
-@media (max-width: 860px) {
-  .emotion-box {
-    position: relative;
-    box-shadow: none;
-    max-height: 0px;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100%;
-    transition: all 0.3s ease-in-out !important;
-  }
-
-  .emotion-box.open {
-    max-height: 200px;
-  }
-
-  .emotion-header {
-    display: none;
   }
 }
 
@@ -609,12 +584,6 @@
 
 /* 较小屏幕适配 */
 @media (max-width: 768px) {
-  .bento-medium {
-    grid-column: span 12;
-    min-height: 12rem;
-    height: 12rem;
-  }
-
   .post-meta {
     inset: 10px 10px auto auto;
     height: fit-content;
@@ -675,11 +644,6 @@
     inset-inline-end: 0;
     margin: 11px 5px;
     z-index: 2;
-  }
-
-  .comment-user-avatar .socila-check {
-    font-size: .8em;
-    margin: -60% 0 0 50%;
   }
 
   .cmt-popup {
@@ -914,14 +878,4 @@
     vertical-align: middle;
   }
 
-  .bili-container,
-  .tieba-container {
-    padding-inline-start: 0;
-  }
-
-  .tieba-container img,
-  .tieba-container span {
-    transform: scale(0.6);
-    margin-block-end: -10px;
-  }
 }

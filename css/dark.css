@@ -160,7 +160,6 @@ body.dark .post-list p {
 
 /* 合并标题和链接文字颜色 */
 body.dark .entry-title a,
-body.dark .menhera-container .emoji-item,
 body.dark .shuoshuo-content p {
   color: var(--dark-text-secondary);
 }
@@ -180,7 +179,6 @@ body.dark .comment-respond .logged-in-as,
 body.dark .comment-respond .logged-in-as a,
 body.dark .comment h4 a,
 body.dark .comment .body .comment-at,
-body.dark h1.fes-title,
 body.dark h1.main-title,
 body.dark .entry-content h1,
 body.dark .entry-content h2,
@@ -198,7 +196,6 @@ body.dark .ins-section .fa,
 body.dark .site-title,
 body.dark .header-info,
 body.dark .site-info,
-body.dark #emotion-toggle,
 body.dark .insert-image-tips,
 body.dark .markdown-toggle,
 body.dark .mo_toc_panel .user-menu-option a{
@@ -317,7 +314,6 @@ body.dark .entry-title a:hover,
 body.dark .ins-section .ins-search-item:hover,
 body.dark .ins-section .ins-search-item:hover .ins-slug,
 body.dark .ins-section .ins-search-item:hover .ins-search-preview,
-body.dark .menhera-container .emoji-item:hover,
 body.dark .comment-respond .logged-in-as a:hover {
   color: var(--article-theme-highlight,var(--theme-skin-dark)) !important;
 }
@@ -411,8 +407,6 @@ body.dark .comment-respond input,
 body.dark .comment-respond textarea,
 body.dark .comment-respond,
 body.dark .comment .main,
-body.dark .emotion-box,
-body.dark #emotion-toggle,
 body.dark .insert-image-tips,
 body.dark .markdown-toggle{
   background: rgb(26 26 26 / 60%);
@@ -420,20 +414,14 @@ body.dark .markdown-toggle{
   border: 1.5px solid var(--dark-border-color);
 }
 
-body.dark .emotion-header{
-  background: var(--dark-bg-hover);
-}
-
 body.dark .comment-respond:hover,
 body.dark .comment .main:hover,
-body.dark #emotion-toggle:hover,
 body.dark .insert-image-tips:hover,
 body.dark .markdown-toggle:hover{
   background: var(--dark-bg-hover);
   box-shadow: 0 1px 10px -2px var(--article-theme-highlight,var(--theme-skin-dark)) !important;
 }
 
-body.dark #emotion-toggle:hover,
 body.dark .insert-image-tips:hover,
 body.dark .markdown-toggle:hover{
   color: var(--article-theme-highlight,var(--theme-skin-dark));
@@ -696,178 +684,4 @@ body.dark input[type=reset],
 body.dark input[type=submit],
 body.dark .top-social .inner img:hover {
   box-shadow: none;
-}
-
-body.dark .medal-capsule.bronze {
-    background: linear-gradient(135deg, #a05c25 0%, #cd7f32 50%, #7a4111 100%);
-}
-body.dark .medal-capsule.bronze:hover {
-    background: linear-gradient(135deg, #b16b2e 0%, #d38c44 50%, #8a4a19 100%);
-    box-shadow: 0 8px 25px rgba(160, 92, 37, 0.5);
-}
-body.dark .medal-capsule.bronze::before {
-    background: radial-gradient(circle at center, rgba(160, 92, 37, 0.6) 0%, rgba(160, 92, 37, 0) 70%);
-}
-body.dark .medal-capsule.bronze::after {
-    box-shadow: 0 0 20px rgba(160, 92, 37, 0.5);
-    background: rgba(160, 92, 37, 0.1);
-}
-
-body.dark .medal-capsule.silver {
-    background: linear-gradient(135deg, #a0a0a0 0%, #c0c0c0 50%, #808080 100%);
-}
-body.dark .medal-capsule.silver:hover {
-    background: linear-gradient(135deg, #b0b0b0 0%, #d0d0d0 50%, #909090 100%);
-    box-shadow: 0 8px 25px rgba(160, 160, 160, 0.5);
-}
-body.dark .medal-capsule.silver::before {
-    background: radial-gradient(circle at center, rgba(160, 160, 160, 0.6) 0%, rgba(160, 160, 160, 0) 70%);
-}
-body.dark .medal-capsule.silver::after {
-    box-shadow: 0 0 20px rgba(160, 160, 160, 0.5);
-    background: rgba(160, 160, 160, 0.1);
-}
-
-body.dark .medal-capsule.gold {
-    background: linear-gradient(135deg, #e6bc00 0%, #ffd700 50%, #c9a000 100%);
-}
-body.dark .medal-capsule.gold:hover {
-    background: linear-gradient(135deg, #f5ca00 0%, #ffdf1c 50%, #d8ae00 100%);
-    box-shadow: 0 8px 25px rgba(230, 188, 0, 0.5);
-}
-body.dark .medal-capsule.gold::before {
-    background: radial-gradient(circle at center, rgba(230, 188, 0, 0.6) 0%, rgba(230, 188, 0, 0) 70%);
-}
-body.dark .medal-capsule.gold::after {
-    box-shadow: 0 0 20px rgba(230, 188, 0, 0.5);
-    background: rgba(230, 188, 0, 0.1);
-}
-
-body.dark .medal-info-tooltip {
-    background: rgba(30, 30, 30, 0.9);
-    border: 1px solid rgba(80, 80, 80, 0.3);
-}
-
-body.dark .medal-info-tooltip::before {
-    border-color: transparent transparent rgba(30, 30, 30, 0.9) transparent;
-}
-
-body.dark .medal-next-level {
-    border-top: 1px solid rgba(100, 100, 100, 0.3);
-}
-
-/* 暗色模式下的徽章详情模态框 */
-body.dark .medal-detail-modal {
-    background: rgba(0, 0, 0, 0.8);
-}
-
-body.dark .medal-modal-content {
-    background: rgba(30, 30, 30, 0.95);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    border-color: rgba(50, 50, 50, 0.5);
-    color: #eee;
-}
-
-body.dark .modal-medal-value {
-    color: #bbb;
-}
-
-body.dark .modal-medal-achievement {
-    background: rgba(60, 60, 60, 0.3);
-    color: #ddd;
-}
-
-body.dark .modal-medal-progress {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-body.dark .modal-medal-next-level {
-    color: #aaa;
-}
-
-body.dark .modal-medal-max-level {
-    color: #ddd;
-}
-
-body.dark .modal-close-button {
-    color: #ccc;
-}
-
-body.dark .modal-close-button:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* 暗色模式下的铜牌模态框 */
-body.dark .medal-detail-modal.bronze .medal-modal-content {
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(50, 35, 25, 0.95) 100%);
-    border-color: rgba(160, 92, 37, 0.3);
-}
-
-/* 暗色模式下的银牌模态框 */
-body.dark .medal-detail-modal.silver .medal-modal-content {
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(45, 45, 45, 0.95) 100%);
-    border-color: rgba(160, 160, 160, 0.3);
-}
-
-/* 暗色模式下的金牌模态框 */
-body.dark .medal-detail-modal.gold .medal-modal-content {
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(50, 45, 25, 0.95) 100%);
-    border-color: rgba(230, 188, 0, 0.3);
-}
-
-body.dark .medal-detail-modal.gold .modal-medal-max-level {
-    color: #ffd93f;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-body.dark .stat-capsule {
-  background: rgba(50, 50, 50, 0.75);
-  border-color: rgba(70, 70, 70, 0.5);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-}
-
-body.dark .stat-capsule:hover {
-  background: rgba(60, 60, 60, 0.85);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-body.dark .capsule-label,
-body.dark .announcement-line {
-  color: #bbb;
-}
-
-body.dark .capsule-value,
-body.dark .link-info a {
-  color: #eee;
-}
-
-body.dark .stat-capsule i {
-  color: #aaa;
-}
-
-body.dark .stat-capsule:hover i {
-  color: var(--theme-skin-dark);
-}
-
-body.dark .link-description {
-  color: #999;
-}
-
-body.dark .link-avatar img {
-  border-color: rgba(70, 70, 70, 0.5);
-}
-
-body.dark .bento-item {
-  background-color: rgba(38, 38, 38, 0.8);
-  box-shadow: 0 4px 24px -8px rgba(0, 0, 0, 0.3),
-    0 1px 2px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.03);
-}
-
-body.dark .bento-item:hover {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5),
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
 }

@@ -1,7 +1,8 @@
 <?php
 if (!function_exists('render_meta_views')) {
     function render_meta_views() {
-        ?><span><i class="fa-regular fa-eye"></i><?= esc_html(get_post_views(get_the_ID()) . ' ' . _n('Hit', 'Hits', get_post_views(get_the_ID()), 'sakurairo'))/*热度*/ ?></span><?php
+        $views = get_post_views_raw(get_the_ID());
+        ?><span><i class="fa-regular fa-eye"></i><?= esc_html(restyle_text($views) . ' ' . _n('Hit', 'Hits', $views, 'sakurairo'))/*热度*/ ?></span><?php
     }
 }
 
@@ -152,7 +153,8 @@ if (!function_exists('get_post_cover_html')) {
             $cover_html = get_post_cover_html();
 
             ?>
-            <article class="post post-list-thumb" style ="<?php echo var_post_theme_color(get_the_ID()) != 'false' ? "--article-theme-highlight: " . var_post_theme_color(get_the_ID()) : ""; ?>" itemscope="" itemtype="http://schema.org/BlogPosting">
+            <?php $post_theme_color = var_post_theme_color(get_the_ID()); ?>
+            <article class="post post-list-thumb" style ="<?php echo $post_theme_color !== 'false' ? "--article-theme-highlight: " . esc_attr($post_theme_color) : ""; ?>" itemscope="" itemtype="http://schema.org/BlogPosting">
                 <div class="post-thumb">
                     <a href="<?php the_permalink(); ?>">
                         <?php echo $cover_html; ?>

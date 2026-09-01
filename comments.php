@@ -4,67 +4,6 @@ if (post_password_required()) {
     return;
 }
 
-// 定义辅助函数生成表情面板
-function get_smilies_panel() {
-    $smilies_list = iro_opt('smilies_list');
-    if (!$smilies_list) {
-        return '';
-    }
-    
-    $bilibili_smilies = $tieba_smilies = $menhera_smilies = $custom_smilies = '';
-    $bilibili_push_smilies = $tieba_push_smilies = $menhera_push_smilies = $custom_push_smilies = '';
-
-    if (in_array('bilibili', $smilies_list)) {
-        $bilibili_smilies = '<th class="bili-bar">bilibili~</th>';
-        $bilibili_push_smilies = '<div class="bili-container motion-container" style="display:none;">' . push_bili_smilies() . '</div>';
-    }
-    if (in_array('tieba', $smilies_list)) {
-        $tieba_smilies = '<th class="tieba-bar">Tieba</th>';
-        $tieba_push_smilies = '<div class="tieba-container motion-container" style="display:none;">' . push_tieba_smilies() . '</div>';
-    }
-    if (in_array('yanwenzi', $smilies_list)) {
-        $menhera_smilies = '<th class="menhera-bar">(=・ω・=)</th>';
-        $menhera_push_smilies = '<div class="menhera-container motion-container" style="display:none;">' . push_emoji_panel() . '</div>';
-    }
-    if (in_array('custom', $smilies_list)) {
-        $custom_smilies = '<th class="custom-bar"> ' . iro_opt('smilies_name') . ' </th>';
-        $custom_push_smilies = '<div class="custom-container motion-container" style="display:none;">' . push_custom_smilies() . '</div>';
-    }
-    // 根据第一个选项设置默认展示
-    switch ($smilies_list[0]) {
-        case "bilibili":
-            $bilibili_smilies = '<th class="bili-bar on-hover">bilibili~</th>';
-            $bilibili_push_smilies = '<div class="bili-container motion-container" style="display:block;">' . push_bili_smilies() . '</div>';
-            break;
-        case "tieba":
-            $tieba_smilies = '<th class="tieba-bar on-hover">Tieba</th>';
-            $tieba_push_smilies = '<div class="tieba-container motion-container" style="display:block;">' . push_tieba_smilies() . '</div>';
-            break;
-        case "yanwenzi":
-            $menhera_smilies = '<th class="menhera-bar on-hover">(=・ω・=)</th>';
-            $menhera_push_smilies = '<div class="menhera-container motion-container" style="display:block;">' . push_emoji_panel() . '</div>';
-            break;
-        case "custom":
-            $custom_smilies = '<th class="custom-bar on-hover"> ' . iro_opt('smilies_name') . ' </th>';
-            $custom_push_smilies = '<div class="custom-container motion-container" style="display:block;">' . push_custom_smilies() . '</div>';
-            break;
-    }
-    return '<div class="emotion-box no-select">
-                <div class="emotion-header no-select">' . __("Woooooow ヾ(≧∇≦*)ゝ", "sakurairo") . '</div>
-                <table class="motion-switcher-table">
-                    <tr>' .
-                        $bilibili_smilies .
-                        $tieba_smilies .
-                        $menhera_smilies .
-                        $custom_smilies .
-                    '</tr>
-                </table>' .
-                $bilibili_push_smilies .
-                $tieba_push_smilies .
-                $menhera_push_smilies .
-                $custom_push_smilies .
-            '</div>';
-}
 ?>
 
 <?php if (comments_open()) : ?>
@@ -149,14 +88,6 @@ function get_smilies_panel() {
             $mail_notify = iro_opt('mail_notify')
                 ? '<label class="siren-checkbox-label"><input class="siren-checkbox-radio" type="checkbox" name="mail-notify"><span class="siren-mail-notify-checkbox siren-checkbox-radioInput"></span>' . __('Comment reply notify', 'sakurairo') . '</label>'
                 : '';
-            // 调用辅助函数生成表情面板
-            $smilies_box = get_smilies_panel();
-            $smilies_button = '';
-            if (iro_opt('smilies_list')) {
-                $smilies_button = '<div id="emotion-toggle" class="no-select">
-                                <i class="fa-regular fa-face-kiss-wink-heart"></i>
-                            </div>';
-            }
             $img_upload = '';
             if (iro_opt('img_upload_api',false) == 'off' ? false : true) {
                 $img_upload = '<label class="insert-image-tips popup">
@@ -171,6 +102,11 @@ function get_smilies_panel() {
             }
             add_filter('comment_form_defaults', 'custom_comment_logged_in_as');
 
+            // Keep the nonce outside submit_button: WordPress treats submit_button as
+            // an sprintf() format string, while encoded permalinks contain sequences
+            // such as %A0 that would otherwise be parsed as format specifiers.
+            $comment_nonce = wp_nonce_field('sakurairo_ajax_comment', 'sakurairo_comment_nonce', false, false);
+
             $args = array(
                 'id_form'           => 'commentform',
                 'id_submit'         => 'submit',
@@ -181,27 +117,23 @@ function get_smilies_panel() {
                 'comment_field'     => '<div class="comment-textarea">
                                             <textarea placeholder="' . esc_attr(iro_opt('comment_placeholder_text')) . '" name="comment" class="commentbody" id="comment" rows="5" tabindex="4"></textarea>
                                             <label class="input-label">' . esc_html(iro_opt('comment_placeholder_text')) . '</label>
-                                        </div>' . $smilies_box . 
-                                        '<div id="upload-img-show"></div>',
+                                        </div>' .
+                                        '<div id="upload-img-show"></div>' . $comment_nonce,
                 'submit_button'     => '<div class="form-submit">
-                                            <input name="submit" type="submit" id="submit" class="submit" value=" ' . esc_attr(iro_opt('comment_submit_button_text')) . ' ">' . $smilies_button . $img_upload .'
+                                            <input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s">' . $img_upload .'
                                             <label class="markdown-toggle">
                                                 <input type="checkbox" id="enable_markdown" name="enable_markdown">
                                                 <i class="fa-brands fa-markdown fa-sm"></i>
                                             </label>
-                                            ' . wp_nonce_field('sakurairo_ajax_comment', 'sakurairo_comment_nonce', true, false) . '
                                         </div>',
                 'comment_notes_after'  => '',
                 'comment_notes_before' => '',
                 'fields'            => (!is_user_logged_in()?apply_filters('comment_form_default_fields', array(
                     'avatar' => '<div class="cmt-info-container"><div class="comment-user-avatar">
                                     <img alt="comment_user_avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzgwODA4MCIgZD0iTTM5OSAzODQuMkMzNzYuOSAzNDUuOCAzMzUuNCAzMjAgMjg4IDMyMGwtNjQgMGMtNDcuNCAwLTg4LjkgMjUuOC0xMTEgNjQuMmMzNS4yIDM5LjIgODYuMiA2My44IDE0MyA2My44czEwNy44LTI0LjcgMTQzLTYzLjh6TTAgMjU2YTI1NiAyNTYgMCAxIDEgNTEyIDBBMjU2IDI1NiAwIDEgMSAwIDI1NnptMjU2IDE2YTcyIDcyIDAgMSAwIDAtMTQ0IDcyIDcyIDAgMSAwIDAgMTQ0eiIvPjwvc3ZnPg==">
-                                    <div class="socila-check qq-check"><i class="fa-brands fa-qq fa-xs"></i></div>
-                                    <div class="socila-check gravatar-check"><i class="fa-solid fa-heart fa-xs"></i></div>
                                  </div>',
-                    'author' => '<div class="popup cmt-popup cmt-author">
-                                    <input type="text" placeholder="' . __("Nickname or QQ number", "sakurairo") . ' ' . ($req ? '(' . __("Must* ", "sakurairo") . ')' : '') . '" name="author" id="author" value="' . esc_attr($comment_author) . '" size="22" autocomplete="off" tabindex="1" ' . ($req ? "aria-required='true'" : '') . ' />
-                                    <span class="popuptext" style="margin-left: -115px;width: 230px;">' . __("Auto pull nickname and avatar with a QQ num. entered", "sakurairo") . '</span>
+                    'author' => '<div class="cmt-author">
+                                    <input type="text" placeholder="' . __("Nickname", "sakurairo") . ' ' . ($req ? '(' . __("Must* ", "sakurairo") . ')' : '') . '" name="author" id="author" value="' . esc_attr($comment_author) . '" size="22" autocomplete="off" tabindex="1" ' . ($req ? "aria-required='true'" : '') . ' />
                                  </div>',
                     'email'  => '<div class="popup cmt-popup">
                                     <input type="text" placeholder="' . __("email", "sakurairo") . ' ' . ($req ? '(' . __("Must* ", "sakurairo") . ')' : '') . '" name="email" id="email" value="' . esc_attr($comment_author_email) . '" size="22" tabindex="1" autocomplete="off" ' . ($req ? "aria-required='true'" : '') . ' />
@@ -211,7 +143,6 @@ function get_smilies_panel() {
                                     <input type="text" placeholder="' . __("Site", "sakurairo") . '" name="url" id="url" value="' . esc_attr($comment_author_url) . '" size="22" autocomplete="off" tabindex="1" />
                                     <span class="popuptext" style="margin-left: -55px;width: 110px;">' . __("Advertisement is forbidden 😀", "sakurairo") . '</span>
                                  </div></div>',
-                    'qq'     => '<input type="text" placeholder="QQ" name="new_field_qq" id="qq" value="' . esc_attr($comment_author_url) . '" style="display:none" autocomplete="off"/><!--此栏不可见-->',
 					'checks' => '<div class="comment-checks">' . ($comment_captcha ?? '') . ($private_ms ?? '') . ($mail_notify ?? '') ,//此处不闭合，和保存信息在一层级一起闭合
                 )):[]) // 用户登录则不显示任何字段
             );

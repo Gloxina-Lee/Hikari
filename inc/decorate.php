@@ -312,7 +312,7 @@ font-family:<?=iro_opt('footer_text_font'); ?> !important;
 font-family:<?=iro_opt('style_menu_font'); ?> !important;
 }
 
-h1.main-title,h1.fes-title{
+h1.main-title{
 font-family:<?=iro_opt('area_title_font'); ?>;
 }
 
@@ -776,13 +776,11 @@ body.dark .post-list-thumb i{
 <?php endif; ?>
 
 <?php if(iro_opt('area_title_text_align') == 'center'){ ?>
-h1.fes-title,
 h1.main-title {
     justify-content: center;
 }
 
 <?php }else if(iro_opt('area_title_text_align') == 'right'){ ?>
-h1.fes-title,
 h1.main-title {
     justify-content: right;
 }

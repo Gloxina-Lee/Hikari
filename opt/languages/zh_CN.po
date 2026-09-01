@@ -4248,12 +4248,6 @@ msgstr "关于主题"
 msgid "Version Info"
 msgstr "版本信息"
 
-#: options/theme-options.php:4010
-msgid ""
-"<img src=\"https://s.nmxc.ltd/sakurairo_vision/@3.0/series/headlogo.webp\"  "
-"alt=\"Theme Information\" />"
-msgstr ""
-
 #: options/theme-options.php:4016
 #, php-format
 msgid ""

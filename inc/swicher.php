@@ -33,11 +33,6 @@ function font_end_js_control()
         )
         : 'close';
     $auto_height = !iro_opt('cover_full_screen') ? 'fixed' : 'auto';
-    if (iro_opt('gravatar_proxy') == 'custom_proxy_address_of_gravatar') {
-        $gravatar_url = iro_opt('custom_proxy_address_of_gravatar') ?: 'secure.gravatar.com/avatar';
-    } else {
-        $gravatar_url = iro_opt('gravatar_proxy') ?: 'secure.gravatar.com/avatar';
-    }
     $lightbox = iro_opt('lightbox');
     $reception_background = iro_opt('reception_background');
     $iro_opt = [
@@ -48,14 +43,12 @@ function font_end_js_control()
         'ajaxurl' => admin_url('admin-ajax.php'),
         'language' => esc_js(str_replace('-', '_', get_locale())),
         'captcha_endpoint' => rest_url('sakura/v1/captcha/create'),
-        'qq_api_url' => rest_url('sakura/v1/qqinfo/json'),
         'order' => get_option('comment_order'), // ajax comments
         'formpostion' => 'bottom', // ajax comments 默认为bottom，如果你的表单在顶部则设置为top。
         'api' => esc_url_raw(rest_url()),
         'iro_api' => esc_url_raw(rest_url('sakura/v1')),
         'nonce' => wp_create_nonce('wp_rest'),
         'google_analytics_id' => iro_opt('google_analytics_id', ''),
-        'gravatar_url' => $gravatar_url,
         // options
         'NProgressON' => check(iro_opt('nprogress_on')),
         'baguetteBox' => check($lightbox === 'baguetteBox'),
@@ -66,7 +59,6 @@ function font_end_js_control()
         'extract_theme_skin' => iro_opt('extract_theme_skin_from_cover', false)?true:false,
         'theme_asset_base_url' => trailingslashit(get_template_directory_uri()) . 'js/',
         'cookie_version_control' => iro_opt('cookie_version', ''),
-        'qzone_autocomplete' => false,
         'site_name' => get_bloginfo('name'),
         'author_name' => iro_get_the_author_name(),
         'site_url' => site_url(),

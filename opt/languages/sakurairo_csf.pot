@@ -3774,10 +3774,6 @@ msgstr ""
 msgid "Version Info"
 msgstr ""
 
-#: options/theme-options.php:4008
-msgid "<img src=\"https://s.nmxc.ltd/sakurairo_vision/@3.0/series/headlogo.webp\"  alt=\"Theme Information\" />"
-msgstr ""
-
 #: options/theme-options.php:4014
 #, php-format
 msgid "Theme Sakurairo Version %s | Internal Version %s | <a href=\"https://github.com/mirai-mamori/Sakurairo\">Project Address</a>"

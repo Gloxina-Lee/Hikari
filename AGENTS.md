@@ -38,6 +38,10 @@
 - The local site is `http://localhost:8088`; `8888` is inside a Windows-reserved
   port range on the current workstation.
 - Default local credentials are `admin` / `password`.
+- The local wp-env database, uploads, and test content are disposable development
+  data. During implementation and debugging, they may be created, modified,
+  deleted, or reset without additional approval. This permission applies only to
+  the local wp-env development environment, never to production or external data.
 - `.wp-env.json` follows the latest stable WordPress and its default PHP image.
   Do not assume the observed versions are permanent; query them when compatibility
   matters.
@@ -103,8 +107,9 @@ pnpm assets:check
 
 - Do not remove the updater or another major module merely because it is listed as
   planned work; wait for an explicit implementation request.
-- Do not overwrite `js/`, reset the WordPress database, or run destructive Git
-  commands without explicit authorization.
+- Do not overwrite `js/` or run destructive Git commands without explicit
+  authorization. Local wp-env data follows the disposable-development-data rule
+  above.
 - Keep environment/tooling changes separate from theme behavior fixes where
   practical, and clearly report existing compatibility warnings rather than
   hiding them through local configuration.

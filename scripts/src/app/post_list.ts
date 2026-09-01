@@ -111,7 +111,7 @@ export function post_list_show_animation() {
         })
 
     // 为其他元素应用动画，无需主题色处理
-    const elementsToAnimate = document.querySelectorAll('.stat-capsule, .bento-item, h1.fes-title, h1.main-title');
+    const elementsToAnimate = document.querySelectorAll('h1.main-title');
     if (elementsToAnimate.length > 0) {
         applyShowUpAnimation(elementsToAnimate);
     }

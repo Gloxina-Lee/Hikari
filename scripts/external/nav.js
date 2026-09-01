@@ -53,7 +53,12 @@ const StateManager = {
             }
 
             if (sessionStorage.getItem("bgNextState")) {
-                return this.getState();
+                const state = this.getState();
+                // A reload can interrupt the animation before its timeout runs.
+                // Never carry that transient lock into the next document.
+                state.isTransitioning = false;
+                this.setState(state);
+                return state;
             }
             const state = {
                 lastPageWasHome: false,
@@ -479,12 +484,10 @@ const showBgNext = async () => {
     }
 
     if (state.isTransitioning) {
-        // 即使在过渡状态，也要确保在主页时 bg-next 可点击
-        if (isHomePage) {
-            DOM.bgNext.style.pointerEvents = 'auto';
-            DOM.bgNext.style.zIndex = '1';
-        }
-        return;
+        // The previous document may have been unloaded during an animation.
+        // Reset the stale lock and calculate the correct state for this page.
+        state.isTransitioning = false;
+        StateManager.setState(state);
     }
 
     // 处理首次加载非主页的情况

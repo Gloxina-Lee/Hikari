@@ -38,7 +38,6 @@ import { getCurrentBG, init_post_cover_as_bg} from './coverBackground'
 import lazyload from "../common/lazyload"
 import './global-func'
 import { ready } from '../common/util'
-import about_us from './about_us'
 import preload_screen from './preload_screen'
 import { isSupported } from './compatibility'
 import hitokoto from './hitokoto'
@@ -53,7 +52,6 @@ import { addSkinMenuListener, auto_height, bgButtonAddListener, CE, checkBgImgSe
 import initTypedJs from './typed'
 import add_copyright from './copyright'
 import initFooter from './footer'
-import init_medal_effects from './animations/medal_effects';
 import { SearchDialog } from './search'
 
 
@@ -161,8 +159,6 @@ ready(function () {
     coverVideoIni();
     //#endregion
     initEffect()
-    about_us()
     initFooter();
-    init_medal_effects();
     SearchDialog();
 });

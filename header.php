@@ -141,7 +141,7 @@ header('X-Frame-Options: SAMEORIGIN');
         });
     });
 	</script>
-    <script src="<?= $core_lib_basepath . '/js/nav.js' ?>" defer></script>
+    <script src="<?= esc_url(add_query_arg('ver', sakurairo_local_asset_version('js/nav.js'), $core_lib_basepath . '/js/nav.js')); ?>" defer></script>
 </head>
 
 <body <?php body_class(); ?>>
@@ -246,7 +246,7 @@ header('X-Frame-Options: SAMEORIGIN');
             <?php endif; ?>
 
             <?php if ($enable_random_graphs): ?>
-                <div class="bg-switch" id="bg-next" style="display:none">
+                <div class="bg-switch" id="bg-next"<?php if (!(is_front_page() || is_home())): ?> style="display:none"<?php endif; ?>>
                     <i class="fa-solid fa-dice" aria-hidden="true"></i>
                     <span class="screen-reader-text">
                         <?php esc_html_e('Random Background', 'sakurairo'); ?>

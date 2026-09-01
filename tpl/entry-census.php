@@ -38,7 +38,8 @@ function get_entry_census_meta_html($has_splitter)
                 ob_end_clean();
                 break;
             case "post_views":
-                $content = get_post_views($post_id) . ' ' . _n('View', 'Views', get_post_views($post_id), 'sakurairo');/*次阅读*/
+                $views = get_post_views_raw($post_id);
+                $content = restyle_text($views) . ' ' . _n('View', 'Views', $views, 'sakurairo');/*次阅读*/
                 if ($has_splitter) {
                     $content = __wrap_with_span($content);
                 } else {

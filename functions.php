@@ -62,6 +62,21 @@ if (!function_exists('sakurairo_local_asset_url')) {
     }
 }
 
+if (!function_exists('sakurairo_local_asset_version')) {
+    function sakurairo_local_asset_version($paths)
+    {
+        $latest_mtime = 0;
+        foreach ((array) $paths as $path) {
+            $file = trailingslashit(get_template_directory()) . ltrim($path, '/');
+            if (is_file($file)) {
+                $latest_mtime = max($latest_mtime, (int) filemtime($file));
+            }
+        }
+
+        return IRO_VERSION . ($latest_mtime ? '-' . $latest_mtime : '');
+    }
+}
+
 if (!function_exists('sakurairo_rebase_vision_option_urls')) {
     function sakurairo_rebase_vision_option_urls($value, $old_basepath, $new_basepath)
     {
@@ -247,6 +262,131 @@ function sakurairo_cleanup_legacy_tracking_state()
 }
 add_action('init', 'sakurairo_cleanup_legacy_tracking_state', 1);
 
+/**
+ * Remove schedules, caches, and options left by the retired QQ avatar,
+ * custom emoticon, and friend-link modules. Existing comments and bookmarks
+ * are intentionally preserved.
+ */
+function sakurairo_cleanup_removed_comment_extras_and_friend_links()
+{
+    if (get_option('sakurairo_comment_friend_cleanup_complete')) {
+        return;
+    }
+
+    if (function_exists('wp_unschedule_hook')) {
+        wp_unschedule_hook('sakurairo_weekly_link_check');
+        wp_unschedule_hook('sakurairo_check_links_batch');
+    } else {
+        wp_clear_scheduled_hook('sakurairo_weekly_link_check');
+        wp_clear_scheduled_hook('sakurairo_check_links_batch');
+    }
+
+    delete_option('sakurairo_link_check_last_batch');
+    delete_option('sakurairo_link_check_last_time');
+    delete_option('sakurairo_link_check_started');
+    delete_transient('custom_smilies_list');
+
+    $retired_options = array(
+        'smilies_list',
+        'smilies_name',
+        'smilies_dir',
+        'smilies_proxy',
+        'qq_avatar_link',
+        'friend_link_align',
+        'friend_link_form',
+        'friend_link_sorting_mode',
+        'friend_link_order',
+    );
+
+    $option_sets = array(
+        'option' => get_option('iro_options'),
+        'theme_mod' => get_theme_mod('iro_options', array()),
+    );
+
+    foreach ($option_sets as $storage => $options) {
+        if (!is_array($options)) {
+            continue;
+        }
+
+        $original_options = $options;
+        foreach ($retired_options as $option) {
+            unset($options[$option]);
+        }
+
+        if ($options === $original_options) {
+            continue;
+        }
+
+        if ($storage === 'option') {
+            update_option('iro_options', $options);
+            $GLOBALS['iro_options'] = $options;
+        } else {
+            set_theme_mod('iro_options', $options);
+        }
+    }
+
+    add_option('sakurairo_comment_friend_cleanup_complete', '1', '', false);
+}
+add_action('init', 'sakurairo_cleanup_removed_comment_extras_and_friend_links', 1);
+
+/**
+ * Remove cached data and settings left by the retired homepage exhibition.
+ */
+function sakurairo_cleanup_removed_exhibition_module()
+{
+    if (get_option('sakurairo_exhibition_cleanup_complete')) {
+        return;
+    }
+
+    delete_transient('sakurairo_site_stats');
+
+    $retired_options = array(
+        'exhibition',
+        'exhibition_area_icon',
+        'exhibition_area_title',
+        'capsule_components',
+        'show_medal_capsules',
+        'stat_announcement_text',
+    );
+
+    $option_sets = array(
+        'option' => get_option('iro_options'),
+        'theme_mod' => get_theme_mod('iro_options', array()),
+    );
+
+    foreach ($option_sets as $storage => $options) {
+        if (!is_array($options)) {
+            continue;
+        }
+
+        $original_options = $options;
+        foreach ($retired_options as $option) {
+            unset($options[$option]);
+        }
+
+        if (isset($options['homepage_components']) && is_array($options['homepage_components'])) {
+            $options['homepage_components'] = array_values(array_diff(
+                $options['homepage_components'],
+                array('exhibition')
+            ));
+        }
+
+        if ($options === $original_options) {
+            continue;
+        }
+
+        if ($storage === 'option') {
+            update_option('iro_options', $options);
+            $GLOBALS['iro_options'] = $options;
+        } else {
+            set_theme_mod('iro_options', $options);
+        }
+    }
+
+    add_option('sakurairo_exhibition_cleanup_complete', '1', '', false);
+}
+add_action('init', 'sakurairo_cleanup_removed_exhibition_module', 1);
+
 add_action('init', 'set_user_locale');
 function set_user_locale() {
     if (is_user_logged_in()) {
@@ -318,8 +458,6 @@ if (!function_exists('akina_setup')) {
          */
         add_theme_support('title-tag');
 
-        add_filter('pre_option_link_manager_enabled', '__return_true');
-
         // 优化代码
         //去除头部冗余代码
         remove_action('wp_head', 'feed_links_extra', 3);
@@ -382,11 +520,6 @@ function i18n_templates_name ($translated_name, $original_name) {
     $lang = get_user_locale();
 
     $template_names = array(
-        'Friendly Links Template' => array(
-            'zh_CN' => '友情链接模板',
-            'zh_TW' => '友情連結模板',
-            'ja'    => 'フレンドリーリンクテンプレート',
-        ),
         'Archive Template' => array(
             'zh_CN' => '归档模板',
             'zh_TW' => '歸檔模板',
@@ -645,43 +778,59 @@ function sakura_scripts()
         if (strpos(get_option('permalink_structure'), 'index.php') !== false) {
             $index = 'index.php';
         }
-        $iro_css = $core_lib_basepath . '/css/' . $index . '?' . $sakura_header . '&' . $content_style . '&' . $wave . '&minify&' . IRO_VERSION;
+        $css_files = array(
+            'style.css',
+            'css/shortcodes.css',
+            'css/dark.css',
+            'css/responsive.css',
+            'css/animation.css',
+            'css/templates.css',
+            'css/content-style/' . $content_style . '.css',
+        );
+        if ($wave === 'wave') {
+            $css_files[] = 'css/wave.css';
+        }
+        if ($sakura_header === 'sakura_header') {
+            $css_files[] = 'css/sakura_header.css';
+        }
+        $css_version = sakurairo_local_asset_version($css_files);
+        $iro_css = $core_lib_basepath . '/css/' . $index . '?' . $sakura_header . '&' . $content_style . '&' . $wave . '&minify&ver=' . rawurlencode($css_version);
         add_action('wp_head', function() use ($iro_css) {
             echo '<link rel="preload" href="' .$iro_css. '" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
             echo '<link rel="stylesheet" href="' . $iro_css . '">';
         }, 9);
 
     } else {        
-        wp_enqueue_style('iro-css', $core_lib_basepath . '/style.css', array(), IRO_VERSION);
-        wp_enqueue_style('iro-codes', $core_lib_basepath . '/css/shortcodes.css', array(), IRO_VERSION);
-        wp_enqueue_style('iro-dark', $core_lib_basepath . '/css/dark.css', array('iro-css'), IRO_VERSION);
-        wp_enqueue_style('iro-responsive', $core_lib_basepath . '/css/responsive.css', array('iro-css'), IRO_VERSION);
-        wp_enqueue_style('iro-animation', $core_lib_basepath . '/css/animation.css', array('iro-css'), IRO_VERSION);
-        wp_enqueue_style('iro-templates', $core_lib_basepath . '/css/templates.css', array('iro-css'), IRO_VERSION);
+        wp_enqueue_style('iro-css', $core_lib_basepath . '/style.css', array(), sakurairo_local_asset_version('style.css'));
+        wp_enqueue_style('iro-codes', $core_lib_basepath . '/css/shortcodes.css', array(), sakurairo_local_asset_version('css/shortcodes.css'));
+        wp_enqueue_style('iro-dark', $core_lib_basepath . '/css/dark.css', array('iro-css'), sakurairo_local_asset_version('css/dark.css'));
+        wp_enqueue_style('iro-responsive', $core_lib_basepath . '/css/responsive.css', array('iro-css'), sakurairo_local_asset_version('css/responsive.css'));
+        wp_enqueue_style('iro-animation', $core_lib_basepath . '/css/animation.css', array('iro-css'), sakurairo_local_asset_version('css/animation.css'));
+        wp_enqueue_style('iro-templates', $core_lib_basepath . '/css/templates.css', array('iro-css'), sakurairo_local_asset_version('css/templates.css'));
 
         $content_style = (iro_opt('entry_content_style') == 'sakurairo' ? 'sakura' : 'github');
         wp_enqueue_style(
             'entry-content',
             $core_lib_basepath . '/css/content-style/' . $content_style . '.css',
             array(),
-            IRO_VERSION
+            sakurairo_local_asset_version('css/content-style/' . $content_style . '.css')
         );
         if (iro_opt('wave_effects', 'false')){
-            wp_enqueue_style('wave', $core_lib_basepath . '/css/wave.css', array(), IRO_VERSION);
+            wp_enqueue_style('wave', $core_lib_basepath . '/css/wave.css', array(), sakurairo_local_asset_version('css/wave.css'));
         }
         if(iro_opt('choice_of_nav_style') == 'sakura'){
-            wp_enqueue_style('sakura_header', $core_lib_basepath . '/css/sakura_header.css', array(), IRO_VERSION);
+            wp_enqueue_style('sakura_header', $core_lib_basepath . '/css/sakura_header.css', array(), sakurairo_local_asset_version('css/sakura_header.css'));
         }
     }
 
     if(!is_404()){
-        wp_enqueue_script('app', $core_lib_basepath . '/js/app.js', array('polyfills'), IRO_VERSION, true);
+        wp_enqueue_script('app', $core_lib_basepath . '/js/app.js', array('polyfills'), sakurairo_local_asset_version('js/app.js'), true);
         if (!is_home()) {
             //非主页的资源
-            wp_enqueue_script('app-page', $core_lib_basepath . '/js/page.js', array('app', 'polyfills'), IRO_VERSION, true);
+            wp_enqueue_script('app-page', $core_lib_basepath . '/js/page.js', array('app', 'polyfills'), sakurairo_local_asset_version('js/page.js'), true);
         }
     }
-    wp_enqueue_script('polyfills', $core_lib_basepath . '/js/polyfill.js', array(), IRO_VERSION, true);
+    wp_enqueue_script('polyfills', $core_lib_basepath . '/js/polyfill.js', array(), sakurairo_local_asset_version('js/polyfill.js'), true);
     // defer加载
     add_filter('script_loader_tag', function($tag, $handle) {
         if ('polyfills' === $handle) {
@@ -930,132 +1079,158 @@ function restyle_text($input)
     }
 }
 
+/**
+ * Return the unformatted view count for calculations and pluralization.
+ */
+function get_post_views_raw($post_id)
+{
+    $post_id = absint($post_id);
+    if (!$post_id) {
+        return 0;
+    }
+
+    if (function_exists('wp_statistics_pages') && iro_opt('statistics_api') === 'wp_statistics') {
+        return max(0, (int) wp_statistics_pages('total', 'uri', $post_id));
+    }
+
+    return max(0, (int) get_post_meta($post_id, 'views', true));
+}
+
+/**
+ * Atomically increment the built-in counter to avoid lost updates under load.
+ */
+function sakurairo_increment_post_views($post_id)
+{
+    global $wpdb;
+
+    $post_id = absint($post_id);
+    if (!$post_id) {
+        return false;
+    }
+
+    $updated = $wpdb->query($wpdb->prepare(
+        "UPDATE {$wpdb->postmeta}
+         SET meta_value = CAST(meta_value AS UNSIGNED) + 1
+         WHERE post_id = %d AND meta_key = %s
+         LIMIT 1",
+        $post_id,
+        'views'
+    ));
+
+    if ($updated === false) {
+        return false;
+    }
+
+    if ($updated === 0 && !add_post_meta($post_id, 'views', 1, true)) {
+        // Another request may have created the row between UPDATE and INSERT.
+        $updated = $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->postmeta}
+             SET meta_value = CAST(meta_value AS UNSIGNED) + 1
+             WHERE post_id = %d AND meta_key = %s
+             LIMIT 1",
+            $post_id,
+            'views'
+        ));
+        if ($updated === false) {
+            return false;
+        }
+    }
+
+    wp_cache_delete($post_id, 'post_meta');
+    return true;
+}
+
+function sakurairo_is_crawler_request()
+{
+    $user_agent = isset($_SERVER['HTTP_USER_AGENT'])
+        ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']))
+        : '';
+
+    if ($user_agent === '') {
+        return true;
+    }
+
+    return (bool) preg_match('/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|mediapartners|preview/i', $user_agent);
+}
+
+function sakurairo_get_recently_viewed_post_ids()
+{
+    if (empty($_COOKIE['sakurairo_viewed_posts'])) {
+        return [];
+    }
+
+    $raw_ids = sanitize_text_field(wp_unslash($_COOKIE['sakurairo_viewed_posts']));
+    return array_slice(wp_parse_id_list(explode(',', $raw_ids)), 0, 24);
+}
+
+function sakurairo_remember_post_view($post_id)
+{
+    if (headers_sent()) {
+        return;
+    }
+
+    $post_id = absint($post_id);
+    $post_ids = array_values(array_diff(sakurairo_get_recently_viewed_post_ids(), [$post_id]));
+    array_unshift($post_ids, $post_id);
+    $post_ids = array_slice($post_ids, 0, 24);
+
+    $cookie_name = 'sakurairo_viewed_posts';
+    $cookie_value = implode(',', $post_ids);
+    $lifetime = max(HOUR_IN_SECONDS, (int) apply_filters('sakurairo_post_view_cookie_lifetime', 12 * HOUR_IN_SECONDS));
+    $options = [
+        'expires' => time() + $lifetime,
+        'path' => defined('COOKIEPATH') && COOKIEPATH ? COOKIEPATH : '/',
+        'secure' => is_ssl(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ];
+    if (defined('COOKIE_DOMAIN') && COOKIE_DOMAIN) {
+        $options['domain'] = COOKIE_DOMAIN;
+    }
+
+    setcookie($cookie_name, $cookie_value, $options);
+    $_COOKIE[$cookie_name] = $cookie_value;
+}
+
 function set_post_views()
 {
-    if (!is_singular())
+    $purpose = strtolower((string) ($_SERVER['HTTP_SEC_PURPOSE'] ?? $_SERVER['HTTP_PURPOSE'] ?? ''));
+    if (iro_opt('statistics_api', 'theme_build_in') !== 'theme_build_in'
+        || !is_singular(['post', 'shuoshuo'])
+        || is_preview()
+        || is_feed()
+        || strpos($purpose, 'prefetch') !== false
+        || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
         return;
+    }
 
-    global $post;
-    $post_id = intval($post->ID);
-    if (!$post_id)
+    $post_id = get_queried_object_id();
+    if (!$post_id || get_post_status($post_id) !== 'publish' || sakurairo_is_crawler_request()) {
         return;
-    $views = (int) get_post_meta($post_id, 'views', true);
-    if (!update_post_meta($post_id, 'views', ($views + 1))) {
-        add_post_meta($post_id, 'views', 1, true);
+    }
+
+    if (is_user_logged_in() && !apply_filters('sakurairo_count_logged_in_post_views', false, $post_id)) {
+        return;
+    }
+
+    if (in_array($post_id, sakurairo_get_recently_viewed_post_ids(), true)) {
+        return;
+    }
+
+    if (sakurairo_increment_post_views($post_id)) {
+        sakurairo_remember_post_view($post_id);
     }
 }
 
-add_action('get_header', 'set_post_views');
+add_action('template_redirect', 'set_post_views', 20);
 
 function get_post_views($post_id)
 {
-    // 检查传入的参数是否有效
-    if (empty($post_id) || !is_numeric($post_id)) {
-        return 'Error: Invalid post ID.';
-    }
-    // 检查 WP-Statistics 插件是否安装
-    if ((function_exists('wp_statistics_pages')) && (iro_opt('statistics_api') == 'wp_statistics')) {
-        // 使用 WP-Statistics 插件获取浏览量
-        $views = wp_statistics_pages('total', 'uri', $post_id);
-        return empty($views) ? 0 : intval($views);
-    } else {
-        // 使用文章自定义字段获取浏览量
-        $views = get_post_meta($post_id, 'views', true);
-        if(empty($views)){
-            return 0;
-        }
-        // 格式化浏览量
-        return restyle_text(intval($views));
-    }
+    return restyle_text(get_post_views_raw($post_id));
 }
 
 // 引入post_metas方法
 require_once get_template_directory() . "/inc/post_metas.php";
-
-function is_webp(): bool
-{
-    return (isset($_COOKIE['su_webp']) || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'image/webp')));
-}
-
-/**
- * 获取友情链接列表
- * @Param: string $sorting_mode 友情链接列表排序模式，name、updated、rating、rand四种模式
- * @Param: string $link_order 友情链接列表排序方法，ASC、DESC（升序或降序）
- * @Param: mixed $id 友情链接ID
- * @Param: string $output HTML格式化输出
- */
-function get_the_link_items($id = null)
-{
-    $sorting_mode = iro_opt('friend_link_sorting_mode');
-    $link_order = iro_opt('friend_link_order');
-    $bookmarks = get_bookmarks(
-        array(
-            'orderby' => $sorting_mode,
-            'order' => $link_order,
-            'category' => $id
-        )
-    );
-    $output = '';
-    if (!empty($bookmarks)) {
-        $output .= '<ul class="link-items fontSmooth">';
-        foreach ($bookmarks as $bookmark) {
-            if (empty($bookmark->link_description)) {
-                $bookmark->link_description = __('This guy is so lazy ╮(╯▽╰)╭', 'sakurairo');
-            }
-
-            if (empty($bookmark->link_image)) {
-                $bookmark->link_image = 'https://weavatar.com/avatar/?s=80&d=mm&r=g';
-            }
-            
-            // 获取链接状态
-            $link_status = get_post_meta($bookmark->link_id, '_link_check_status', true);
-            $status_class = '';
-            if ($link_status === 'success') {
-                $status_class = 'link-status-success';
-            } elseif ($link_status === 'failure') {
-                $status_class = 'link-status-failure';
-            }
-
-            $output .= '<li class="link-item ' . $status_class . '"><a class="link-item-inner effect-apollo" href="' . $bookmark->link_url . '" title="' . $bookmark->link_description . '" target="_blank" rel="friend"><div class="link-avatar-wrapper"><img alt="friend_avator" class="lazyload" onerror="imgError(this,1)" data-src="' . $bookmark->link_image . '" src="' . iro_opt('load_in_svg') . '"></div><span class="sitename" style="' . $bookmark->link_notes . '">' . $bookmark->link_name . '</span><div class="linkdes">' . $bookmark->link_description . '</div></a></li>';
-        }
-        $output .= '</ul>';
-    }
-    return $output;
-}
-
-function get_link_items() {
-    // 获取链接分类并按优先级降序排列
-    $linkcats = get_terms(array(
-        'taxonomy'   => 'link_category',
-        'meta_key'   => 'term_priority', // 优先级字段
-        'orderby'    => 'meta_value_num', 
-        'order'      => 'DESC', 
-        'hide_empty' => false
-    ));
-
-    // 检查是否返回错误或空结果
-    if (is_wp_error($linkcats) || empty($linkcats)) {
-        return get_the_link_items(); // 友链无分类或出错，直接返回全部列表  
-    }
-    
-    $result = '';
-    $pending_cat_name = __('Pending Links', 'sakurairo'); // 未审核链接分类名称
-    
-    foreach ($linkcats as $linkcat) {
-        // 跳过未审核链接分类
-        if ($linkcat->name === $pending_cat_name) {
-            continue;
-        }
-        
-        $result .= '<h3 class="link-title"><span class="link-fix">' . $linkcat->name . '</span></h3>';
-        if ($linkcat->description) {
-            $result .= '<div class="link-description">' . $linkcat->description . '</div>';
-        }
-
-        $result .= get_the_link_items($linkcat->term_id);
-    }
-    return $result;
-}
 
 /*
  * Gravatar头像使用中国服务器
@@ -1440,10 +1615,8 @@ function comment_mail_notify($comment_id)
         </body>
         </html>';
         
-        // 处理表情符号和特殊格式
+        // 处理 WordPress 原生表情符号
         $message = convert_smilies($message);
-        $message = str_replace('{{', '<img src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . '/smilies/bilipng/emoji_', $message);
-        $message = str_replace('}}', '.png" alt="emoji" style="height: 1.5em; max-height: 1.5em; vertical-align: middle;">', $message);
         
         // 处理图片
         $message = str_replace('{UPLOAD}', 'https://i.loli.net/', $message);
@@ -1523,250 +1696,13 @@ function comment_picture_support($content)
 }
 add_filter('comment_text', 'comment_picture_support');
 
-/*
- * 修改评论表情调用路径
- */
-
-// 简单遍历系统表情库，今后应考虑标识表情包名——使用增加的扩展名，同时保留原有拓展名
-// 还有一个思路是根据表情调用路径来判定<-- 此法最好！
-// 贴吧
-
-function make_onclick_grin($name,$type,$before='',$after=''){
-    $extra_params = "";
-    if($before || $after){
-        $extra_params = ",'$before','$after'";
-    }
-    return "onclick=\"grin('$name','$type'$extra_params)\"";
-}
-/**
- * 通过文件夹获取自定义表情列表，使用Transients来存储获得的列表，除非手动清除，数据永不过期。
- * 数据格式如下：
- * Array
- * (
- *     [0] => Array
- *         (
- *             [path] => C:\xampp\htdocs\wordpress/wp-content/uploads/sakurairo_vision/@2.4/smilies\bilipng\emoji_2233_chijing.png
- *             [little_path] => /sakurairo_vision/@2.4/smilies\bilipng\emoji_2233_chijing.png
- *             [file_url] => http://192.168.233.174/wordpress/wp-content/uploads/sakurairo_vision/@2.4/smilies\bilipng\emoji_2233_chijing.png
- *             [name] => emoji_2233_chijing.png
- *             [base_name] => emoji_2233_chijing
- *             [extension] => png
- *         )
- *     ...
- * ）    
- *
- * @return array
- */
-function get_custom_smilies_list()
+function comment_picture_support_rss($content)
 {
-
-    $custom_smilies_list = get_transient("custom_smilies_list");
-
-    if ($custom_smilies_list !== false) {
-        return $custom_smilies_list;
-    }
-
-    $custom_smilies_list = array();
-    $custom_smilies_dir = iro_opt('smilies_dir');
-
-    if (!$custom_smilies_dir) {
-        return $custom_smilies_list;
-    }
-
-    $custom_smilies_extension = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'avif', 'webp'];
-    $custom_smilies_path = wp_get_upload_dir()['basedir'] . $custom_smilies_dir;
-
-    if (!is_dir($custom_smilies_path)) {
-        return $custom_smilies_list;
-    }
-
-    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($custom_smilies_path), RecursiveIteratorIterator::LEAVES_ONLY);
-    foreach ($files as $file) {
-        if ($file->isFile()) {
-            $file_name = $file->getFilename();
-            $file_base_name = pathinfo($file_name, PATHINFO_FILENAME);
-            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
-            $file_path = $file->getPathname();
-            $file_little_path = str_replace(wp_get_upload_dir()['basedir'], '', $file_path);
-            $file_url = wp_get_upload_dir()['baseurl'] . $file_little_path;
-            if (in_array($file_extension, $custom_smilies_extension)) {
-                $custom_smilies_list[] = array(
-                    'path' => $file_path,
-                    'little_path' => $file_little_path,
-                    'file_url' => $file_url,
-                    'name' => $file_name,
-                    'base_name' => $file_base_name,
-                    'extension' => $file_extension
-                );
-            }
-        }
-    }
-    set_transient("custom_smilies_list", $custom_smilies_list);
-
-    return $custom_smilies_list;
-}
-
-/**
- * 通过 GET 方法更新自定义表情包列表
- */
-function update_custom_smilies_list()
-{
-
-    if (!is_admin() || !current_user_can('manage_options')) {
-        return;
-    }
-
-    if (!isset($_GET['update_custom_smilies'])) {
-        return;
-    }
-
-    $transient_name = sanitize_key($_GET['update_custom_smilies']);
-
-    if ($transient_name === 'true') {
-        delete_transient("custom_smilies_list");
-        $custom_smilies_list = get_custom_smilies_list();
-        $much = count($custom_smilies_list);
-        $custom_smilies_dir = iro_opt('smilies_dir');
-        $custom_smilies_path = wp_get_upload_dir()['basedir'] . $custom_smilies_dir;
-        echo '自定义表情列表更新完成！总共有' . $much . '个表情。<br>';
-        echo 'Custom smilies updated!Total' . $much . '.';
-        echo "<pre>调试信息：
-        - 表情目录设置为: $custom_smilies_dir
-        - 实际读取的路径为: $custom_smilies_path
-        Debug info:
-        - Smilies path set is: $custom_smilies_dir
-        - The directory actually read is: $custom_smilies_path
-        </pre>
-        <p>以下图片已被收录至自定义表情中（The following images have been included in the custom emoticons）：</p>";
-    }
-    if (!empty($custom_smilies_list)) {
-            echo '<ul style="list-style: none; padding: 0; max-width: 600px;">';
-            foreach ($custom_smilies_list as $smiley) {
-                echo '<li style="margin-bottom: 10px; display: flex; align-items: center;">';
-                echo '<img src="' . esc_url($smiley['file_url']) . '" alt="' . esc_attr($smiley['base_name']) . '" style="height: 60px; margin-right: 10px;">';
-                echo '<span>' . esc_html($smiley['base_name']) . '</span>';
-                echo '</li>';
-            }
-            echo '</ul>';
-        } else {
-            echo '<p>没有任何图片被加入表情包中（No emoticons found）。</p>';
-        }
-}
-update_custom_smilies_list();
-
-
-$custom_smiliestrans = array();
-function push_custom_smilies()
-{
-
-    global $custom_smiliestrans;
-    $custom_smilies_panel = '';
-    $custom_smilies_list = get_custom_smilies_list();
-
-    if (!$custom_smilies_list) {
-        $custom_smilies_panel = '<div style="font-size: 20px;text-align: center;width: 300px;height: 100px;line-height: 100px;">File does not exist!</div>';
-        return $custom_smilies_panel;
-    }
-
-    $custom_smilies_cdn = iro_opt('smilies_proxy');
-    foreach ($custom_smilies_list as $smiley) {
-
-        if ($custom_smilies_cdn) {
-            $smiley_url = $custom_smilies_cdn . $smiley['little_path'];
-        } else {
-            $smiley_url = $smiley['file_url'];
-        }
-        $custom_smilies_panel = $custom_smilies_panel . '<span title="' . $smiley['base_name'].'" ' . make_onclick_grin($smiley['base_name'],'Math').'><img alt="custom_smilies" loading="lazy" style="height: 60px;" src="' . $smiley_url . '" /></span>';
-        $custom_smiliestrans['{{' . $smiley['base_name'] . '}}'] = '<span title="' . $smiley['base_name'] . '" ><img alt="custom_smilies" loading="lazy" style="height: 60px;" src="' . $smiley_url . '" /></span>';
-    }
-
-    return $custom_smilies_panel;
-}
-
-/**
- * 替换评论、文章中的表情符号
- *
- */
-function custom_smilies_filter($content)
-{
-    push_custom_smilies();
-    global $custom_smiliestrans;
-    $content = str_replace(array_keys($custom_smiliestrans), $custom_smiliestrans, $content);
+    $content = str_replace('[img]', '<img src="', $content);
+    $content = str_replace('[/img]', '" style="display: block;margin-left: auto;margin-right: auto;">', $content);
     return $content;
 }
-add_filter('the_content', 'custom_smilies_filter');
-add_filter('comment_text', 'custom_smilies_filter');
-
-
-$wpsmiliestrans = array();
-function push_tieba_smilies()
-{
-    global $wpsmiliestrans;
-    // don't bother setting up smilies if they are disabled
-    if (!get_option('use_smilies'))
-        return;
-    $tiebaname = array('good', 'han', 'spray', 'Grievance', 'shui', 'reluctantly', 'anger', 'tongue', 'se', 'haha', 'rmb', 'doubt', 'tear', 'surprised2', 'Happy', 'ku', 'surprised', 'theblackline', 'smilingeyes', 'spit', 'huaji', 'bbd', 'hu', 'shame', 'naive', 'rbq', 'britan', 'aa', 'niconiconi', 'niconiconi_t', 'niconiconit', 'awesome');
-    $return_smiles = '';
-    $type = is_webp() ? 'webp' : 'png';
-    $tiebaimgdir = 'tieba' . $type . '/';
-    $smiliesgs = '.' . $type;
-    foreach ($tiebaname as $tieba_Name) {
-        $grin = make_onclick_grin($tieba_Name,'tieba');
-        // 选择面版
-        $return_smiles = $return_smiles . '<span title="' . $tieba_Name . '" '.$grin.'><img alt="tieba_smilie" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $tiebaimgdir . 'icon_' . $tieba_Name . $smiliesgs . '" /></span>';
-        // 正文转换
-        $wpsmiliestrans['::' . $tieba_Name . '::'] = '<span title="' . $tieba_Name . '" '.$grin.'><img alt="tieba_smilie" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $tiebaimgdir . 'icon_' . $tieba_Name . $smiliesgs . '" /></span>';
-    }
-    return $return_smiles;
-}
-push_tieba_smilies();
-
-function tieba_smile_filter($content)
-{
-    global $wpsmiliestrans;
-    $content = str_replace(array_keys($wpsmiliestrans), $wpsmiliestrans, $content);
-    return $content;
-}
-add_filter('the_content', 'tieba_smile_filter'); //替换文章关键词
-add_filter('comment_text', 'tieba_smile_filter'); //替换评论关键词
-
-function push_emoji_panel()
-{
-    $emojis = ['(⌒▽⌒)', '（￣▽￣）', '(=・ω・=)', '(｀・ω・´)', '(〜￣△￣)〜', '(･∀･)', '(°∀°)ﾉ', '(￣3￣)', '╮(￣▽￣)╭', '(´_ゝ｀)', '←_←', '→_→', '(&lt;_&lt;)', '(&gt;_&gt;)', '(;¬_¬)', '("▔□▔)/', '(ﾟДﾟ≡ﾟдﾟ)!?', 'Σ(ﾟдﾟ;)', 'Σ(￣□￣||)', '(’；ω；‘)', '（/TДT)/', '(^・ω・^ )', '(｡･ω･｡)', '(●￣(ｴ)￣●)', 'ε=ε=(ノ≧∇≦)ノ', '(’･_･‘)', '(-_-#)', '（￣へ￣）', '(￣ε(#￣)Σ', 'ヽ(‘Д’)ﾉ', '（#-_-)┯━┯', '(╯°口°)╯(┴—┴', '←◡←', '( ♥д♥)', '_(:3」∠)_', 'Σ&gt;―(〃°ω°〃)♡→', '⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄', '(╬ﾟдﾟ)▄︻┻┳═一', '･*･:≡(　ε:)', '(笑)', '(汗)', '(泣)', '(苦笑)'];
-    return join('', array_map(function ($emoji) {
-        return '<span class="emoji-item">' . $emoji . '</span>';
-    }, $emojis));
-}
-
-// bilibili smiles
-$bilismiliestrans = array();
-function push_bili_smilies()
-{
-    global $bilismiliestrans;
-    $name = array('baiyan', 'bishi', 'bizui', 'chan', 'dai', 'daku', 'dalao', 'dalian', 'dianzan', 'doge', 'facai', 'fanu', 'ganga', 'guilian', 'guzhang', 'haixiu', 'heirenwenhao', 'huaixiao', 'jingxia', 'keai', 'koubizi', 'kun', 'lengmo', 'liubixue', 'liuhan', 'liulei', 'miantian', 'mudengkoudai', 'nanguo', 'outu', 'qinqin', 'se', 'shengbing', 'shengqi', 'shuizhao', 'sikao', 'tiaokan', 'tiaopi', 'touxiao', 'tuxue', 'weiqu', 'weixiao', 'wunai', 'xiaoku', 'xieyanxiao', 'yiwen', 'yun', 'zaijian', 'zhoumei', 'zhuakuang');
-    $return_smiles = '';
-    $type = is_webp() ? 'webp' : 'png';
-    $biliimgdir = 'bili' . $type . '/';
-    $smiliesgs = '.' . $type;
-    foreach ($name as $smilies_Name) {
-        $grin = make_onclick_grin($smilies_Name,'Math');
-        // 选择面版
-        $return_smiles = $return_smiles . '<span title="' . $smilies_Name . '" '.$grin.'><img alt="bili_smilies" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $biliimgdir . 'emoji_' . $smilies_Name . $smiliesgs . '" /></span>';
-        // 正文转换
-        $bilismiliestrans['{{' . $smilies_Name . '}}'] = '<span title="' . $smilies_Name . '" '.$grin.'><img alt="bili_smilies" loading="lazy" src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $biliimgdir . 'emoji_' . $smilies_Name . $smiliesgs . '" /></span>';
-    }
-    return $return_smiles;
-}
-push_bili_smilies();
-
-function bili_smile_filter($content)
-{
-    global $bilismiliestrans;
-    $content = str_replace(array_keys($bilismiliestrans), $bilismiliestrans, $content);
-    return $content;
-}
-add_filter('the_content', 'bili_smile_filter'); //替换文章关键词
-add_filter('comment_text', 'bili_smile_filter'); //替换评论关键词
+add_filter('comment_text_rss', 'comment_picture_support_rss');
 
 function featuredtoRSS($content)
 {
@@ -1779,19 +1715,6 @@ function featuredtoRSS($content)
 add_filter('the_excerpt_rss', 'featuredtoRSS');
 add_filter('the_content_feed', 'featuredtoRSS');
 
-//
-function bili_smile_filter_rss($content)
-{
-    $type = is_webp() ? 'webp' : 'png';
-    $biliimgdir = 'bili' . $type . '/';
-    $smiliesgs = '.' . $type;
-    $content = str_replace('{{', '<img src="' . iro_opt('vision_resource_basepath', SAKURAIRO_VISION_BASE_URL) . 'smilies/' . $biliimgdir, $content);
-    $content = str_replace('}}', $smiliesgs . '" alt="emoji" style="height: 2em; max-height: 2em;">', $content);
-    $content = str_replace('[img]', '<img src="', $content);
-    $content = str_replace('[/img]', '" style="display: block;margin-left: auto;margin-right: auto;">', $content);
-    return $content;
-}
-add_filter('comment_text_rss', 'bili_smile_filter_rss'); //替换评论rss关键词
 
 function toc_support($content)
 {
@@ -1942,16 +1865,6 @@ function excerpt_length($exp)
     return $exp;
 }
 add_filter('the_excerpt', 'excerpt_length', 11);
-
-/*
- * 评论表情修复
- */
-
-function admin_ini()
-{
-    wp_enqueue_style('cus-styles-fit', get_template_directory_uri() . '/css/dashboard-emoji-fix.css');
-}
-add_action('admin_enqueue_scripts', 'admin_ini');
 
 // 主动resize触发wp_scripts后台排版修正，防止左侧导航栏飞出
 add_action('admin_footer',function() {
@@ -2198,76 +2111,6 @@ function html_tag_parser($content)
 }
 add_filter('the_content', 'html_tag_parser'); //替换文章关键词
 
-/*
- * QQ 评论
- */
-// 数据库插入评论表单的qq字段
-add_action('wp_insert_comment', 'sql_insert_qq_field', 10, 2);
-function sql_insert_qq_field($comment_ID, $commmentdata)
-{
-    $qq = isset($_POST['new_field_qq']) ? $_POST['new_field_qq'] : false;
-    update_comment_meta($comment_ID, 'new_field_qq', $qq); // new_field_qq 是表单name值，也是存储在数据库里的字段名字
-}
-// 后台评论中显示qq字段
-add_filter('manage_edit-comments_columns', 'add_comments_columns');
-add_action('manage_comments_custom_column', 'output_comments_qq_columns', 10, 2);
-function add_comments_columns($columns)
-{
-    $columns['new_field_qq'] = __('QQ'); // 新增列名称
-    return $columns;
-}
-function output_comments_qq_columns($column_name, $comment_id)
-{
-    switch ($column_name) {
-        case "new_field_qq":
-            // 这是输出值，可以拿来在前端输出，这里已经在钩子manage_comments_custom_column上输出了
-            echo get_comment_meta($comment_id, 'new_field_qq', true);
-            break;
-    }
-}
-/**
- * 头像调用路径
- */
-add_filter('get_avatar', 'change_avatar', 10, 3);
-function change_avatar($avatar)
-{
-    global $comment, $sakura_privkey;
-    if ($comment && get_comment_meta($comment->comment_ID, 'new_field_qq', true)) {
-        $qq_number = get_comment_meta($comment->comment_ID, 'new_field_qq', true);
-        $qq_number = sanitize_text_field($qq_number);
-        if (iro_opt('qq_avatar_link') == 'off') {
-            return '<img src="https://q2.qlogo.cn/headimg_dl?dst_uin=' . esc_attr($qq_number) . '&spec=100" class="lazyload avatar avatar-24 photo" alt="😀" width="24" height="24" onerror="imgError(this,1)">';
-        }
-        if (iro_opt('qq_avatar_link') == 'type_3') {
-            $qqavatar = wp_remote_retrieve_body(wp_remote_get('https://ptlogin2.qq.com/getface?appid=1006102&imgtype=3&uin=' . urlencode($qq_number)));
-            preg_match('/:\"([^\"]*)\"/i', $qqavatar, $matches);
-            $avatar_url = isset($matches[1]) ? esc_url($matches[1]) : '';
-            if (empty($avatar_url)) {
-                return $avatar;
-            }
-            return '<img src="' . $avatar_url . '" class="lazyload avatar avatar-24 photo" alt="😀" width="24" height="24" onerror="imgError(this,1)">';
-        }
-        
-        // Ensure $sakura_privkey is defined and not null
-        if (isset($sakura_privkey) && !is_null($sakura_privkey)) {
-            // 生成一个合适长度的初始化向量
-            $iv_length = openssl_cipher_iv_length('aes-128-cbc');
-            $iv = openssl_random_pseudo_bytes($iv_length);
-            
-            // 加密数据
-            $encrypted = openssl_encrypt($qq_number, 'aes-128-cbc', $sakura_privkey, 0, $iv);
-            
-            // 将初始化向量和加密数据一起编码
-            $encrypted = urlencode(base64_encode($iv . $encrypted));
-            
-            return '<img src="' . esc_url(rest_url("sakura/v1/qqinfo/avatar") . '?qq=' . $encrypted) . '" class="lazyload avatar avatar-24 photo" alt="😀" width="24" height="24" onerror="imgError(this,1)">';
-        } else {
-            // Handle the case where $sakura_privkey is not set or is null
-            return $avatar;
-        }
-    }
-    return $avatar;
-}
 
 //生成随机链接，防止浏览器缓存策略
 function get_random_url(string $url): string
@@ -3300,74 +3143,30 @@ function get_the_user_ip()
     return apply_filters('wpb_get_ip', $ip);
 }
 
-//归档页信息缓存
-function get_archive_info($get_page = false) {
-    // 获取所有文章和说说
+// 生成归档页数据。缓存读写统一由 sakurairo_get_cached_archive_info() 管理。
+function get_archive_info() {
     $args = [
         'posts_per_page' => -1,
         'orderby' => 'date',
         'order' => 'DESC',
         'post_type' => array('post', 'shuoshuo'),
         'post_status'    => 'publish',
-        'suppress_filters' => false // 同时获取文章和说说
+        'suppress_filters' => false,
     ];
-    if ($get_page){
-        $args['post_type'] = array('post', 'shuoshuo', 'page');
-    }
     $posts = get_posts($args);
-    // 统计
     $years = [];
-    $stats = [
-        'total' => [
-            'posts' => 0,
-            'views' => 0,
-            'words' => 0,
-            'comments' => 0
-        ],
-        'shuoshuo' => [
-            'posts' => 0,
-            'views' => 0,
-            'words' => 0,
-            'comments' => 0
-        ],
-        'article' => [
-            'posts' => 0,
-            'views' => 0,
-            'words' => 0,
-            'comments' => 0
-        ],
-        'page' => [
-            'posts' => 0,
-            'views' => 0,
-            'words' => 0,
-            'comments' => 0
-        ]
-    ];
+
     foreach ($posts as $post) {
-        $views = get_post_views($post->ID);
+        $views = get_post_views_raw($post->ID);
         $words = get_meta_words_count($post->ID);
-        $comments = get_comments_number($post->ID);
+        $comments = (int) $post->comment_count;
         
-        // 判断页面类型
         if ($post->post_type == 'post') {
             $post_type = 'article';
-        } elseif ($post->post_type == 'shuoshuo') {
-            $post_type = 'shuoshuo';
         } else {
-            $post_type = 'page';
+            $post_type = 'shuoshuo';
         }
-        
-        // 更新统计数据
-        $stats[$post_type]['posts']++;
-        $stats[$post_type]['views'] += intval($views);
-        $stats[$post_type]['words'] += intval($words);
-        $stats[$post_type]['comments'] += intval($comments);
-        
-        $stats['total']['posts']++;
-        $stats['total']['views'] += intval($views);
-        $stats['total']['words'] += intval($words);
-        $stats['total']['comments'] += intval($comments);
-        
+
         $year = date('Y', strtotime($post->post_date));
         $month = date('n', strtotime($post->post_date));
         if ($post->post_password != ''){
@@ -3399,480 +3198,71 @@ function get_archive_info($get_page = false) {
     return $years;
 }
 
-//更新文章后更新缓存
-add_action('save_post', function(){
-    get_archive_info();
-});
+function sakurairo_get_cached_archive_info() {
+    $years = get_transient('time_archive');
+    if ($years !== false) {
+        return $years;
+    }
 
-/*
- * 友情链接提交功能
- */
-function sakurairo_link_submission_handler() {
-    // 确保所有错误和输出都不会干扰JSON响应
-    try {
-        // 验证请求方法，只允许POST请求
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            wp_send_json_error(array('message' => __('Invalid request method.', 'sakurairo')));
-            return;
-        }
+    $years = get_archive_info();
+    $expiration = max(MINUTE_IN_SECONDS, (int) apply_filters('sakurairo_archive_cache_expiration', HOUR_IN_SECONDS));
+    set_transient('time_archive', $years, $expiration);
+    return $years;
+}
 
-        // 验证Referer，防止跨站请求
-        check_ajax_referer('link_submission_nonce', 'link_submission_nonce');
+function sakurairo_invalidate_archive_cache() {
+    delete_transient('time_archive');
+}
 
-        // 限制提交频率，防止滥用
-        $ip = get_the_user_ip();
-        $transient_key = 'link_submit_' . md5($ip);
-        if (false !== get_transient($transient_key)) {
-            wp_send_json_error(array('message' => __('You are submitting too frequently. Please try again later.', 'sakurairo')));
-            return;
-        }
-
-        // 验证nonce
-        if (!isset($_POST['link_submission_nonce']) || !wp_verify_nonce($_POST['link_submission_nonce'], 'link_submission_nonce')) {
-            wp_send_json_error(array('message' => __('Security verification failed.', 'sakurairo')));
-            return; 
-        }
-
-        // 验证必填字段
-        $required_fields = array('siteName', 'siteUrl', 'siteDescription', 'siteImage', 'contactEmail', 'yzm', 'timestamp', 'id');
-        foreach ($required_fields as $field) {
-            if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
-                wp_send_json_error(array('message' => __('Please fill in all required fields.', 'sakurairo')));
-                return;
-            }
-        }
-
-        // 验证验证码
-        include_once('inc/classes/Captcha.php');
-        $img = new Sakura\API\Captcha;
-        $captcha_check = $img->check_captcha(
-            sanitize_text_field($_POST['yzm']), 
-            sanitize_text_field($_POST['timestamp']), 
-            sanitize_text_field($_POST['id'])
-        );
-        
-        if ($captcha_check['code'] != 5) {
-            wp_send_json_error(array('message' => $captcha_check['msg']));
-            return;
-        }
-        
-        // 设置提交频率限制（10分钟）
-        set_transient($transient_key, 1, 600);
-
-        // 检查是否达到草稿链接上限 (20个)
-        // 首先确保分类存在
-        $pending_cat_id = 0;
-        $pending_cat_name = __('Pending Links', 'sakurairo');
-        $link_categories = get_terms('link_category', array('hide_empty' => false));
-        
-        if (!is_wp_error($link_categories) && !empty($link_categories)) {
-            foreach ($link_categories as $category) {
-                if ($category->name === $pending_cat_name) {
-                    $pending_cat_id = $category->term_id;
-                    break;
-                }
-            }
-        }
-        
-        // 如果分类不存在，创建它
-        if ($pending_cat_id === 0) {
-            $new_cat = wp_insert_term($pending_cat_name, 'link_category');
-            if (!is_wp_error($new_cat)) {
-                $pending_cat_id = $new_cat['term_id'];
-            }
-        }
-        
-        // 检查是否达到待审核链接上限
-        if (sakurairo_check_pending_links_limit()) {
-            wp_send_json_error(array('message' => __('Sorry, we are not accepting new link submissions at this time due to backlog. Please try again later.', 'sakurairo')));
-            return;
-        }
-
-        // 清理和验证输入数据
-        $site_name = sanitize_text_field($_POST['siteName']);
-        $site_url = esc_url_raw($_POST['siteUrl']);
-        $site_description = sanitize_textarea_field($_POST['siteDescription']);
-        $site_image = esc_url_raw($_POST['siteImage']);
-        $contact_email = sanitize_email($_POST['contactEmail']);
-
-        // 验证数据长度，防止过长的输入
-        if (mb_strlen($site_name) > 100) {
-            wp_send_json_error(array('message' => __('Site name is too long.', 'sakurairo')));
-            return;
-        }
-        
-        if (mb_strlen($site_description) > 200) {
-            wp_send_json_error(array('message' => __('Site description is too long.', 'sakurairo')));
-            return;
-        }
-
-        // 验证URL格式
-        if (!filter_var($site_url, FILTER_VALIDATE_URL)) {
-            wp_send_json_error(array('message' => __('Please enter a valid URL.', 'sakurairo')));
-            return;
-        }
-        
-        // 验证图片URL格式
-        if (!filter_var($site_image, FILTER_VALIDATE_URL)) {
-            wp_send_json_error(array('message' => __('Please enter a valid image URL.', 'sakurairo')));
-            return;
-        }
-
-        // 验证邮箱格式
-        if (!filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-            wp_send_json_error(array('message' => __('Please enter a valid email address.', 'sakurairo')));
-            return;
-        }
-
-        // 检查URL是否已存在
-        $existing_links = get_bookmarks();
-        foreach ($existing_links as $link) {
-            if (trailingslashit($link->link_url) === trailingslashit($site_url)) {
-                wp_send_json_error(array('message' => __('This website URL is already in our links list.', 'sakurairo')));
-                return;
-            }
-        }
-
-        // 准备链接数据
-        $link_data = array(
-            'link_name' => $site_name,
-            'link_url' => $site_url,
-            'link_description' => $site_description,
-            'link_image' => $site_image,
-            'link_target' => '_blank',
-            'link_owner' => $contact_email,
-            'link_rating' => 0,
-            'link_visible' => 'N', // 默认不可见（待审核）
-            'link_rel' => 'friend',
-            'link_notes' => '',
-            'link_rss' => ''
-        );
-
-        // 保存链接
-        if (function_exists('wp_insert_link')) {
-            // 直接插入（需要管理员审核）
-            $link_id = wp_insert_link($link_data);
-            
-            if (is_wp_error($link_id)) {
-                wp_send_json_error(array('message' => __('Failed to submit link. Please try again later.', 'sakurairo')));
-                return;
-            }
-            
-            // 将链接分配到待审核分类
-            if ($pending_cat_id > 0) {
-                wp_set_object_terms($link_id, array($pending_cat_id), 'link_category');
-            }
-            
-            // 发送通知邮件给管理员
-            $admin_email = get_option('admin_email');
-            $blog_name = get_bloginfo('name');
-            $subject = sprintf(__('[%s] New Friend Link Submission', 'sakurairo'), $blog_name);
-            
-            $message = sprintf(__("A new friend link has been submitted on your website %s:\n\n", 'sakurairo'), $blog_name);
-            $message .= sprintf(__("Site Name: %s\n", 'sakurairo'), $site_name);
-            $message .= sprintf(__("Site URL: %s\n", 'sakurairo'), $site_url);
-            $message .= sprintf(__("Site Description: %s\n", 'sakurairo'), $site_description);
-            $message .= sprintf(__("Site Image: %s\n", 'sakurairo'), $site_image);
-            $message .= sprintf(__("Contact Email: %s\n", 'sakurairo'), $contact_email);
-            $message .= sprintf(__("IP Address: %s\n\n", 'sakurairo'), get_the_user_ip());
-            $message .= __("Please review this submission in your WordPress admin panel.\n", 'sakurairo');
-            $message .= admin_url('link-manager.php');
-            
-            wp_mail($admin_email, $subject, $message);
-            
-            // 记录IP和提交时间，用于后续分析
-            update_post_meta($link_id, '_link_submit_ip', get_the_user_ip());
-            update_post_meta($link_id, '_link_submit_time', current_time('mysql'));
-            
-            wp_send_json_success(array(
-                'message' => __('Thank you! Your link has been submitted for review.', 'sakurairo')
-            ));
-            return;
-        } else {
-            // 备用方法：创建一个含有链接详情的文章
-            $post_content = sprintf(__('Site Name: %s', 'sakurairo'), $site_name) . "\n";
-            $post_content .= sprintf(__('Site URL: %s', 'sakurairo'), $site_url) . "\n";
-            $post_content .= sprintf(__('Site Description: %s', 'sakurairo'), $site_description) . "\n";
-            $post_content .= sprintf(__('Site Image: %s', 'sakurairo'), $site_image) . "\n";
-            $post_content .= sprintf(__('Contact Email: %s', 'sakurairo'), $contact_email) . "\n";
-            $post_content .= sprintf(__('IP Address: %s', 'sakurairo'), get_the_user_ip()) . "\n";
-
-            $post_data = array(
-                'post_title' => __('Friend Link Submission: ', 'sakurairo') . $site_name,
-                'post_content' => $post_content,
-                'post_status' => 'pending',
-                'post_type' => 'post',
-                'post_author' => 1, // 默认管理员用户
-                'meta_input' => array(
-                    'link_submission_data' => array(
-                        'site_name' => $site_name,
-                        'site_url' => $site_url,
-                        'site_description' => $site_description,
-                        'site_image' => $site_image,
-                        'contact_email' => $contact_email,
-                        'submit_ip' => get_the_user_ip(),
-                        'submit_time' => current_time('mysql')
-                    )
-                )
-            );
-
-            $post_id = wp_insert_post($post_data);
-
-            if (is_wp_error($post_id)) {
-                wp_send_json_error(array('message' => __('Failed to submit link. Please try again later.', 'sakurairo')));
-                return;
-            }
-
-            // 发送通知邮件给管理员
-            $admin_email = get_option('admin_email');
-            $blog_name = get_bloginfo('name');
-            $subject = sprintf(__('[%s] New Friend Link Submission', 'sakurairo'), $blog_name);
-            
-            $message = sprintf(__("A new friend link has been submitted on your website %s:\n\n", 'sakurairo'), $blog_name);
-            $message .= $post_content;
-            $message .= __("\nPlease review this submission in your WordPress admin panel.\n", 'sakurairo');
-            $message .= admin_url('edit.php?post_status=pending&post_type=post');
-            
-            wp_mail($admin_email, $subject, $message);
-            
-            wp_send_json_success(array(
-                'message' => __('Thank you! Your link has been submitted for review.', 'sakurairo')
-            ));
-            return;
-        }
-    } catch (Exception $e) {
-        // 捕获异常并返回友好的错误信息
-        wp_send_json_error(array(
-            'message' => __('An unexpected error occurred. Please try again later.', 'sakurairo')
-        ));
+function sakurairo_invalidate_archive_cache_on_save($post_id, $post) {
+    if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || wp_is_post_revision($post_id)) {
         return;
     }
-}
-add_action('wp_ajax_link_submission', 'sakurairo_link_submission_handler');
-add_action('wp_ajax_nopriv_link_submission', 'sakurairo_link_submission_handler');
 
-/**
- * 检查友情链接待审核数量，返回是否达到上限
- */
-function sakurairo_check_pending_links_limit() {
-    // 获取待审核链接分类
-    $pending_cat_id = 0;
-    $pending_cat_name = __('Pending Links', 'sakurairo');
-    $link_categories = get_terms('link_category', array('hide_empty' => false));
-    
-    // 检查get_terms是否返回错误
-    if (is_wp_error($link_categories) || empty($link_categories)) {
-        return false; // 如果获取分类失败，返回false（未达到上限）
+    if (in_array($post->post_type, ['post', 'shuoshuo'], true)) {
+        sakurairo_invalidate_archive_cache();
     }
-    
-    foreach ($link_categories as $category) {
-        if ($category->name === $pending_cat_name) {
-            $pending_cat_id = $category->term_id;
-            break;
-        }
-    }
-    
-    // 如果分类不存在，返回false（未达到上限）
-    if ($pending_cat_id === 0) {
-        return false;
-    }
-    
-    // 获取该分类下的链接数量
-    $pending_links = get_bookmarks(array(
-        'category' => $pending_cat_id,
-        'hide_invisible' => false // 确保获取所有链接，包括不可见的链接
-    ));
-    $pending_links_count = count($pending_links);
-    
-    // 检查是否达到上限
-    return $pending_links_count >= 20;
 }
 
-/**
- * 检测已审核通过的友情链接状态
- * 使用稳健的方法，每周一次，分批进行检测
- */
-function sakurairo_check_approved_links_status() {
-    // 获取上次检查的批次
-    $last_batch = get_option('sakurairo_link_check_last_batch', 0);
-    $batch_size = 5; // 每次检查5个链接
-    
-    // 获取所有可见的友情链接（已审核通过的）
-    $approved_links = get_bookmarks(array(
-        'hide_invisible' => true, // 只获取可见的链接
-    ));
-    
-    // 如果没有链接，直接返回
-    if (empty($approved_links)) {
-        return;
+add_action('save_post_post', 'sakurairo_invalidate_archive_cache_on_save', 20, 2);
+add_action('save_post_shuoshuo', 'sakurairo_invalidate_archive_cache_on_save', 20, 2);
+
+function sakurairo_invalidate_archive_cache_for_deleted_post($post_id) {
+    if (in_array(get_post_type($post_id), ['post', 'shuoshuo'], true)) {
+        sakurairo_invalidate_archive_cache();
     }
-    
-    // 计算总批次数
-    $total_batches = ceil(count($approved_links) / $batch_size);
-    
-    // 确定当前批次
-    $current_batch = ($last_batch + 1) % $total_batches;
-    
-    // 计算当前批次的起始和结束索引
-    $start_index = $current_batch * $batch_size;
-    $end_index = min($start_index + $batch_size, count($approved_links));
-    
-    // 获取当前批次的链接
-    $current_batch_links = array_slice($approved_links, $start_index, $end_index - $start_index);
-    
-    // 检查每个链接的状态
-    foreach ($current_batch_links as $link) {
-        sakurairo_check_single_link_status($link);
-    }
-    
-    // 更新最后检查的批次
-    update_option('sakurairo_link_check_last_batch', $current_batch);
-    
-    // 记录检查时间
-    update_option('sakurairo_link_check_last_time', current_time('mysql'));
 }
 
-/**
- * 检查单个友情链接的状态
- * 
- * @param object $link 友情链接对象
- */
-function sakurairo_check_single_link_status($link) {
-    // 如果链接不存在或URL为空，直接返回
-    if (!$link || empty($link->link_url)) {
-        return;
+add_action('before_delete_post', 'sakurairo_invalidate_archive_cache_for_deleted_post');
+add_action('trashed_post', 'sakurairo_invalidate_archive_cache_for_deleted_post');
+add_action('untrashed_post', 'sakurairo_invalidate_archive_cache_for_deleted_post');
+
+function sakurairo_invalidate_archive_cache_for_terms($object_id, $terms, $tt_ids, $taxonomy) {
+    if ($taxonomy === 'category' && in_array(get_post_type($object_id), ['post', 'shuoshuo'], true)) {
+        sakurairo_invalidate_archive_cache();
     }
-    
-    $link_id = $link->link_id;
-    $link_url = $link->link_url;
-    
-    // 获取上次检查状态
-    $last_check_status = get_post_meta($link_id, '_link_check_status', true);
-    $last_check_time = get_post_meta($link_id, '_link_check_time', true);
-    $failure_count = intval(get_post_meta($link_id, '_link_failure_count', true));
-    
-    // 使用 wp_safe_remote_head 进行安全的HTTP请求检查
-    // 设置较短的超时时间和用户代理，避免长时间等待
-    $args = array(
-        'timeout' => 10, // 10秒超时
-        'redirection' => 5, // 最多允许5次重定向
-        'user-agent' => 'WordPress/' . get_bloginfo('version') . '; ' . get_bloginfo('url'),
-        'sslverify' => false, // 不验证SSL证书，提高兼容性
-    );
-    
-    $response = wp_safe_remote_head($link_url, $args);
-    
-    // 检查响应
-    $is_success = false;
-    $status_code = 0;
-    $error_message = '';
-    
-    if (is_wp_error($response)) {
-        // 请求出错
-        $is_success = false;
-        $error_message = $response->get_error_message();
-    } else {
-        // 获取HTTP状态码
-        $status_code = wp_remote_retrieve_response_code($response);
-        
-        // 2xx 和 3xx 状态码视为成功
-        $is_success = ($status_code >= 200 && $status_code < 400);
-    }
-    
-    // 更新检查状态
-    if ($is_success) {
-        // 链接正常
-        update_post_meta($link_id, '_link_check_status', 'success');
-        update_post_meta($link_id, '_link_failure_count', 0); // 重置失败计数
-    } else {
-        // 链接异常
-        update_post_meta($link_id, '_link_check_status', 'failure');
-        update_post_meta($link_id, '_link_status_code', $status_code);
-        update_post_meta($link_id, '_link_error_message', $error_message);
-        
-        // 增加失败计数
-        $failure_count++;
-        update_post_meta($link_id, '_link_failure_count', $failure_count);
-        
-        // 如果连续失败3次以上，发送通知邮件给管理员
-        if ($failure_count == 3) { // Only notify once when the failure count reaches 3
-            sakurairo_send_link_failure_notification($link);
-        }
-    }
-    
-    // 更新检查时间
-    update_post_meta($link_id, '_link_check_time', current_time('mysql'));
 }
 
-/**
- * 发送友情链接失败通知
- * 
- * @param object $link 友情链接对象
- */
-function sakurairo_send_link_failure_notification($link) {
-    // 获取管理员邮箱
-    $admin_email = get_option('admin_email');
-    if (empty($admin_email)) {
-        return;
+add_action('set_object_terms', 'sakurairo_invalidate_archive_cache_for_terms', 10, 4);
+
+function sakurairo_invalidate_archive_cache_for_comment($comment_id, $comment = null) {
+    $comment = $comment instanceof WP_Comment ? $comment : get_comment($comment_id);
+    if ($comment && in_array(get_post_type($comment->comment_post_ID), ['post', 'shuoshuo'], true)) {
+        sakurairo_invalidate_archive_cache();
     }
-    
-    $blog_name = get_bloginfo('name');
-    $link_name = $link->link_name;
-    $link_url = $link->link_url;
-    $failure_count = intval(get_post_meta($link->link_id, '_link_failure_count', true));
-    $status_code = get_post_meta($link->link_id, '_link_status_code', true);
-    $error_message = get_post_meta($link->link_id, '_link_error_message', true);
-    
-    // 邮件主题
-    $subject = sprintf(__('[%s] Friend Link Check Failure: %s', 'sakurairo'), $blog_name, $link_name);
-    
-    // 邮件内容
-    $message = sprintf(__("The friend link '%s' has failed our status check %d times.\n\n", 'sakurairo'), $link_name, $failure_count);
-    $message .= sprintf(__("Link URL: %s\n", 'sakurairo'), $link_url);
-    
-    if ($status_code) {
-        $message .= sprintf(__("HTTP Status Code: %s\n", 'sakurairo'), $status_code);
-    }
-    
-    if ($error_message) {
-        $message .= sprintf(__("Error Message: %s\n", 'sakurairo'), $error_message);
-    }
-    
-    $message .= sprintf(__("\nLast Check Time: %s\n\n", 'sakurairo'), current_time('mysql'));
-    $message .= __("You may want to check this link and consider removing it if it remains unavailable.\n", 'sakurairo');
-    $message .= admin_url('link-manager.php');
-    
-    // 发送邮件
-    wp_mail($admin_email, $subject, $message);
 }
 
-/**
- * 注册每周一次的友情链接检查计划任务
- */
-function sakurairo_register_link_check_cron() {
-    if (!wp_next_scheduled('sakurairo_weekly_link_check')) {
-        wp_schedule_event(time(), 'weekly', 'sakurairo_weekly_link_check');
+add_action('wp_insert_comment', 'sakurairo_invalidate_archive_cache_for_comment', 10, 2);
+add_action('edit_comment', 'sakurairo_invalidate_archive_cache_for_comment', 10, 2);
+add_action('delete_comment', 'sakurairo_invalidate_archive_cache_for_comment', 10, 2);
+
+function sakurairo_invalidate_archive_cache_for_comment_status($new_status, $old_status, $comment) {
+    if ($new_status !== $old_status && $comment instanceof WP_Comment) {
+        sakurairo_invalidate_archive_cache_for_comment($comment->comment_ID, $comment);
     }
 }
-add_action('wp', 'sakurairo_register_link_check_cron');
 
-/**
- * 执行友情链接检查的钩子
- */
-add_action('sakurairo_weekly_link_check', 'sakurairo_check_approved_links_status');
-
-/**
- * 在主题停用时清除计划任务
- */
-function sakurairo_deactivate_link_check_cron() {
-    $timestamp = wp_next_scheduled('sakurairo_weekly_link_check');
-    if ($timestamp) {
-        wp_unschedule_event($timestamp, 'sakurairo_weekly_link_check');
-    }
-}
-register_deactivation_hook(__FILE__, 'sakurairo_deactivate_link_check_cron');
-
-require_once(get_template_directory() . '/inc/link-status.php'); // 友情链接状态检测
+add_action('transition_comment_status', 'sakurairo_invalidate_archive_cache_for_comment_status', 10, 3);
 
 /**
  * 返回是否应当显示文章标题。
@@ -3885,180 +3275,6 @@ function should_show_title(): bool
     return !iro_opt('patternimg')
         || !get_post_thumbnail_id($id)
         && $use_as_thumb != 'true' && !get_post_meta($id, 'video_cover', true);
-}
-
-// 管理员访问任何页面更新最后在线时间
-function sakurairo_record_admin_login() {
-    if (is_user_logged_in()) {
-        $user = wp_get_current_user();
-        if (in_array('administrator', (array) $user->roles)) {
-            update_user_meta($user->ID, 'last_online', current_time('mysql'));
-        }
-    }
-}
-add_action('wp_loaded', 'sakurairo_record_admin_login');
-
-// 添加钩子，在发布/更新文章或者评论时刷新缓存
-function sakurairo_refresh_stats_on_action() {
-    if (current_user_can('edit_post')) {
-        delete_transient('sakurairo_site_stats');
-    }
-}
-add_action('wp_insert_post', 'sakurairo_refresh_stats_on_action');
-add_action('edit_post', 'sakurairo_refresh_stats_on_action');
-add_action('wp_insert_comment', 'sakurairo_refresh_stats_on_action');
-
-// 格式化时间差函数 - 将分钟转换为友好的文本格式
-function format_time_diff($minutes) {
-    if ($minutes < 1) {
-        return __('Just now', 'sakurairo');
-    } elseif ($minutes < 60) {
-        return sprintf(_n('%d minute ago', '%d minutes ago', $minutes, 'sakurairo'), $minutes);
-    } elseif ($minutes < 1440) { // 小于一天
-        $hours = floor($minutes / 60);
-        return sprintf(_n('%d hour ago', '%d hours ago', $hours, 'sakurairo'), $hours);
-    } elseif ($minutes < 10080) { // 小于一周
-        $days = floor($minutes / 1440);
-        return sprintf(_n('%d day ago', '%d days ago', $days, 'sakurairo'), $days);
-    } elseif ($minutes < 43200) { // 小于一个月
-        $weeks = floor($minutes / 10080);
-        return sprintf(_n('%d week ago', '%d weeks ago', $weeks, 'sakurairo'), $weeks);
-    } else {
-        $months = floor($minutes / 43200);
-        return sprintf(_n('%d month ago', '%d months ago', $months, 'sakurairo'), $months);
-    }
-}
-
-// 获取站点统计信息
-function get_site_stats() {
-    // 尝试从缓存获取数据
-    $cached_stats = get_transient('sakurairo_site_stats');
-    if ($cached_stats !== false) {
-        return $cached_stats;
-    }
-
-    $posts_stat = get_archive_info(true);
-    
-    $total_posts = 0;
-    $total_words = 0;
-    $total_authors = 0;
-    $total_comments =0;
-    $total_views = 0;
-    $first_post_date = null;
-
-    $authors = [];
-    foreach ($posts_stat as $year => $months) {
-        foreach ($months as $month => $posts) {
-            foreach ($posts as $post) {
-                if ($post['meta']['type'] != "page"){
-                    $total_posts++;
-    
-                    // 字数
-                    if (isset($post['meta']['words'])) {
-                        preg_match('/\d+/', $post['meta']['words'], $matches);
-                        $total_words += isset($matches[0]) ? intval($matches[0]) : 0;
-                    }
-                }
-    
-                // 作者
-                $authors[$post['post_author']] = true;
-    
-                // 评论数
-                $total_comments += intval($post['comment_count']);
-    
-                // 浏览数
-                if (isset($post['meta']['views'])) {
-                    $total_views += intval($post['meta']['views']);
-                }
-    
-                // 最早发表时间
-                $post_time = strtotime($post['post_date']);
-                if ($first_post_date === null || $post_time < $first_post_date) {
-                    $first_post_date = $post_time;
-                }
-            }
-        }
-    }
-
-    $total_authors = count($authors ?? []);
-    // 第一篇文章的发布日期
-    $first_post_date = date('Y-m-d H:i:s', $first_post_date);
-    
-    // 友情链接数量
-    $link_count = count(get_bookmarks(['hide_invisible' => true]));
-    
-    // 随机友情链接
-    $random_link = get_bookmarks([
-        'hide_invisible' => true,
-        'orderby' => 'rand',
-        'limit' => 1
-    ]);
-    $random_link_data = !empty($random_link) ? $random_link[0] : null;
-    
-    // 计算从第一篇文章发布到现在的天数
-    $blog_days = 0;
-    if ($first_post_date) {
-        $first_post_datetime = new DateTime($first_post_date);
-        $now = new DateTime();
-        $interval = $now->diff($first_post_datetime);
-        $blog_days = $interval->days;
-    }
-
-    function get_latest_admin_online_time() {
-        $admins = get_users(['role' => 'administrator']);
-        $latest_time = 0;
-        $latest_admin = null;
-    
-        foreach ($admins as $admin) {
-            $last_online = get_user_meta($admin->ID, 'last_online', true);
-            if ($last_online) {
-                $timestamp = strtotime($last_online);
-                if ($timestamp > $latest_time) {
-                    $latest_time = $timestamp;
-                    $latest_admin = [
-                        'user' => $admin,
-                        'time' => $last_online
-                    ];
-                }
-            }
-        }
-    
-        return $latest_admin;
-    }
-    
-    $latest_admin_info = get_latest_admin_online_time();
-    
-    if (!empty($latest_admin_info)) {
-        $admin_last_online = $latest_admin_info['time'];
-        $last_online_timestamp = strtotime($admin_last_online);
-        $current_timestamp = current_time('timestamp');
-    
-        // 计算以分钟为单位的时间差
-        $admin_last_online_diff = max(0, floor(($current_timestamp - $last_online_timestamp) / 60));
-    } else {
-        // 没有记录，使用当前时间
-        $admin_last_online = current_time('mysql');
-        $admin_last_online_diff = 0;
-    }
-    
-    $stats = [
-        'post_count' => $total_posts,
-        'comment_count' => $total_comments,
-        'visitor_count' => $total_views,
-        'link_count' => $link_count,
-        'random_link' => $random_link_data,
-        'first_post_date' => $first_post_date,
-        'blog_days' => $blog_days,
-        'admin_last_online' => $admin_last_online,
-        'admin_last_online_diff' => $admin_last_online_diff,
-        'author_count' => $total_authors,
-        'total_words' => $total_words,
-    ];
-    
-    // 缓存数据1小时
-    set_transient('sakurairo_site_stats', $stats, 3600);
-    
-    return $stats;
 }
 
 /**

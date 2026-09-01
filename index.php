@@ -28,11 +28,6 @@ foreach ($component_order as $component) {
             endif;
             break;
             
-        // 特色区域
-        case 'exhibition':
-                get_template_part('exhibition');
-            break;
-
         // 文章列表
         case 'primary':
             ?>

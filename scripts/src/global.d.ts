@@ -20,7 +20,6 @@ declare namespace _iro {
     const iro_api: string
     const nonce: string
     const google_analytics_id: string
-    const gravatar_url: string
     // options
     const NProgressON: boolean
     const audio: boolean
@@ -69,8 +68,6 @@ declare namespace _iro {
     const missing_avatars: string
     const missing_images: string
     const loading_ph:string
-    const qq_api_url: string
-    const qzone_autocomplete: boolean
     const site_name: string
     const skin_bg0: string
     const site_url: string

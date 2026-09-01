@@ -764,11 +764,7 @@ get_header();
     ?>
 <div class="timeline-root" id="timeline-root">
 <?php
-$years = get_transient('time_archive');
-if (!$years) {
-    $years = get_archive_info();
-    set_transient('time_archive',$years,86400);
-}
+$years = sakurairo_get_cached_archive_info();
 foreach ($years as $year => $months) {
     $postCount = array_sum(array_map('count', $months));
     $activeMonths = array_fill(1, 12, false);

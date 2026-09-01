@@ -971,7 +971,6 @@ $sections = [
 				'iro_key'  => 'homepage_components',
 				'label'    => esc_html__( 'Homepage Components', 'Sakurairo_C' ),
 				'choices'     => [
-          			'exhibition' => __('Display Area','Sakurairo_C'),
 					'primary' => __('Article Area','Sakurairo_C'),
 					'static_page' => __('Static Page','Sakurairo_C'),
 				],
@@ -986,32 +985,6 @@ $sections = [
 						'setting'  => 'homepage_components',
 						'operator' => 'contains',
 						'value'    => 'static_page',
-					],
-				],
-			],
-			[
-				'type'     => 'text',
-				'settings' => 'exhibition_area_icon',
-				'iro_key'  => 'exhibition_area_icon',
-				'label'    => esc_html__( 'Display Area Icon', 'Sakurairo_C' ),
-				'active_callback' => [
-					[
-						'setting'  => 'homepage_components',
-						'operator' => 'contains',
-						'value'    => 'exhibition',
-					],
-				],
-			],
-			[
-				'type'     => 'text',
-				'settings' => 'exhibition_area_title',
-				'iro_key'  => 'exhibition_area_title',
-				'label'    => esc_html__( 'Display Area Title', 'Sakurairo_C' ),
-				'active_callback' => [
-					[
-						'setting'  => 'homepage_components',
-						'operator' => 'contains',
-						'value'    => 'exhibition',
 					],
 				],
 			],
@@ -1049,7 +1022,7 @@ $sections = [
 				'transport'   => 'postMessage',
 				'output' => array(
 					array(
-						'element'  => array('h1.fes-title','h1.main-title'),
+						'element'  => 'h1.main-title',
 						'property' => 'font-family',
 						'value_pattern' => '$ !important',
 					),
@@ -1068,60 +1041,11 @@ $sections = [
 				],
 				'output' => array(
 					array(
-						'element'  => array('h1.fes-title','h1.main-title'),
+						'element'  => 'h1.main-title',
 						'property' => 'justify-content',
 						'value_pattern' => '$ !important',
 					),
 				)
-			],
-		],
-    ],
-	// ====================展示区====================
-	[
-        'id'          => 'iro_display_aera',
-        'title'       => esc_html__( 'Display Aera', 'Sakurairo_C' ),
-        'description' => '',
-        'panel'       => 'iro_homepage',
-		'fields'      =>[
-			[
-				'type'     => 'sortable',
-				'settings' => 'capsule_components',
-				'iro_key'  => 'capsule_components',
-				'label'    => esc_html__( 'Capsule Components', 'Sakurairo_C' ),
-				'choices'     => [
-          			'post_count'     => __('Posts Capsule','Sakurairo_C'),
-					'comment_count'  => __('Comments Capsule','Sakurairo_C'),
-					'view_count'  => __('Visitors Capsule','Sakurairo_C'),
-					'link_count'     => __('Links Capsule','Sakurairo_C'),
-					'author_count'     => __('Authors Capsule','Sakurairo_C'),
-					'total_words'     => __('Total Words Capsule','Sakurairo_C'),
-					'blog_days'     => __('Blog Running Capsule','Sakurairo_C'),
-					'admin_online'     => __('Last Online Capsule','Sakurairo_C'),
-					'random_link'     => __('Random Link Capsule','Sakurairo_C'),
-					'announcement'     => __('Announcement Capsule','Sakurairo_C'),
-				],
-			],
-			[
-				'type'     => 'switch',
-				'settings' => 'show_medal_capsules',
-				'iro_key'  => 'show_medal_capsules',
-				'label'    => esc_html__( 'Show Medal Badges Style Capsule', 'Sakurairo_C' ),
-				'default'  => true,
-				'description' => esc_html__( 'Enable to show bronze/silver/gold medal badges for blog milestones, Requires you to unlock the relevant achievement to replace the relevant capsule', 'Sakurairo_C' ),
-			],
-			[
-				'type'     => 'textarea',
-				'settings' => 'stat_announcement_text',
-				'iro_key'  => 'stat_announcement_text',
-				'label'    => esc_html__( 'Announcement Text', 'Sakurairo_C' ),
-				'description' => esc_html__( 'Set the text for announcement capsule. The front-end will automatically split the text into two lines, you can also use line breaks for manual line breaks', 'Sakurairo_C' ),
-				'active_callback' => [
-					[
-						'setting'  => 'capsule_components',
-						'operator' => 'contains',
-						'value'    => 'announcement',
-					],
-				],
 			],
 		],
     ],
@@ -2112,20 +2036,6 @@ $sections = [
 						'value_pattern' => '$ !important',
 					),
 				),
-			],
-			[
-				'type'     => 'select',
-				'settings' => 'smilies_list',
-				'iro_key'  => 'smilies_list',
-				'label'    => esc_html__( 'Comment Area Emoticon', 'Sakurairo_C' ),
-				'description' => esc_html__( 'Please go to the backend to configure your custom emoticon pack', 'Sakurairo_C' ),
-				'multiple'    => 0,
-				'choices'     => [
-					'bilibili'   => __('BiliBili Emoticon Pack','Sakurairo_C'),
-					'tieba'   => __('Baidu Tieba Emoticon Pack','Sakurairo_C'),
-					'yanwenzi' => __('Emoji','Sakurairo_C'),
-					'custom' => __('Customized Emoticon Pack','Sakurairo_C'),
-				],
 			],
 			[
 				'type'     => 'custom',

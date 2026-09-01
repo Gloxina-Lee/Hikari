@@ -75,6 +75,10 @@ class ColorAnalyzer {
      * 3. 饱和度调整为区间 [30, 65]（低于 30设为30，高于65设为65）。
      */
     public static function getThemeColor($image_data) {
+        if (!function_exists('imagecreatefromstring')) {
+            return false;
+        }
+
         $im = imagecreatefromstring($image_data);
         if (!$im) {
             return false;
@@ -82,6 +86,28 @@ class ColorAnalyzer {
 
         $width = imagesx($im);
         $height = imagesy($im);
+
+        // Dominant color does not need the original resolution. Keeping the
+        // sample below 64x64 changes millions of pixel reads into at most 4096.
+        $sample_size = 64;
+        if ($width > $sample_size || $height > $sample_size) {
+            $scale = min($sample_size / $width, $sample_size / $height);
+            $sample_width = max(1, (int) round($width * $scale));
+            $sample_height = max(1, (int) round($height * $scale));
+            $sample = imagecreatetruecolor($sample_width, $sample_height);
+
+            if ($sample) {
+                imagealphablending($sample, false);
+                imagesavealpha($sample, true);
+                $transparent = imagecolorallocatealpha($sample, 0, 0, 0, 127);
+                imagefill($sample, 0, 0, $transparent);
+                imagecopyresampled($sample, $im, 0, 0, 0, 0, $sample_width, $sample_height, $width, $height);
+                imagedestroy($im);
+                $im = $sample;
+                $width = $sample_width;
+                $height = $sample_height;
+            }
+        }
 
         $color_counts = [];
         $color_hsl = [];  // 存储每个量化颜色对应的 HSL 值
@@ -98,6 +124,11 @@ class ColorAnalyzer {
                 $g = $rgba['green'];
                 $b = $rgba['blue'];
                 $alpha = isset($rgba['alpha']) ? $rgba['alpha'] : 0;
+
+                // Fully transparent pixels do not contribute a visible color.
+                if ($alpha >= 120) {
+                    continue;
+                }
 
                 // 根据容差量化颜色
                 $r_quant = floor($r / $tolerance) * $tolerance;
@@ -193,115 +224,183 @@ class ColorAnalyzer {
         // 转换回 RGB
         list($final_r, $final_g, $final_b) = self::hslToRgb($h, $s, $l);
 
-        // 计算平均 alpha，并转换为 0~255 范围（GD 中 alpha 范围 0 不透明～127 全透明）
+        // Convert GD's 0..127 alpha range to the CSS 0..1 range.
         $avg_alpha = round($total_alpha / $pixel_count);
-        $alpha_converted = round((127 - $avg_alpha) * 255 / 127);
+        $alpha_converted = round((127 - $avg_alpha) / 127, 3);
 
         return "rgba($final_r, $final_g, $final_b, $alpha_converted)";
     }
 }
 
 function get_image_theme_color($input) {
-    // 获取图片数据
-    $parsed_url = parse_url($input);
-    if ($parsed_url && isset($parsed_url['scheme']) && isset($parsed_url['host'])) {
+    $image_data = false;
+    $parsed_url = wp_parse_url($input);
 
-        error_log('获取图片' . $input);
-
-        $parsed_url = parse_url($input);
-        if ($parsed_url && isset($parsed_url['path'])) {
-            // 将路径拆分成各个部分并编码
-            $segments = explode('/', $parsed_url['path']);
-            foreach ($segments as &$segment) {
-                // 仅对非空的部分编码
-                if ($segment !== '') {
-                    $segment = rawurlencode($segment);
-                }
-            }
-            $parsed_url['path'] = implode('/', $segments);
-        }
-        // 重新组装 URL
-        $input = (isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '')
-                 . (isset($parsed_url['user']) ? $parsed_url['user'] 
-                 . (isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '') . '@' : '')
-                 . (isset($parsed_url['host']) ? $parsed_url['host'] : '')
-                 . (isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '')
-                 . (isset($parsed_url['path']) ? $parsed_url['path'] : '')
-                 . (isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '')
-                 . (isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '');
-
-        error_log('编码结果为' . $input);
-        $remote_response = wp_remote_get(esc_url_raw($input), array('timeout' => 10));
+    if ($parsed_url && !empty($parsed_url['scheme']) && !empty($parsed_url['host'])) {
+        $remote_response = wp_safe_remote_get(esc_url_raw($input), [
+            'timeout' => 3,
+            'redirection' => 3,
+            'limit_response_size' => 5 * MB_IN_BYTES,
+        ]);
         if (is_wp_error($remote_response) || wp_remote_retrieve_response_code($remote_response) !== 200) {
-            error_log('远程获取图片失败');
             return false;
         }
         $image_data = wp_remote_retrieve_body($remote_response);
-    } else {
-        if (file_exists($input)) {
-            $image_data = file_get_contents($input);
-        } else {
-            return false; // 文件不存在
-        }
+    } elseif (is_string($input) && is_readable($input)) {
+        $image_data = file_get_contents($input);
     }
 
     if (!$image_data) {
-        error_log('失败');
-        return false; // 读取图片数据失败
+        return false;
     }
+
     return ColorAnalyzer::getThemeColor($image_data);
 }
 
-// 监听文章保存
-add_action('save_post', function ($post_id) {
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+function sakurairo_get_attachment_theme_color_source($attachment_id) {
+    $attachment_id = absint($attachment_id);
+    $original_path = get_attached_file($attachment_id);
+
+    if ($original_path && is_readable($original_path)) {
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $smallest_path = '';
+        $smallest_area = PHP_INT_MAX;
+
+        if (is_array($metadata) && !empty($metadata['sizes'])) {
+            // "medium" normally preserves the complete composition, unlike a
+            // cropped square thumbnail, while remaining inexpensive to decode.
+            foreach (['medium', 'thumbnail'] as $preferred_size) {
+                if (empty($metadata['sizes'][$preferred_size]['file'])) {
+                    continue;
+                }
+                $preferred_path = path_join(dirname($original_path), $metadata['sizes'][$preferred_size]['file']);
+                if (is_readable($preferred_path)) {
+                    return $preferred_path;
+                }
+            }
+
+            foreach ($metadata['sizes'] as $size) {
+                if (empty($size['file'])) {
+                    continue;
+                }
+
+                $candidate = path_join(dirname($original_path), $size['file']);
+                $area = max(1, (int) ($size['width'] ?? 0)) * max(1, (int) ($size['height'] ?? 0));
+                if (is_readable($candidate) && $area < $smallest_area) {
+                    $smallest_path = $candidate;
+                    $smallest_area = $area;
+                }
+            }
+        }
+
+        return $smallest_path ?: $original_path;
+    }
+
+    // Media-offload plugins may intentionally remove the local file.
+    return wp_get_attachment_image_url($attachment_id, 'thumbnail') ?: '';
+}
+
+function sakurairo_get_attachment_theme_color_fingerprint($attachment_id, $source) {
+    $attachment = get_post($attachment_id);
+    $metadata = wp_get_attachment_metadata($attachment_id);
+    $modified = $attachment ? $attachment->post_modified_gmt : '';
+    $file_modified = is_string($source) && is_file($source) ? (int) filemtime($source) : 0;
+
+    return hash('sha256', wp_json_encode([
+        'version' => 2,
+        'attachment_id' => (int) $attachment_id,
+        'modified' => $modified,
+        'file_modified' => $file_modified,
+        'file' => is_array($metadata) ? ($metadata['file'] ?? '') : '',
+        'sizes' => is_array($metadata) ? ($metadata['sizes'] ?? []) : [],
+    ]));
+}
+
+function sakurairo_update_post_theme_color($post_id, $force = false) {
+    $post_id = absint($post_id);
+    if (!$post_id || !in_array(get_post_type($post_id), ['post', 'shuoshuo'], true) || wp_is_post_revision($post_id)) {
         return;
     }
-    // 获取文章特色图片
+
     $thumbnail_id = get_post_thumbnail_id($post_id);
-    $image_url = $thumbnail_id ? wp_get_attachment_url($thumbnail_id) : '';
-
-    $theme_color = ($image_url) ? get_image_theme_color($image_url) : 'false';
-
-    error_log('计算结果为' . $theme_color);
-    update_post_meta($post_id, 'post_theme_color_meta', [
-        'theme_color' => $theme_color,
-    ]);
-});
-
-function get_post_theme_color($post_id) {
-    // 读取已存储的 meta 数据
-    $meta = get_post_meta($post_id, 'post_theme_color_meta', true);
-    $meta = is_array($meta) ? $meta : [];
-
-    // 已有
-    if (!empty($meta['theme_color'])) {
-        return $meta['theme_color'];
-    }
-
-    // 没有则获取
-    $thumbnail_id = get_post_thumbnail_id($post_id);
-    $image_url = $thumbnail_id ? wp_get_attachment_url($thumbnail_id) : '';
-
-    // 没有特色图片
-    if (!$image_url) {
+    if (!$thumbnail_id) {
         update_post_meta($post_id, 'post_theme_color_meta', [
+            'algorithm_version' => 2,
+            'thumbnail_id' => 0,
+            'fingerprint' => '',
             'theme_color' => 'false',
         ]);
+        return;
+    }
+
+    $source = sakurairo_get_attachment_theme_color_source($thumbnail_id);
+    $fingerprint = sakurairo_get_attachment_theme_color_fingerprint($thumbnail_id, $source);
+    $current = get_post_meta($post_id, 'post_theme_color_meta', true);
+    $current = is_array($current) ? $current : [];
+
+    if (!$force
+        && (int) ($current['algorithm_version'] ?? 0) === 2
+        && (int) ($current['thumbnail_id'] ?? 0) === (int) $thumbnail_id
+        && ($current['fingerprint'] ?? '') === $fingerprint
+        && array_key_exists('theme_color', $current)) {
+        return;
+    }
+
+    $theme_color = $source ? get_image_theme_color($source) : false;
+    update_post_meta($post_id, 'post_theme_color_meta', [
+        'algorithm_version' => 2,
+        'thumbnail_id' => (int) $thumbnail_id,
+        'fingerprint' => $fingerprint,
+        'theme_color' => $theme_color === false ? 'false' : $theme_color,
+    ]);
+}
+
+function sakurairo_refresh_post_theme_color_on_save($post_id, $post) {
+    if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    sakurairo_update_post_theme_color($post_id);
+}
+
+add_action('save_post_post', 'sakurairo_refresh_post_theme_color_on_save', 20, 2);
+add_action('save_post_shuoshuo', 'sakurairo_refresh_post_theme_color_on_save', 20, 2);
+
+function sakurairo_refresh_post_theme_color_on_thumbnail_change($meta_id, $object_id, $meta_key) {
+    if ($meta_key === '_thumbnail_id') {
+        sakurairo_update_post_theme_color($object_id, true);
+    }
+}
+
+add_action('added_post_meta', 'sakurairo_refresh_post_theme_color_on_thumbnail_change', 10, 3);
+add_action('updated_post_meta', 'sakurairo_refresh_post_theme_color_on_thumbnail_change', 10, 3);
+add_action('deleted_post_meta', 'sakurairo_refresh_post_theme_color_on_thumbnail_change', 10, 3);
+
+function sakurairo_schedule_post_theme_color($post_id) {
+    $post_id = absint($post_id);
+    $args = [$post_id];
+    if ($post_id && !wp_next_scheduled('sakurairo_generate_post_theme_color', $args)) {
+        wp_schedule_single_event(time() + MINUTE_IN_SECONDS, 'sakurairo_generate_post_theme_color', $args);
+    }
+}
+
+function sakurairo_generate_scheduled_post_theme_color($post_id) {
+    sakurairo_update_post_theme_color($post_id, true);
+}
+
+add_action('sakurairo_generate_post_theme_color', 'sakurairo_generate_scheduled_post_theme_color');
+
+function get_post_theme_color($post_id) {
+    $meta = get_post_meta($post_id, 'post_theme_color_meta', true);
+    if (!is_array($meta) || empty($meta['theme_color'])) {
+        if (get_post_thumbnail_id($post_id)) {
+            // Existing posts are backfilled outside the public request. The
+            // current response uses the normal theme color until cron finishes.
+            sakurairo_schedule_post_theme_color($post_id);
+        }
         return 'false';
     }
 
-    $theme_color = get_image_theme_color($image_url);
-    if ($theme_color === false) {
-        $theme_color = 'false';
-    }
-
-    // 更新结果
-    update_post_meta($post_id, 'post_theme_color_meta', [
-        'image_url'   => $image_url,
-        'theme_color' => $theme_color,
-    ]);
-
-    return $theme_color;
+    return $meta['theme_color'];
 }
 ?>
